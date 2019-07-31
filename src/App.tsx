@@ -1,12 +1,11 @@
 import React from 'react';
 import './App.scss';
+import VisComponent from './VisComponent';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        Hello world!
-      </header>
+    <div className="container">
+      <VisComponent></VisComponent>
     </div>
   );
 }

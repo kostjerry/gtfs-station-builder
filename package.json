@@ -12,7 +12,7 @@
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
     "typescript": "^3.5.3",
-    "vis-network": "^5.1.1"
+    "vis-react": "^0.4.5"
   },
   "scripts": {
     "start": "react-scripts start",
