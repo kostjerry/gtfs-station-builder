@@ -1,11 +1,11 @@
 export default interface StopInterface {
     stop_id: number;
-    stop_name?: string;
+    stop_name?: string | null;
     location_type: LocationType;
-    parent_station?: number;
+    parent_station?: number | null;
     wheelchair_boarding: WheelchairBoarding;
-    level_id?: number;
-    platform_code?: string;
+    level_id?: number | null;
+    platform_code?: string | null;
 }
 
 export enum LocationType {
