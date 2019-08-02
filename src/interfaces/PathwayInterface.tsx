@@ -22,3 +22,13 @@ export enum PathwayMode {
     FareGate = 6,
     ExitGate = 7
 }
+
+export const PathwayModeColor = {
+    1: "#000000",
+    2: "#6898ee",
+    3: "#888888",
+    4: "#7ecb7d",
+    5: "#f38e1a",
+    6: "#9772c4",
+    7: "#f2565c"
+}

@@ -1,4 +1,4 @@
-{
+export default {
     "stops": [
         {
             "stop_id": 1,
