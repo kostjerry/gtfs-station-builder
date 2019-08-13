@@ -1,0 +1,27 @@
+.stop-dialog {
+    position: fixed;
+    top: calc(100vh / 2 - 250px);
+    left: calc(100vw / 2 - 250px);
+    width: 500px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    background: #aaa;
+    border: solid 1px #555;
+    border-radius: 5px;
+    padding: 10px;
+    .header {
+        height: 40px;
+        border-bottom: solid 1px #555;
+    }
+    .content {
+        flex: auto;
+    }
+    .footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+    }
+}
+

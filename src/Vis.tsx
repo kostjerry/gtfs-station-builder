@@ -1,12 +1,28 @@
 import React, { Component } from 'react';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
-import './VisComponent.scss';
+import './Vis.scss';
 import data from './data.sample';
-import StopInterface, { LocationTypeColor, LocationType, LocationTypeLevel } from './interfaces/StopInterface';
+import StopInterface, { LocationTypeColors, LocationTypeMap, LocationTypeSort, WheelchairBoardingMap } from './interfaces/StopInterface';
 import PathwayInterface, { PathwayModeColor } from './interfaces/PathwayInterface';
+import StopDialog from './StopDialog';
 
-export default class VisComponent extends Component {
+export interface VisState {
+  
+}
+
+export interface VisProps {
+  onStopAdd: Function
+}
+
+export interface VisNode {
+  id: number,
+  x: number,
+  y: number,
+  label: string
+}
+
+export default class Vis extends Component<VisProps, VisState> {
   componentDidMount() {
     var container = document.getElementById('vis');
     if (!container) {
@@ -19,7 +35,7 @@ export default class VisComponent extends Component {
     const stepY = 100;
     let levelsX: any = {};
     let nodes: any = data.stops.map((stop: StopInterface) => {
-      let level = LocationTypeLevel[stop.location_type];
+      let level = LocationTypeSort[stop.location_type];
       if (!levelsX[level]) {
         levelsX[level] = x - stepX;
       }
@@ -27,12 +43,12 @@ export default class VisComponent extends Component {
       return {
         id: stop.stop_id,
         label: stop.stop_name,
-        color: LocationTypeColor[stop.location_type],
+        color: LocationTypeColors[stop.location_type],
         font: {
           color: "#FFFFFF"
         },
         x: levelsX[level],
-        y: y + LocationTypeLevel[stop.location_type] * stepY
+        y: y + LocationTypeSort[stop.location_type] * stepY
       };
     });
 
@@ -63,9 +79,10 @@ export default class VisComponent extends Component {
         manipulation: {
           enabled: true,
           initiallyActive: true,
-          addNode: (node: any, callback: Function) => {
-            console.log(node);
-            callback(node);
+          addNode: (node: VisNode, callback: Function) => {
+            this.props.onStopAdd(node, () => {
+              callback(node);
+            });
           },
           addEdge: (edge: any, callback: Function) => {
             console.log(edge);

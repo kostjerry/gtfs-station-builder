@@ -1,28 +1,28 @@
 export default interface StopInterface {
     stop_id: number;
     stop_name?: string | null;
-    location_type: LocationType;
+    location_type: number;
     parent_station?: number | null;
-    wheelchair_boarding: WheelchairBoarding;
+    wheelchair_boarding: number;
     level_id?: number | null;
     platform_code?: string | null;
 }
 
-export enum LocationType {
-    Stop = 0,
-    Station = 1,
-    Entrance = 2,
-    GenericNode = 3,
-    BoardingArea = 4
+export const LocationTypeMap: { [key: string]: number } = {
+    "Stop": 0,
+    "Station": 1,
+    "Entrance": 2,
+    "GenericNode": 3,
+    "BoardingArea": 4
 }
 
-export enum WheelchairBoarding {
-    NoInfo = 0,
-    Accessible = 1,
-    NotPossible = 2
+export const WheelchairBoardingMap: { [key: string]: number } = {
+    "NoInfo": 0,
+    "Accessible": 1,
+    "NotPossible": 2
 }
 
-export const LocationTypeColor = [
+export const LocationTypeColors = [
     "#6898ee",
     "#333333",
     "#f2565c",
@@ -30,10 +30,6 @@ export const LocationTypeColor = [
     "#7ecb7d"
 ]
 
-export const LocationTypeLevel = {
-    1: 0,
-    2: 1,
-    3: 2,
-    0: 3,
-    4: 4
-}
+export const LocationTypeSort = [
+    3, 0, 1, 2, 4
+]
