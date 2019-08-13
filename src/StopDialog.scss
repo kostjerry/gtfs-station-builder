@@ -1,9 +1,9 @@
 .stop-dialog {
     position: fixed;
-    top: calc(100vh / 2 - 250px);
-    left: calc(100vw / 2 - 250px);
-    width: 500px;
-    height: 300px;
+    top: 200px;
+    left: calc(100vw / 2 - 200px);
+    width: 400px;
+    height: 200px;
     display: flex;
     flex-direction: column;
     background: #aaa;
@@ -11,11 +11,15 @@
     border-radius: 5px;
     padding: 10px;
     .header {
-        height: 40px;
+        height: 25px;
         border-bottom: solid 1px #555;
     }
     .content {
         flex: auto;
+        padding-top: 5px;
+        div {
+            padding: 5px 0 0 0;
+        }
     }
     .footer {
         display: flex;
@@ -24,4 +28,3 @@
         align-items: center;
     }
 }
-
