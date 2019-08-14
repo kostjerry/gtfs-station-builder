@@ -1,8 +1,13 @@
-export default class GraphService {
-    static getNodeLabelByStopName(locationType: number, stopName: string): string {
-        if ([]) {
+import StopInterface, { LocationTypeMap, LocationTypeOnNodeLabelMap } from "../interfaces/StopInterface";
 
+export default class GraphService {
+    static getNodeLabel(stop: StopInterface): string {
+        let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
+        if (stop.locationType === 0) { // Platform
+            return stop.platformCode ? prefix + ' "' + stop.platformCode + '"' : prefix;
         }
-        return stopName;
+        else {
+            return stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
+        }
     }
 }

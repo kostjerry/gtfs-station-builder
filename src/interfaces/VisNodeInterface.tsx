@@ -6,8 +6,8 @@ export default interface VisNodeInterface {
     y?: number,
     label: string,
     color?: string,
-    font?: {
-        color: string
-    },
+    image: string,
+    shape: string,
+    size: number,
     stop: StopInterface
 }

@@ -2,7 +2,7 @@ export default {
     "stops": [
         {
             "stop_id": 1,
-            "stop_name": "Station",
+            "stop_name": "XYZ",
             "location_type": 1,
             "parent_station": null,
             "wheelchair_boarding": 0,
@@ -11,37 +11,37 @@ export default {
         },
         {
             "stop_id": 2,
-            "stop_name": "Platform 1",
+            "stop_name": "1",
             "location_type": 0,
             "parent_station": 1,
-            "wheelchair_boarding": 0,
+            "wheelchair_boarding": 1,
             "level_id": 2,
-            "platform_code": null
+            "platform_code": "K"
         },
         {
             "stop_id": 3,
-            "stop_name": "Platform 2",
+            "stop_name": "2",
             "location_type": 0,
             "parent_station": 1,
-            "wheelchair_boarding": 0,
+            "wheelchair_boarding": 1,
             "level_id": null,
             "platform_code": null
         },
         {
             "stop_id": 4,
-            "stop_name": "Entrance 1",
+            "stop_name": "Center",
             "location_type": 2,
             "parent_station": 1,
-            "wheelchair_boarding": 0,
+            "wheelchair_boarding": 2,
             "level_id": null,
             "platform_code": null
         },
         {
             "stop_id": 5,
-            "stop_name": "Entrance 2",
+            "stop_name": "Park",
             "location_type": 2,
             "parent_station": 1,
-            "wheelchair_boarding": 0,
+            "wheelchair_boarding": 1,
             "level_id": 1,
             "platform_code": null
         }

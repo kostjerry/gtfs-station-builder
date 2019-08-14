@@ -5,6 +5,7 @@ import StopDialog from './components/StopDialog';
 import StopInterface from './interfaces/StopInterface';
 import VisNodeInterface from './interfaces/VisNodeInterface';
 import DataService from './services/DataService';
+import dataSample from './data/data.sample';
 
 export interface AppProps { }
 
@@ -17,11 +18,20 @@ export interface AppState {
 }
 
 export default class App extends Component<AppProps, AppState> {
+  private data: any;
+  private stationId: number = -1;
+
   constructor(props: AppProps) {
     super(props);
     this.state = {
       selectedStop: null
     };
+    this.data = dataSample;
+    this.data.stops.map((stopUnderscore: any) => {
+      if (stopUnderscore.location_type === 1) {
+        this.stationId = stopUnderscore.stop_id;
+      }
+    });
   }
 
   private handleStopAdd = (node: VisNodeInterface, callback: Function) => {
@@ -43,6 +53,17 @@ export default class App extends Component<AppProps, AppState> {
         callback: callback
       }
     });
+  }
+
+  private handleStopDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: Function) => {
+    const nodeId = dataToDelete.nodes[0];
+    if (this.stationId === nodeId) {
+      alert("It's disallowed to delete a station");
+      callback();
+    }
+    else {
+      callback(dataToDelete);
+    }
   }
 
   private handleStopDialogCancel = () => {
@@ -67,7 +88,7 @@ export default class App extends Component<AppProps, AppState> {
   render() {
     return (
       <div className="container">
-        <Vis onStopAdd={this.handleStopAdd} onStopEdit={this.handleStopEdit}></Vis>
+        <Vis data={this.data} onStopAdd={this.handleStopAdd} onStopEdit={this.handleStopEdit} onStopDelete={this.handleStopDelete}></Vis>
         {this.state.selectedStop && <StopDialog stop={this.state.selectedStop.stop} onCancel={this.handleStopDialogCancel} onApply={this.handleStopDialogApply}></StopDialog>}
       </div>
     );

@@ -5,15 +5,24 @@ export default interface StopInterface {
     wheelchairBoarding: number;
     levelId?: number | null;
     platformCode?: string | null;
+    signpostedAs?: string | null;
 }
 
 export const LocationTypeMap: { [key: string]: number } = {
-    "Stop": 0,
+    "Platform": 0,
     "Station": 1,
-    "Entrance": 2,
+    "Entrance/Exit": 2,
     "GenericNode": 3,
     "BoardingArea": 4
 }
+
+export const LocationTypeOnNodeLabelMap = [
+    "Platform",
+    "Station",
+    "E/E",
+    "GN",
+    "BA"
+]
 
 export const WheelchairBoardingMap: { [key: string]: number } = {
     "NoInfo": 0,

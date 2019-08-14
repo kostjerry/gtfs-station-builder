@@ -12,7 +12,8 @@ export interface StopDialogState {
   stopName?: string | null,
   locationType: number,
   wheelchairBoarding: number,
-  platformCode?: string | null
+  platformCode?: string | null,
+  signpostedAs?: string | null
 }
 
 export default class StopDialog extends Component<StopDialogProps, StopDialogState> {
@@ -22,7 +23,8 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
       stopName: props.stop.stopName,
       locationType: props.stop.locationType,
       wheelchairBoarding: props.stop.wheelchairBoarding,
-      platformCode: props.stop.platformCode
+      platformCode: props.stop.platformCode,
+      signpostedAs: props.stop.signpostedAs
     }
   }
 
@@ -67,9 +69,18 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
     });
   }
 
+  private handleSignpostedAsChange = (event: any) => {
+    this.setState({
+      signpostedAs: event.target.value
+    });
+  }
+
   render() {
     const locationTypeOptions: any[] = [];
     for (const locationType in LocationTypeMap) {
+      if (locationType === 'Station') {
+        continue;
+      }
       locationTypeOptions.push(
         <option key={locationType} value={LocationTypeMap[locationType]}>{locationType}</option>
       );
@@ -84,21 +95,26 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 
     return (
       <div className="stop-dialog">
-        <div className="header">Add location</div>
+        <div className="header">Location properties</div>
         <div className="content">
           <div>
             ID: {this.props.stop.stopId}
           </div>
           <div>
-            Location type: 
-            <select value={this.state.locationType} onChange={this.handleLocationTypeChange}>
-              {locationTypeOptions}
-            </select>
+            {[0, 2, 3, 4].includes(this.state.locationType) && <div> 
+              Location type: 
+              <select value={this.state.locationType} onChange={this.handleLocationTypeChange}>
+                {locationTypeOptions}
+              </select>
+            </div>}
             <div>
               Name: <input type="text" value={this.state.stopName || ""} onChange={this.handleStopNameChange} />
             </div>
             {[0].includes(this.state.locationType) && <div>
               Platform code: <input type="text" value={this.state.platformCode || ""} onChange={this.handlePlatformCodeChange} />
+            </div>}
+            {[0].includes(this.state.locationType) && <div>
+              Signposted as: <input type="text" value={this.state.signpostedAs || ""} onChange={this.handleSignpostedAsChange} />
             </div>}
             {[0, 2].includes(this.state.locationType) && <div>
               Wheelchair boarding: 

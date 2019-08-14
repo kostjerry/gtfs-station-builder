@@ -2,19 +2,23 @@ import React, { Component } from 'react';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
 import './Vis.scss';
-import data from '../data/data.sample';
-import StopInterface, { LocationTypeColors, LocationTypeSort } from '../interfaces/StopInterface';
+import { LocationTypeColors, LocationTypeSort } from '../interfaces/StopInterface';
 import PathwayInterface, { PathwayModeColors } from '../interfaces/PathwayInterface';
 import VisNodeInterface from '../interfaces/VisNodeInterface';
 import DataService from '../services/DataService';
+import GraphService from '../services/GraphService';
+import wheelchairAccessibleImage from '../images/wheelchair-accessible.png';
+import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 
 export interface VisState {
   
 }
 
 export interface VisProps {
+  data: any,
   onStopAdd: Function,
-  onStopEdit: Function
+  onStopEdit: Function,
+  onStopDelete: Function
 }
 
 export default class Vis extends Component<VisProps, VisState> {
@@ -23,7 +27,7 @@ export default class Vis extends Component<VisProps, VisState> {
     if (!container) {
       return;
     }
-
+    
     let x = - container.clientWidth / 2;
     let y = - container.clientHeight / 2;
     const stepX = 200;
@@ -31,7 +35,7 @@ export default class Vis extends Component<VisProps, VisState> {
     let levelsX: any = {};
 
     // get nodes from stops
-    let nodes: any = data.stops.map((stopUnderscore: any): VisNodeInterface => {
+    let nodes = this.props.data.stops.map((stopUnderscore: any): VisNodeInterface => {
       const stop = DataService.stopUnderscoreToCamel(stopUnderscore);
       let graphLevel = LocationTypeSort[stop.locationType];
       if (!levelsX[graphLevel]) {
@@ -40,20 +44,20 @@ export default class Vis extends Component<VisProps, VisState> {
       levelsX[graphLevel] += stepX;
       const node = {
         id: stop.stopId,
-        label: stop.stopName || "",
+        label: GraphService.getNodeLabel(stop),
         color: LocationTypeColors[stop.locationType],
-        font: {
-          color: "#FFFFFF"
-        },
         x: levelsX[graphLevel],
         y: y + LocationTypeSort[stop.locationType] * stepY,
-        stop: stop
+        stop: stop,
+        image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
+        shape: 'circularImage',
+        size: 12
       };
       return node;
     });
 
     // get edges from pathways
-    const edges = data.pathways.map((pathway: PathwayInterface) => {
+    const edges = this.props.data.pathways.map((pathway: PathwayInterface) => {
       return {
         from: pathway.from_stop_id,
         to: pathway.to_stop_id,
@@ -69,7 +73,7 @@ export default class Vis extends Component<VisProps, VisState> {
         label: pathway.traversal_time + "s"
       };
     });
-    
+
     // configure vis
     var options = {
         nodes: {
@@ -83,6 +87,7 @@ export default class Vis extends Component<VisProps, VisState> {
           initiallyActive: true,
           addNode: this.props.onStopAdd,
           editNode: this.props.onStopEdit,
+          deleteNode: this.props.onStopDelete,
           addEdge: (edge: any, callback: Function) => {
             console.log(edge);
             callback(edge);
@@ -91,7 +96,6 @@ export default class Vis extends Component<VisProps, VisState> {
             console.log(edge);
             callback(edge);
           },
-          deleteNode: true,
           deleteEdge: true
         },
         interaction: {
