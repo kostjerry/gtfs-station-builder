@@ -1,11 +1,10 @@
 export default interface StopInterface {
-    stop_id: number;
-    stop_name?: string | null;
-    location_type: number;
-    parent_station?: number | null;
-    wheelchair_boarding: number;
-    level_id?: number | null;
-    platform_code?: string | null;
+    stopId: number;
+    stopName?: string | null;
+    locationType: number;
+    wheelchairBoarding: number;
+    levelId?: number | null;
+    platformCode?: string | null;
 }
 
 export const LocationTypeMap: { [key: string]: number } = {

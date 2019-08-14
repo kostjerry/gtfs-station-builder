@@ -2,7 +2,7 @@ export default interface PathwayInterface {
     pathway_id: number;
     from_stop_id: number;
     to_stop_id: number;
-    pathway_mode: PathwayMode;
+    pathway_mode: number;
     is_bidirectional: boolean;
     length?: number | null;
     traversal_time?: number | null;
@@ -13,22 +13,23 @@ export default interface PathwayInterface {
     reversed_signposted_as?: string | null;
 }
 
-export enum PathwayMode {
-    Walkway = 1,
-    Stairs = 2,
-    MovingSidewalk = 3,
-    Escalator = 4,
-    Lift = 5,
-    FareGate = 6,
-    ExitGate = 7
+export const PathwayModeMap = {
+    "Walkway": 1,
+    "Stairs": 2,
+    "MovingSidewalk": 3,
+    "Escalator": 4,
+    "Lift": 5,
+    "FareGate": 6,
+    "ExitGate": 7
 }
 
-export const PathwayModeColor = {
-    1: "#000000",
-    2: "#6898ee",
-    3: "#888888",
-    4: "#7ecb7d",
-    5: "#f38e1a",
-    6: "#9772c4",
-    7: "#f2565c"
-}
+export const PathwayModeColors = [
+    "", // emplty string in 0 index for technical reason
+    "#000000", // pathways codes begin from 1
+    "#6898ee",
+    "#888888",
+    "#7ecb7d",
+    "#f38e1a",
+    "#9772c4",
+    "#f2565c"
+]

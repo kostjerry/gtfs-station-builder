@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import './App.scss';
-import Vis, { VisNode } from './Vis';
-import StopDialog from './StopDialog';
-import StopInterface, { LocationTypeMap, WheelchairBoardingMap } from './interfaces/StopInterface';
+import Vis from './components/Vis';
+import StopDialog from './components/StopDialog';
+import StopInterface from './interfaces/StopInterface';
+import VisNodeInterface from './interfaces/VisNodeInterface';
+import DataService from './services/DataService';
 
-export interface AppProps {}
+export interface AppProps { }
 
 export interface AppState {
   selectedStop: {
     stop: StopInterface,
-    node: VisNode,
+    node: VisNodeInterface,
     callback: Function
   } | null
 }
@@ -22,44 +24,51 @@ export default class App extends Component<AppProps, AppState> {
     };
   }
 
-  private handleStopAdd = (node: VisNode, callback: Function) => {
+  private handleStopAdd = (node: VisNodeInterface, callback: Function) => {
+    node = DataService.prepareNewNode(node);
     this.setState({
       selectedStop: {
-        stop: {
-          stop_id: -1,
-          stop_name: "<new generic node>",
-          location_type: LocationTypeMap.GenericNode,
-          parent_station: 111,
-          wheelchair_boarding: WheelchairBoardingMap.NoInfo
-        },
+        stop: node.stop,
         node: node,
         callback: callback
       }
     });
   }
 
-  private handleStopCancel = () => {
+  private handleStopEdit = (node: VisNodeInterface, callback: Function) => {
     this.setState({
-      selectedStop: null
+      selectedStop: {
+        stop: node.stop,
+        node: node,
+        callback: callback
+      }
     });
   }
 
-  private handleStopApply = (stop: StopInterface) => {
+  private handleStopDialogCancel = () => {
     if (this.state.selectedStop) {
-      const node = this.state.selectedStop.node;
-      node.label = stop.stop_name || "";
+      this.state.selectedStop.callback();
       this.setState({
         selectedStop: null
       });
+    }
+  }
+
+  private handleStopDialogApply = (stop: StopInterface) => {
+    if (this.state.selectedStop) {
+      const node = DataService.attachStopToNode(stop, this.state.selectedStop.node);
       this.state.selectedStop.callback(node);
+      this.setState({
+        selectedStop: null
+      });
     }
   }
 
   render() {
     return (
       <div className="container">
-        <Vis onStopAdd={this.handleStopAdd}></Vis>
-        {this.state.selectedStop && <StopDialog stop={this.state.selectedStop.stop} onCancel={this.handleStopCancel} onApply={this.handleStopApply}></StopDialog>}
+        <Vis onStopAdd={this.handleStopAdd} onStopEdit={this.handleStopEdit}></Vis>
+        {this.state.selectedStop && <StopDialog stop={this.state.selectedStop.stop} onCancel={this.handleStopDialogCancel} onApply={this.handleStopDialogApply}></StopDialog>}
       </div>
     );
   }

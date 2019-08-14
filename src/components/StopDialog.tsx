@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './StopDialog.scss';
-import StopInterface, { LocationTypeMap, WheelchairBoardingMap } from './interfaces/StopInterface';
+import StopInterface, { LocationTypeMap, WheelchairBoardingMap } from '../interfaces/StopInterface';
 
 export interface StopDialogProps {
   stop: StopInterface,
@@ -9,20 +9,20 @@ export interface StopDialogProps {
 }
 
 export interface StopDialogState {
-  stop_name?: string | null,
-  location_type: number,
-  wheelchair_boarding: number,
-  platform_code?: string | null
+  stopName?: string | null,
+  locationType: number,
+  wheelchairBoarding: number,
+  platformCode?: string | null
 }
 
 export default class StopDialog extends Component<StopDialogProps, StopDialogState> {
   constructor(props: StopDialogProps) {
     super(props);
     this.state = {
-      stop_name: props.stop.stop_name,
-      location_type: props.stop.location_type,
-      wheelchair_boarding: props.stop.wheelchair_boarding,
-      platform_code: props.stop.platform_code
+      stopName: props.stop.stopName,
+      locationType: props.stop.locationType,
+      wheelchairBoarding: props.stop.wheelchairBoarding,
+      platformCode: props.stop.platformCode
     }
   }
 
@@ -31,6 +31,13 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
   }
 
   private handleApply = () => {
+    // Validate
+    console.log(this.state);
+    if ([0, 1, 2].includes(this.state.locationType) && !this.state.stopName) {
+      alert('Selected location type must have a name');
+      return;
+    }
+
     this.props.onApply({
       ...this.state
     });
@@ -38,25 +45,25 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 
   private handleLocationTypeChange = (event: any) => {
     this.setState({
-      location_type: event.target.value
+      locationType: Number(event.target.value)
     });
   }
 
   private handleWheelchairBoardingChange = (event: any) => {
     this.setState({
-      wheelchair_boarding: event.target.value
+      wheelchairBoarding: Number(event.target.value)
     });
   }
 
   private handleStopNameChange = (event: any) => {
     this.setState({
-      stop_name: event.target.value
+      stopName: event.target.value
     });
   }
 
   private handlePlatformCodeChange = (event: any) => {
     this.setState({
-      platform_code: event.target.value
+      platformCode: event.target.value
     });
   }
 
@@ -80,25 +87,25 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
         <div className="header">Add location</div>
         <div className="content">
           <div>
-            ID: {this.props.stop.stop_id}
+            ID: {this.props.stop.stopId}
           </div>
           <div>
             Location type: 
-            <select value={this.state.location_type} onChange={this.handleLocationTypeChange}>
+            <select value={this.state.locationType} onChange={this.handleLocationTypeChange}>
               {locationTypeOptions}
             </select>
             <div>
-              Name: <input type="text" value={this.state.stop_name || ""} onChange={this.handleStopNameChange} />
+              Name: <input type="text" value={this.state.stopName || ""} onChange={this.handleStopNameChange} />
             </div>
-            <div>
-              Platform code: <input type="text" value={this.state.platform_code || ""} onChange={this.handlePlatformCodeChange} />
-            </div>
-            <div>
+            {[0].includes(this.state.locationType) && <div>
+              Platform code: <input type="text" value={this.state.platformCode || ""} onChange={this.handlePlatformCodeChange} />
+            </div>}
+            {[0, 2].includes(this.state.locationType) && <div>
               Wheelchair boarding: 
-              <select value={this.state.wheelchair_boarding} onChange={this.handleWheelchairBoardingChange}>
+              <select value={this.state.wheelchairBoarding} onChange={this.handleWheelchairBoardingChange}>
                 {wheelchairBoardingOptions}
               </select>
-            </div>
+            </div>}
           </div>
         </div>
         <div className="footer">
