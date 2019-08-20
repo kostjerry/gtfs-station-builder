@@ -3,9 +3,10 @@ import VisNode from "../interfaces/VisNode";
 import GraphService from "./GraphService";
 import wheelchairAccessibleImage from '../images/wheelchair-accessible.png';
 import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
-import Pathway from "../interfaces/Pathway";
+import Pathway, { PathwayModeColors } from "../interfaces/Pathway";
 import GTFSStop from "../interfaces/GTFSStop";
 import GTFSPathway from "../interfaces/GTFSPathway";
+import VisEdge from "../interfaces/VisEdge";
 
 export default class DataService {
     static convertStopToInternal(gtfsStop: GTFSStop): Stop {
@@ -19,6 +20,20 @@ export default class DataService {
             signpostedAs: gtfsStop.signposted_as
         }
         return stop;
+    }
+
+    static convertStopToNode(stop: Stop, x: number, y: number): VisNode {
+        return {
+            id: stop.stopId,
+            label: GraphService.getNodeLabel(stop),
+            color: LocationTypeColors[stop.locationType],
+            x: x,
+            y: y,
+            image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
+            shape: 'circularImage',
+            size: 12,
+            stop: stop
+        }
     }
 
     static attachStopToNode(stop: Stop, node: VisNode): VisNode {
@@ -66,5 +81,25 @@ export default class DataService {
             reversedSignpostedAs: gtfsPathway.reversed_signposted_as
         }
         return pathway;
+    }
+
+    static convertPathwayToEdge(pathway: Pathway): VisEdge {
+        return {
+            from: pathway.fromStopId,
+            to: pathway.toStopId,
+            color: {
+                color: PathwayModeColors[pathway.pathwayMode],
+                highlight: PathwayModeColors[pathway.pathwayMode]
+            },
+            arrows: {
+                to: true,
+                from: pathway.isBidirectional
+            },
+            font: {
+                align: 'top'
+            },
+            label: pathway.traversalTime + "s",
+            pathway: pathway
+        };
     }
 }

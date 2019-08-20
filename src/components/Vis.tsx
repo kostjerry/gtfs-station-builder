@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
 import './Vis.scss';
-import { LocationTypeColors, LocationTypeSort } from '../interfaces/Stop';
-import { PathwayModeColors } from '../interfaces/Pathway';
+import { LocationTypeSort } from '../interfaces/Stop';
 import VisNode from '../interfaces/VisNode';
 import DataService from '../services/DataService';
-import GraphService from '../services/GraphService';
-import wheelchairAccessibleImage from '../images/wheelchair-accessible.png';
-import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 import VisEdge from '../interfaces/VisEdge';
 import Communication from '../interfaces/Communication';
 import GTFSStop from '../interfaces/GTFSStop';
@@ -46,40 +42,14 @@ export default class Vis extends Component<VisProps, VisState> {
         levelsX[graphLevel] = x - stepX;
       }
       levelsX[graphLevel] += stepX;
-      const node = {
-        id: stop.stopId,
-        label: GraphService.getNodeLabel(stop),
-        color: LocationTypeColors[stop.locationType],
-        x: levelsX[graphLevel],
-        y: y + LocationTypeSort[stop.locationType] * stepY,
-        image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
-        shape: 'circularImage',
-        size: 12,
-        stop: stop
-      };
+      const node = DataService.convertStopToNode(stop, levelsX[graphLevel], y + LocationTypeSort[stop.locationType] * stepY);
       return node;
     });
 
     // get edges from pathways
     const edges = this.props.data.pathways.map((gtfsPathway: GTFSPathway): VisEdge => {
       const pathway = DataService.convertPathwayToInternal(gtfsPathway);
-      const edge = {
-        from: pathway.fromStopId,
-        to: pathway.toStopId,
-        color: {
-          color: PathwayModeColors[pathway.pathwayMode],
-          highlight: PathwayModeColors[pathway.pathwayMode]
-        },
-        arrows: {
-          to: true,
-          from: pathway.isBidirectional
-        },
-        font: {
-          align: 'top'
-        },
-        label: pathway.traversalTime + "s",
-        pathway: pathway
-      }
+      const edge = DataService.convertPathwayToEdge(pathway);
       return edge;
     });
 
