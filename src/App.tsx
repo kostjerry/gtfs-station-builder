@@ -2,23 +2,25 @@ import React, { Component } from 'react';
 import './App.scss';
 import Vis from './components/Vis';
 import StopDialog from './components/StopDialog';
-import StopInterface from './interfaces/StopInterface';
-import VisNodeInterface from './interfaces/VisNodeInterface';
+import Stop from './interfaces/Stop';
+import VisNode from './interfaces/VisNode';
 import DataService from './services/DataService';
 import dataSample from './data/data.sample';
+import Communication from './interfaces/Communication';
+import GTFSStop from './interfaces/GTFSStop';
 
 export interface AppProps { }
 
 export interface AppState {
   selectedStop: {
-    stop: StopInterface,
-    node: VisNodeInterface,
+    stop: Stop,
+    node: VisNode,
     callback: Function
   } | null
 }
 
 export default class App extends Component<AppProps, AppState> {
-  private data: any;
+  private data: Communication;
   private stationId: number = -1;
 
   constructor(props: AppProps) {
@@ -27,14 +29,14 @@ export default class App extends Component<AppProps, AppState> {
       selectedStop: null
     };
     this.data = dataSample;
-    this.data.stops.map((stopUnderscore: any) => {
-      if (stopUnderscore.location_type === 1) {
-        this.stationId = stopUnderscore.stop_id;
+    this.data.stops.map((stop: GTFSStop) => {
+      if (stop.location_type === 1) {
+        this.stationId = stop.stop_id;
       }
     });
   }
 
-  private handleStopAdd = (node: VisNodeInterface, callback: Function) => {
+  private handleStopAdd = (node: VisNode, callback: Function) => {
     node = DataService.prepareNewNode(node);
     this.setState({
       selectedStop: {
@@ -45,7 +47,7 @@ export default class App extends Component<AppProps, AppState> {
     });
   }
 
-  private handleStopEdit = (node: VisNodeInterface, callback: Function) => {
+  private handleStopEdit = (node: VisNode, callback: Function) => {
     this.setState({
       selectedStop: {
         stop: node.stop,
@@ -75,7 +77,7 @@ export default class App extends Component<AppProps, AppState> {
     }
   }
 
-  private handleStopDialogApply = (stop: StopInterface) => {
+  private handleStopDialogApply = (stop: Stop) => {
     if (this.state.selectedStop) {
       const node = DataService.attachStopToNode(stop, this.state.selectedStop.node);
       this.state.selectedStop.callback(node);

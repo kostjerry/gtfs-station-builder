@@ -1,7 +1,7 @@
-import StopInterface, { LocationTypeMap, LocationTypeOnNodeLabelMap } from "../interfaces/StopInterface";
+import Stop, { LocationTypeMap, LocationTypeOnNodeLabelMap } from "../interfaces/Stop";
 
 export default class GraphService {
-    static getNodeLabel(stop: StopInterface): string {
+    static getNodeLabel(stop: Stop): string {
         let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
         let label =  stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
         if (stop.locationType === 0) { // Platform

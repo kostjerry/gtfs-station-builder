@@ -1,24 +1,27 @@
-import StopInterface, { LocationTypeColors, LocationTypeMap, WheelchairBoardingMap } from "../interfaces/StopInterface";
-import VisNodeInterface from "../interfaces/VisNodeInterface";
+import Stop, { LocationTypeColors, LocationTypeMap, WheelchairBoardingMap } from "../interfaces/Stop";
+import VisNode from "../interfaces/VisNode";
 import GraphService from "./GraphService";
 import wheelchairAccessibleImage from '../images/wheelchair-accessible.png';
 import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
+import Pathway from "../interfaces/Pathway";
+import GTFSStop from "../interfaces/GTFSStop";
+import GTFSPathway from "../interfaces/GTFSPathway";
 
 export default class DataService {
-    static stopUnderscoreToCamel(stopUnderscore: any): StopInterface {
+    static convertStopToInternal(gtfsStop: GTFSStop): Stop {
         const stop = {
-            stopId: stopUnderscore.stop_id,
-            stopName: stopUnderscore.stop_name,
-            locationType: stopUnderscore.location_type,
-            wheelchairBoarding: stopUnderscore.wheelchair_boarding,
-            levelId: stopUnderscore.level_id,
-            platformCode: stopUnderscore.platform_code,
-            signpostedAs: stopUnderscore.signposted_as
+            stopId: gtfsStop.stop_id,
+            stopName: gtfsStop.stop_name,
+            locationType: gtfsStop.location_type,
+            wheelchairBoarding: gtfsStop.wheelchair_boarding,
+            levelId: gtfsStop.level_id,
+            platformCode: gtfsStop.platform_code,
+            signpostedAs: gtfsStop.signposted_as
         }
         return stop;
     }
 
-    static attachStopToNode(stop: StopInterface, node: VisNodeInterface): VisNodeInterface {
+    static attachStopToNode(stop: Stop, node: VisNode): VisNode {
         if ([3, 4].includes(stop.locationType)) {
             stop.wheelchairBoarding = WheelchairBoardingMap.NoInfo;
         }
@@ -31,7 +34,7 @@ export default class DataService {
         return node;
     }
 
-    static prepareNewNode(node: VisNodeInterface): VisNodeInterface {
+    static prepareNewNode(node: VisNode): VisNode {
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
         node.shape = 'circularImage';
@@ -47,5 +50,21 @@ export default class DataService {
         return node;
     }
 
-    
+    static convertPathwayToInternal(gtfsPathway: GTFSPathway): Pathway {
+        const pathway = {
+            pathwayId: gtfsPathway.pathway_id,
+            fromStopId: gtfsPathway.from_stop_id,
+            toStopId: gtfsPathway.to_stop_id,
+            pathwayMode: gtfsPathway.pathway_mode,
+            isBidirectional: gtfsPathway.is_bidirectional,
+            length: gtfsPathway.length,
+            traversalTime: gtfsPathway.traversal_time,
+            stairCount: gtfsPathway.stair_count,
+            maxSlope: gtfsPathway.max_slope,
+            minWidth: gtfsPathway.min_width,
+            signpostedAs: gtfsPathway.signposted_as,
+            reversedSignpostedAs: gtfsPathway.reversed_signposted_as
+        }
+        return pathway;
+    }
 }

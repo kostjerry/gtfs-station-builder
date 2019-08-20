@@ -1,6 +1,6 @@
-import StopInterface from "./StopInterface";
+import Stop from "./Stop";
 
-export default interface VisNodeInterface {
+export default interface VisNode {
     id: number,
     x?: number,
     y?: number,
@@ -9,5 +9,5 @@ export default interface VisNodeInterface {
     image: string,
     shape: string,
     size: number,
-    stop: StopInterface
+    stop: Stop
 }

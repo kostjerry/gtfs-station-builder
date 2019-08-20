@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import './StopDialog.scss';
-import StopInterface, { LocationTypeMap, WheelchairBoardingMap } from '../interfaces/StopInterface';
+import Stop, { LocationTypeMap, WheelchairBoardingMap } from '../interfaces/Stop';
 
 export interface StopDialogProps {
-  stop: StopInterface,
+  stop: Stop,
   onCancel: Function,
   onApply: Function
 }
@@ -45,38 +45,38 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
     });
   }
 
-  private handleLocationTypeChange = (event: any) => {
+  private handleLocationTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     this.setState({
       locationType: Number(event.target.value)
     });
   }
 
-  private handleWheelchairBoardingChange = (event: any) => {
+  private handleWheelchairBoardingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     this.setState({
       wheelchairBoarding: Number(event.target.value)
     });
   }
 
-  private handleStopNameChange = (event: any) => {
+  private handleStopNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       stopName: event.target.value
     });
   }
 
-  private handlePlatformCodeChange = (event: any) => {
+  private handlePlatformCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       platformCode: event.target.value
     });
   }
 
-  private handleSignpostedAsChange = (event: any) => {
+  private handleSignpostedAsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       signpostedAs: event.target.value
     });
   }
 
   render() {
-    const locationTypeOptions: any[] = [];
+    const locationTypeOptions: JSX.Element[] = [];
     for (const locationType in LocationTypeMap) {
       if (locationType === 'Station') {
         continue;
@@ -86,7 +86,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
       );
     }
 
-    const wheelchairBoardingOptions: any[] = [];
+    const wheelchairBoardingOptions: JSX.Element[] = [];
     for (const wheelchairBoardingKey in WheelchairBoardingMap) {
       wheelchairBoardingOptions.push(
         <option key={wheelchairBoardingKey} value={WheelchairBoardingMap[wheelchairBoardingKey]}>{wheelchairBoardingKey}</option>

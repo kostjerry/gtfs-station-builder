@@ -1,4 +1,4 @@
-export default interface StopInterface {
+export default interface Stop {
     stopId: number;
     stopName?: string | null;
     locationType: number;
