@@ -8,6 +8,9 @@ import DataService from './services/DataService';
 import dataSample from './data/data.sample';
 import Communication from './interfaces/Communication';
 import GTFSStop from './interfaces/GTFSStop';
+import Pathway from './interfaces/Pathway';
+import VisEdge from './interfaces/VisEdge';
+import PathwayDialog from './components/PathwayDialog';
 
 export interface AppProps { }
 
@@ -15,6 +18,11 @@ export interface AppState {
   selectedStop: {
     stop: Stop,
     node: VisNode,
+    callback: Function
+  } | null,
+  selectedPathway: {
+    pathway: Pathway,
+    edge: VisEdge,
     callback: Function
   } | null
 }
@@ -26,7 +34,8 @@ export default class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      selectedStop: null
+      selectedStop: null,
+      selectedPathway: null
     };
     this.data = dataSample;
     this.data.stops.map((stop: GTFSStop) => {
@@ -34,6 +43,9 @@ export default class App extends Component<AppProps, AppState> {
         this.stationId = stop.stop_id;
       }
     });
+    if (this.stationId === -1) {
+      throw "No station provided in input data";
+    }
   }
 
   private handleStopAdd = (node: VisNode, callback: Function) => {
@@ -87,11 +99,72 @@ export default class App extends Component<AppProps, AppState> {
     }
   }
 
+  private handlePathwayAdd = (edge: VisEdge, callback: Function) => {
+    edge = DataService.prepareNewEdge(edge);
+    this.setState({
+      selectedPathway: {
+        pathway: edge.pathway,
+        edge: edge,
+        callback: callback
+      }
+    });
+  }
+
+  private handlePathwayEdit = (edge: VisEdge, callback: Function) => {
+    this.setState({
+      selectedPathway: {
+        pathway: edge.pathway,
+        edge: edge,
+        callback: callback
+      }
+    });
+  }
+
+  private handlePathwayDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: Function) => {
+    callback(dataToDelete);
+  }
+
+  private handlePathwayDialogCancel = () => {
+    if (this.state.selectedPathway) {
+      this.state.selectedPathway.callback();
+      this.setState({
+        selectedPathway: null
+      });
+    }
+  }
+
+  private handlePathwayDialogApply = (pathway: Pathway) => {
+    console.log(pathway);
+    if (this.state.selectedPathway) {
+      const edge = DataService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
+      this.state.selectedPathway.callback(edge);
+      this.setState({
+        selectedPathway: null
+      });
+    }
+  }
+
   render() {
     return (
       <div className="container">
-        <Vis data={this.data} onStopAdd={this.handleStopAdd} onStopEdit={this.handleStopEdit} onStopDelete={this.handleStopDelete}></Vis>
-        {this.state.selectedStop && <StopDialog stop={this.state.selectedStop.stop} onCancel={this.handleStopDialogCancel} onApply={this.handleStopDialogApply}></StopDialog>}
+        <Vis
+          data={this.data}
+          onStopAdd={this.handleStopAdd}
+          onStopEdit={this.handleStopEdit}
+          onStopDelete={this.handleStopDelete}
+          onPathwayAdd={this.handlePathwayAdd}
+          onPathwayEdit={this.handlePathwayEdit}
+          onPathwayDelete={this.handlePathwayDelete}></Vis>
+
+        {this.state.selectedStop && <StopDialog
+          stop={this.state.selectedStop.stop}
+          onCancel={this.handleStopDialogCancel}
+          onApply={this.handleStopDialogApply}></StopDialog>}
+        
+        {this.state.selectedPathway && <PathwayDialog
+          pathway={this.state.selectedPathway.pathway}
+          onCancel={this.handlePathwayDialogCancel}
+          onApply={this.handlePathwayDialogApply}></PathwayDialog>}
       </div>
     );
   }

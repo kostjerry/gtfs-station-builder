@@ -1,0 +1,30 @@
+.pathway-dialog {
+    position: fixed;
+    top: 200px;
+    left: calc(100vw / 2 - 200px);
+    width: 400px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    background: #aaa;
+    border: solid 1px #555;
+    border-radius: 5px;
+    padding: 10px;
+    .header {
+        height: 25px;
+        border-bottom: solid 1px #555;
+    }
+    .content {
+        flex: auto;
+        padding-top: 5px;
+        div {
+            padding: 5px 0 0 0;
+        }
+    }
+    .footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+    }
+}

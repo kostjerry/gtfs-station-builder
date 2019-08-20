@@ -8,6 +8,7 @@ import GTFSStop from "../interfaces/GTFSStop";
 import GTFSPathway from "../interfaces/GTFSPathway";
 import VisEdge from "../interfaces/VisEdge";
 
+// This service connects GTFS, internal and Vis data types
 export default class DataService {
     static convertStopToInternal(gtfsStop: GTFSStop): Stop {
         const stop = {
@@ -96,10 +97,39 @@ export default class DataService {
                 from: pathway.isBidirectional
             },
             font: {
-                align: 'top'
+                align: 'center'
             },
-            label: pathway.traversalTime + "s",
+            label: GraphService.getEdgeLabel(pathway),
             pathway: pathway
         };
+    }
+
+    static attachPathwayToEdge(pathway: Pathway, edge: VisEdge): VisEdge {
+        // if ([3, 4].includes(stop.locationType)) {
+        //     stop.wheelchairBoarding = WheelchairBoardingMap.NoInfo;
+        // }
+        // node.label = GraphService.getNodeLabel(stop);
+        // node.color = LocationTypeColors[stop.locationType];
+        // node.shape = 'circularImage';
+        // node.size = 12;
+        // node.image = stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "";
+        // node.stop = stop;
+        return edge;
+    }
+
+    static prepareNewEdge(edge: VisEdge): VisEdge {
+        // node.label = "";
+        // node.color = LocationTypeColors[LocationTypeMap.GenericNode];
+        // node.shape = 'circularImage';
+        // node.size = 12;
+        // node.stop = {
+        //     stopId: -1,
+        //     stopName: "",
+        //     locationType: LocationTypeMap.GenericNode,
+        //     wheelchairBoarding: WheelchairBoardingMap.NoInfo,
+        //     platformCode: "",
+        //     signpostedAs: ""
+        // };
+        return edge;
     }
 }

@@ -9,6 +9,7 @@ import VisEdge from '../interfaces/VisEdge';
 import Communication from '../interfaces/Communication';
 import GTFSStop from '../interfaces/GTFSStop';
 import GTFSPathway from '../interfaces/GTFSPathway';
+import { string } from 'prop-types';
 
 export interface VisState {
   
@@ -18,7 +19,10 @@ export interface VisProps {
   data: Communication,
   onStopAdd: Function,
   onStopEdit: Function,
-  onStopDelete: Function
+  onStopDelete: Function,
+  onPathwayAdd: Function,
+  onPathwayEdit: Function,
+  onPathwayDelete: Function,
 }
 
 export default class Vis extends Component<VisProps, VisState> {
@@ -32,7 +36,7 @@ export default class Vis extends Component<VisProps, VisState> {
     let y = - container.clientHeight / 2;
     const stepX = 200;
     const stepY = 100;
-    let levelsX: any = {};
+    let levelsX: { [key: string]: number }  = {};
 
     // get nodes from stops
     let nodes = this.props.data.stops.map((gtfsStop: GTFSStop): VisNode => {
@@ -67,15 +71,9 @@ export default class Vis extends Component<VisProps, VisState> {
           addNode: this.props.onStopAdd,
           editNode: this.props.onStopEdit,
           deleteNode: this.props.onStopDelete,
-          addEdge: (edge: any, callback: Function) => {
-            console.log(edge);
-            callback(edge);
-          },
-          editEdge: (edge: any, callback: Function) => {
-            console.log(edge);
-            callback(edge);
-          },
-          deleteEdge: true
+          addEdge: this.props.onPathwayAdd,
+          editEdge: this.props.onPathwayEdit,
+          deleteEdge: this.props.onPathwayDelete
         },
         interaction: {
           dragView: false,
@@ -98,6 +96,16 @@ export default class Vis extends Component<VisProps, VisState> {
     };
     
     var network = new vis.Network(container, { nodes, edges }, options);
+
+    network.on("doubleClick", function (params: any) {
+      console.log(params);
+    });
+    network.on("oncontext", function (params: any) {
+      if (window.event) {
+        window.event.returnValue = false;
+      }
+      console.log(params);
+    });
   }
 
   render() {

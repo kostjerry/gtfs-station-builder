@@ -13,19 +13,20 @@ export default interface Pathway {
     reversedSignpostedAs?: string | null;
 }
 
-export const PathwayModeMap = {
-    "Walkway": 1,
-    "Stairs": 2,
-    "MovingSidewalk": 3,
-    "Escalator": 4,
-    "Lift": 5,
-    "FareGate": 6,
-    "ExitGate": 7
-}
+export const PathwayModeOnEdgeLabelMap = [
+    "",
+    "Walkway", // pathway modes begin from 1
+    "Stairs",
+    "MovingSidewalk",
+    "Escalator",
+    "Lift",
+    "FareGate",
+    "ExitGate"
+]
 
 export const PathwayModeColors = [
-    "", // emplty string in 0 index for technical reason
-    "#000000", // pathways codes begin from 1
+    "",
+    "#000000", // pathway modes begin from 1
     "#6898ee",
     "#888888",
     "#7ecb7d",
