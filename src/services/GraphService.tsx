@@ -3,11 +3,15 @@ import StopInterface, { LocationTypeMap, LocationTypeOnNodeLabelMap } from "../i
 export default class GraphService {
     static getNodeLabel(stop: StopInterface): string {
         let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
+        let label =  stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
         if (stop.locationType === 0) { // Platform
-            return stop.platformCode ? prefix + ' "' + stop.platformCode + '"' : prefix;
+            if (stop.platformCode) {
+                label += '\nCode: "' + stop.platformCode + '"';
+            }
+            if (stop.signpostedAs) {
+                label += '\nSignposted: "' + stop.signpostedAs + '"';
+            }
         }
-        else {
-            return stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
-        }
+        return label;
     }
 }
