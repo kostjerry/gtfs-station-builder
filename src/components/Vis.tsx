@@ -9,7 +9,6 @@ import VisEdge from '../interfaces/VisEdge';
 import Communication from '../interfaces/Communication';
 import GTFSStop from '../interfaces/GTFSStop';
 import GTFSPathway from '../interfaces/GTFSPathway';
-import { string } from 'prop-types';
 
 export interface VisState {
   
@@ -51,7 +50,7 @@ export default class Vis extends Component<VisProps, VisState> {
     });
 
     // get edges from pathways
-    const edges = this.props.data.pathways.map((gtfsPathway: GTFSPathway): VisEdge => {
+    let edges = this.props.data.pathways.map((gtfsPathway: GTFSPathway): VisEdge => {
       const pathway = DataService.convertPathwayToInternal(gtfsPathway);
       const edge = DataService.convertPathwayToEdge(pathway);
       return edge;
@@ -72,7 +71,14 @@ export default class Vis extends Component<VisProps, VisState> {
           editNode: this.props.onStopEdit,
           deleteNode: this.props.onStopDelete,
           addEdge: this.props.onPathwayAdd,
-          editEdge: this.props.onPathwayEdit,
+          editEdge:  {
+            editWithoutDrag: (edge: VisEdge, callback: Function) => {
+              // Get edge from DataSets because from params we can't get attached information
+              let edgesDataSet = network.body.data.edges;
+              edge = edgesDataSet.get(edge.id);
+              this.props.onPathwayEdit(edge, callback);
+            }
+          },
           deleteEdge: this.props.onPathwayDelete
         },
         interaction: {
@@ -94,17 +100,16 @@ export default class Vis extends Component<VisProps, VisState> {
           maxVelocity: 40
         }
     };
-    
-    var network = new vis.Network(container, { nodes, edges }, options);
+    let network = new vis.Network(container, {nodes, edges}, options);
 
-    network.on("doubleClick", function (params: any) {
-      console.log(params);
-    });
-    network.on("oncontext", function (params: any) {
-      if (window.event) {
-        window.event.returnValue = false;
+    network.on("doubleClick", function () {
+      let selection = network.getSelection();
+      if (selection.nodes.length === 1) {
+        network.editNode();
       }
-      console.log(params);
+      else if (selection.edges.length === 1) {
+        network.editEdgeMode();
+      }
     });
   }
 

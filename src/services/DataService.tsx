@@ -3,7 +3,7 @@ import VisNode from "../interfaces/VisNode";
 import GraphService from "./GraphService";
 import wheelchairAccessibleImage from '../images/wheelchair-accessible.png';
 import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
-import Pathway, { PathwayModeColors } from "../interfaces/Pathway";
+import Pathway, { PathwayModeColors, PathwayModeMap } from "../interfaces/Pathway";
 import GTFSStop from "../interfaces/GTFSStop";
 import GTFSPathway from "../interfaces/GTFSPathway";
 import VisEdge from "../interfaces/VisEdge";
@@ -86,6 +86,7 @@ export default class DataService {
 
     static convertPathwayToEdge(pathway: Pathway): VisEdge {
         return {
+            id: pathway.pathwayId,
             from: pathway.fromStopId,
             to: pathway.toStopId,
             color: {
@@ -93,8 +94,8 @@ export default class DataService {
                 highlight: PathwayModeColors[pathway.pathwayMode]
             },
             arrows: {
-                to: true,
-                from: pathway.isBidirectional
+                from: pathway.isBidirectional,
+                to: true
             },
             font: {
                 align: 'center'
@@ -105,31 +106,41 @@ export default class DataService {
     }
 
     static attachPathwayToEdge(pathway: Pathway, edge: VisEdge): VisEdge {
-        // if ([3, 4].includes(stop.locationType)) {
-        //     stop.wheelchairBoarding = WheelchairBoardingMap.NoInfo;
-        // }
-        // node.label = GraphService.getNodeLabel(stop);
-        // node.color = LocationTypeColors[stop.locationType];
-        // node.shape = 'circularImage';
-        // node.size = 12;
-        // node.image = stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "";
-        // node.stop = stop;
+        edge.color.color = PathwayModeColors[pathway.pathwayMode];
+        edge.color.highlight = PathwayModeColors[pathway.pathwayMode];
+        edge.arrows.from = pathway.isBidirectional;
+        edge.label = GraphService.getEdgeLabel(pathway);
+        edge.pathway = pathway;
         return edge;
     }
 
     static prepareNewEdge(edge: VisEdge): VisEdge {
-        // node.label = "";
-        // node.color = LocationTypeColors[LocationTypeMap.GenericNode];
-        // node.shape = 'circularImage';
-        // node.size = 12;
-        // node.stop = {
-        //     stopId: -1,
-        //     stopName: "",
-        //     locationType: LocationTypeMap.GenericNode,
-        //     wheelchairBoarding: WheelchairBoardingMap.NoInfo,
-        //     platformCode: "",
-        //     signpostedAs: ""
-        // };
+        edge.color = {
+            color: PathwayModeColors[PathwayModeMap.Escalator],
+            highlight: PathwayModeColors[PathwayModeMap.Escalator]
+        }
+        edge.arrows = {
+            from: true,
+            to: true
+        };
+        edge.font = {
+            align: 'center'
+        };
+        edge.label = '';
+        edge.pathway = {
+            pathwayId: -1,
+            fromStopId: edge.from,
+            toStopId: edge.to,
+            pathwayMode: PathwayModeMap.Escalator,
+            isBidirectional: true,
+            length: null,
+            traversalTime: null,
+            stairCount: null,
+            maxSlope: null,
+            minWidth: null,
+            signpostedAs: "",
+            reversedSignpostedAs: ""
+        }
         return edge;
     }
 }

@@ -1,6 +1,7 @@
 import Pathway from "./Pathway";
 
 export default interface VisEdge {
+    id: number,
     from: number,
     to: number,
     color: {

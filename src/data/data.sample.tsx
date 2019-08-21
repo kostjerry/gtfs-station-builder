@@ -76,7 +76,7 @@ export default {
             "reversed_signposted_as": null
         },
         {
-            "pathway_id": 2,
+            "pathway_id": 3,
             "from_stop_id": 5,
             "to_stop_id": 2,
             "pathway_mode": 5,
@@ -90,7 +90,7 @@ export default {
             "reversed_signposted_as": null
         },
         {
-            "pathway_id": 3,
+            "pathway_id": 4,
             "from_stop_id": 2,
             "to_stop_id": 3,
             "pathway_mode": 1,

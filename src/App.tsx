@@ -134,7 +134,6 @@ export default class App extends Component<AppProps, AppState> {
   }
 
   private handlePathwayDialogApply = (pathway: Pathway) => {
-    console.log(pathway);
     if (this.state.selectedPathway) {
       const edge = DataService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
       this.state.selectedPathway.callback(edge);
