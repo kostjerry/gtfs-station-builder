@@ -9,11 +9,11 @@ export interface StopDialogProps {
 }
 
 export interface StopDialogState {
-  stopName?: string | null,
+  stopName?: string,
   locationType: number,
   wheelchairBoarding: number,
-  platformCode?: string | null,
-  signpostedAs?: string | null
+  platformCode?: string,
+  signpostedAs?: string
 }
 
 export default class StopDialog extends Component<StopDialogProps, StopDialogState> {
@@ -34,14 +34,13 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 
   private handleApply = () => {
     // Validate
-    console.log(this.state);
     if ([0, 1, 2].includes(this.state.locationType) && !this.state.stopName) {
       alert('Selected location type must have a name');
       return;
     }
 
     this.props.onApply({
-      ...this.state
+      ...this.props.stop, ...this.state
     });
   }
 

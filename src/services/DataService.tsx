@@ -133,11 +133,11 @@ export default class DataService {
             toStopId: edge.to,
             pathwayMode: PathwayModeMap.Escalator,
             isBidirectional: true,
-            length: null,
-            traversalTime: null,
-            stairCount: null,
-            maxSlope: null,
-            minWidth: null,
+            length: undefined,
+            traversalTime: undefined,
+            stairCount: undefined,
+            maxSlope: undefined,
+            minWidth: undefined,
             signpostedAs: "",
             reversedSignpostedAs: ""
         }

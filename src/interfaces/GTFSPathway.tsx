@@ -4,11 +4,11 @@ export default interface GTFSPathway {
     to_stop_id: number;
     pathway_mode: number;
     is_bidirectional: boolean;
-    length?: number | null;
-    traversal_time?: number | null;
-    stair_count?: number | null;
-    max_slope?: number | null;
-    min_width?: number | null;
-    signposted_as?: string | null;
-    reversed_signposted_as?: string | null;
+    length?: number;
+    traversal_time?: number;
+    stair_count?: number;
+    max_slope?: number;
+    min_width?: number;
+    signposted_as?: string;
+    reversed_signposted_as?: string;
 }

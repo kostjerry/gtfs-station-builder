@@ -4,13 +4,13 @@ export default interface Pathway {
     toStopId: number;
     pathwayMode: number;
     isBidirectional: boolean;
-    length?: number | null;
-    traversalTime?: number | null;
-    stairCount?: number | null;
-    maxSlope?: number | null;
-    minWidth?: number | null;
-    signpostedAs?: string | null;
-    reversedSignpostedAs?: string | null;
+    length?: number;
+    traversalTime?: number;
+    stairCount?: number;
+    maxSlope?: number;
+    minWidth?: number;
+    signpostedAs?: string;
+    reversedSignpostedAs?: string;
 }
 
 export const PathwayModeMap: { [key: string]: number } = {

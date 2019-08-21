@@ -4,10 +4,10 @@ export default {
             "stop_id": 1,
             "stop_name": "XYZ",
             "location_type": 1,
-            "parent_station": null,
+            "parent_station": undefined,
             "wheelchair_boarding": 0,
-            "level_id": null,
-            "platform_code": null
+            "level_id": undefined,
+            "platform_code": undefined
         },
         {
             "stop_id": 2,
@@ -24,8 +24,8 @@ export default {
             "location_type": 0,
             "parent_station": 1,
             "wheelchair_boarding": 1,
-            "level_id": null,
-            "platform_code": null
+            "level_id": undefined,
+            "platform_code": undefined
         },
         {
             "stop_id": 4,
@@ -33,8 +33,8 @@ export default {
             "location_type": 2,
             "parent_station": 1,
             "wheelchair_boarding": 2,
-            "level_id": null,
-            "platform_code": null
+            "level_id": undefined,
+            "platform_code": undefined
         },
         {
             "stop_id": 5,
@@ -43,7 +43,7 @@ export default {
             "parent_station": 1,
             "wheelchair_boarding": 1,
             "level_id": 1,
-            "platform_code": null
+            "platform_code": undefined
         }
     ],
     "pathways": [
@@ -53,13 +53,13 @@ export default {
             "to_stop_id": 2,
             "pathway_mode": 4,
             "is_bidirectional": true,
-            "length": null,
+            "length": undefined,
             "traversal_time": 60,
-            "stair_count": null,
-            "max_slope": null,
-            "min_width": null,
-            "signposted_as": null,
-            "reversed_signposted_as": null
+            "stair_count": undefined,
+            "max_slope": undefined,
+            "min_width": undefined,
+            "signposted_as": undefined,
+            "reversed_signposted_as": undefined
         },
         {
             "pathway_id": 2,
@@ -67,13 +67,13 @@ export default {
             "to_stop_id": 2,
             "pathway_mode": 2,
             "is_bidirectional": true,
-            "length": null,
+            "length": undefined,
             "traversal_time": 120,
-            "stair_count": null,
-            "max_slope": null,
-            "min_width": null,
-            "signposted_as": null,
-            "reversed_signposted_as": null
+            "stair_count": undefined,
+            "max_slope": undefined,
+            "min_width": undefined,
+            "signposted_as": undefined,
+            "reversed_signposted_as": undefined
         },
         {
             "pathway_id": 3,
@@ -81,13 +81,13 @@ export default {
             "to_stop_id": 2,
             "pathway_mode": 5,
             "is_bidirectional": true,
-            "length": null,
+            "length": undefined,
             "traversal_time": 20,
-            "stair_count": null,
-            "max_slope": null,
-            "min_width": null,
-            "signposted_as": null,
-            "reversed_signposted_as": null
+            "stair_count": undefined,
+            "max_slope": undefined,
+            "min_width": undefined,
+            "signposted_as": undefined,
+            "reversed_signposted_as": undefined
         },
         {
             "pathway_id": 4,
@@ -95,25 +95,25 @@ export default {
             "to_stop_id": 3,
             "pathway_mode": 1,
             "is_bidirectional": true,
-            "length": null,
+            "length": undefined,
             "traversal_time": 30,
-            "stair_count": null,
-            "max_slope": null,
-            "min_width": null,
-            "signposted_as": null,
-            "reversed_signposted_as": null
+            "stair_count": undefined,
+            "max_slope": undefined,
+            "min_width": undefined,
+            "signposted_as": undefined,
+            "reversed_signposted_as": undefined
         }
     ],
     "levels": [
         {
             "level_id": 1,
             "level_index": 0,
-            "level_name": null
+            "level_name": undefined
         },
         {
             "level_id": 2,
             "level_index": -1,
-            "level_name": null
+            "level_name": undefined
         }
     ]
 }
