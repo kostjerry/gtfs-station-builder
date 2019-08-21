@@ -5,17 +5,17 @@ import Pathway, { PathwayModeMap } from '../interfaces/Pathway';
 export interface PathwayDialogProps {
   pathway: Pathway,
   onCancel: () => void,
-  onApply: Function // (pathway: Pathway) => void
+  onApply: (pathway: Pathway) => void
 }
 
 export interface PathwayDialogState {
   pathwayMode: number;
   isBidirectional: boolean;
-  length?: number | string;
+  length?: string;
   traversalTime?: number;
   stairCount?: number;
-  maxSlope?: number | string;
-  minWidth?: number | string;
+  maxSlope?: string;
+  minWidth?: string;
   signpostedAs?: string;
   reversedSignpostedAs?: string;
 }
@@ -42,7 +42,13 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 
   private handleApply = () => {
     this.props.onApply({
-      ...this.props.pathway, ...this.state
+      ...this.props.pathway,
+      ...this.state,
+      ...{
+        length: parseFloat(this.state.length || ""),
+        maxSlope: parseFloat(this.state.maxSlope || ""),
+        minWidth: parseFloat(this.state.minWidth || "")
+      }
     });
   }
 

@@ -16,12 +16,12 @@ export interface VisState {
 
 export interface VisProps {
   data: Communication,
-  onStopAdd: Function,
-  onStopEdit: Function,
-  onStopDelete: Function,
-  onPathwayAdd: Function,
-  onPathwayEdit: Function,
-  onPathwayDelete: Function,
+  onStopAdd: (node: VisNode, callback: (node?: VisNode) => void) => void,
+  onStopEdit: (node: VisNode, callback: (node?: VisNode) => void) => void,
+  onStopDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
+  onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
+  onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
+  onPathwayDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
 }
 
 export default class Vis extends Component<VisProps, VisState> {
@@ -72,7 +72,7 @@ export default class Vis extends Component<VisProps, VisState> {
           deleteNode: this.props.onStopDelete,
           addEdge: this.props.onPathwayAdd,
           editEdge:  {
-            editWithoutDrag: (edge: VisEdge, callback: Function) => {
+            editWithoutDrag: (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
               // Get edge from DataSets because from params we can't get attached information
               let edgesDataSet = network.body.data.edges;
               edge = edgesDataSet.get(edge.id);
@@ -102,7 +102,7 @@ export default class Vis extends Component<VisProps, VisState> {
     };
     let network = new vis.Network(container, {nodes, edges}, options);
 
-    network.on("doubleClick", function () {
+    network.on("doubleClick", () => {
       let selection = network.getSelection();
       if (selection.nodes.length === 1) {
         network.editNode();

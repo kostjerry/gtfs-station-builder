@@ -18,12 +18,12 @@ export interface AppState {
   selectedStop: {
     stop: Stop,
     node: VisNode,
-    callback: Function
+    callback: (node?: VisNode) => void
   } | null,
   selectedPathway: {
     pathway: Pathway,
     edge: VisEdge,
-    callback: Function
+    callback: (edge?: VisEdge) => void
   } | null
 }
 
@@ -48,7 +48,7 @@ export default class App extends Component<AppProps, AppState> {
     }
   }
 
-  private handleStopAdd = (node: VisNode, callback: Function) => {
+  private handleStopAdd = (node: VisNode, callback: (node?: VisNode) => void) => {
     node = DataService.prepareNewNode(node);
     this.setState({
       selectedStop: {
@@ -59,7 +59,7 @@ export default class App extends Component<AppProps, AppState> {
     });
   }
 
-  private handleStopEdit = (node: VisNode, callback: Function) => {
+  private handleStopEdit = (node: VisNode, callback: (node?: VisNode) => void) => {
     this.setState({
       selectedStop: {
         stop: node.stop,
@@ -69,7 +69,7 @@ export default class App extends Component<AppProps, AppState> {
     });
   }
 
-  private handleStopDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: Function) => {
+  private handleStopDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => {
     const nodeId = dataToDelete.nodes[0];
     if (this.stationId === nodeId) {
       alert("It's disallowed to delete a station");
@@ -99,7 +99,7 @@ export default class App extends Component<AppProps, AppState> {
     }
   }
 
-  private handlePathwayAdd = (edge: VisEdge, callback: Function) => {
+  private handlePathwayAdd = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
     edge = DataService.prepareNewEdge(edge);
     this.setState({
       selectedPathway: {
@@ -110,7 +110,7 @@ export default class App extends Component<AppProps, AppState> {
     });
   }
 
-  private handlePathwayEdit = (edge: VisEdge, callback: Function) => {
+  private handlePathwayEdit = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
     this.setState({
       selectedPathway: {
         pathway: edge.pathway,
@@ -120,7 +120,7 @@ export default class App extends Component<AppProps, AppState> {
     });
   }
 
-  private handlePathwayDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: Function) => {
+  private handlePathwayDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => {
     callback(dataToDelete);
   }
 

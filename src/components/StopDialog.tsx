@@ -4,8 +4,8 @@ import Stop, { LocationTypeMap, WheelchairBoardingMap } from '../interfaces/Stop
 
 export interface StopDialogProps {
   stop: Stop,
-  onCancel: Function,
-  onApply: Function
+  onCancel: () => void,
+  onApply: (stop: Stop) => void
 }
 
 export interface StopDialogState {
