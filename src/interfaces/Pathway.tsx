@@ -13,6 +13,39 @@ export default interface Pathway {
     reversedSignpostedAs?: string;
 }
 
+// TODO
+// export function fromGTFS(pathway: string): Pathway {
+//     return {
+//         pathwayId: number;
+//         fromStopId: number;
+//         toStopId: number;
+//         pathwayMode: number;
+//         isBidirectional: boolean;
+//         length?: number;
+//         traversalTime?: number;
+//         stairCount?: number;
+//         maxSlope?: number;
+//         minWidth?: number;
+//         signpostedAs?: string;
+//         reversedSignpostedAs
+//     };
+// }
+
+export function toGTFS(pathway: Pathway): string {
+    return  pathway.pathwayId + ',' +
+            pathway.fromStopId + ',' +
+            pathway.toStopId + ',' +
+            pathway.pathwayMode + ',' +
+            pathway.isBidirectional ? '1' : '0' + ',' +
+            pathway.length + ',' +
+            pathway.traversalTime + ',' +
+            pathway.stairCount + ',' +
+            pathway.maxSlope + ',' +
+            pathway.minWidth + ',' +
+            pathway.signpostedAs + ',' +
+            pathway.reversedSignpostedAs;
+}
+
 export const PathwayModeMap: { [key: string]: number } = {
     "Walkway": 1,
     "Stairs": 2,

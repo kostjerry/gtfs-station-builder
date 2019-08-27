@@ -7,3 +7,10 @@ export default interface GTFSStop {
     platform_code?: string;
     signposted_as?: string;
 }
+
+export const GTFSStopNumericFields = [
+    'stop_id',
+    'location_type',
+    'wheelchair_boarding',
+    'level_id'
+];

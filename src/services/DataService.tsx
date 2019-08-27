@@ -72,7 +72,7 @@ export default class DataService {
             fromStopId: gtfsPathway.from_stop_id,
             toStopId: gtfsPathway.to_stop_id,
             pathwayMode: gtfsPathway.pathway_mode,
-            isBidirectional: gtfsPathway.is_bidirectional,
+            isBidirectional: gtfsPathway.is_bidirectional === 1,
             length: gtfsPathway.length,
             traversalTime: gtfsPathway.traversal_time,
             stairCount: gtfsPathway.stair_count,
