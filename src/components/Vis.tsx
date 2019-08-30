@@ -7,7 +7,6 @@ import VisNode from '../interfaces/VisNode';
 import DataService from '../services/DataService';
 import VisEdge from '../interfaces/VisEdge';
 import Communication from '../interfaces/Communication';
-import GTFSStop from '../interfaces/GTFSStop';
 import Pathway from '../interfaces/Pathway';
 
 export interface VisState {

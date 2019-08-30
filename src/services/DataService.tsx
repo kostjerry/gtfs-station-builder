@@ -4,26 +4,11 @@ import GraphService from "./GraphService";
 import wheelchairAccessibleImage from '../images/wheelchair-accessible.png';
 import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 import Pathway, { PathwayModeColors, PathwayModeMap } from "../interfaces/Pathway";
-import GTFSStop from "../interfaces/GTFSStop";
-import GTFSPathway from "../interfaces/GTFSPathway";
 import VisEdge from "../interfaces/VisEdge";
 import Level from "../interfaces/Level";
 
 // This service connects GTFS, internal and Vis data types
 export default class DataService {
-    static convertStopToInternal(gtfsStop: GTFSStop): Stop {
-        const stop = {
-            stopId: gtfsStop.stop_id,
-            stopName: gtfsStop.stop_name,
-            locationType: gtfsStop.location_type,
-            wheelchairBoarding: gtfsStop.wheelchair_boarding,
-            levelId: gtfsStop.level_id,
-            platformCode: gtfsStop.platform_code,
-            signpostedAs: gtfsStop.signposted_as
-        }
-        return stop;
-    }
-
     static convertStopToNode(stop: Stop, x: number, y: number): VisNode {
         return {
             id: stop.stopId,
@@ -65,24 +50,6 @@ export default class DataService {
             signpostedAs: ""
         };
         return node;
-    }
-
-    static convertPathwayToInternal(gtfsPathway: GTFSPathway): Pathway {
-        const pathway = {
-            pathwayId: gtfsPathway.pathway_id,
-            fromStopId: gtfsPathway.from_stop_id,
-            toStopId: gtfsPathway.to_stop_id,
-            pathwayMode: gtfsPathway.pathway_mode,
-            isBidirectional: gtfsPathway.is_bidirectional === 1,
-            length: gtfsPathway.length,
-            traversalTime: gtfsPathway.traversal_time,
-            stairCount: gtfsPathway.stair_count,
-            maxSlope: gtfsPathway.max_slope,
-            minWidth: gtfsPathway.min_width,
-            signpostedAs: gtfsPathway.signposted_as,
-            reversedSignpostedAs: gtfsPathway.reversed_signposted_as
-        }
-        return pathway;
     }
 
     static convertPathwayToEdge(pathway: Pathway): VisEdge {
@@ -144,7 +111,6 @@ export default class DataService {
         }
         return edge;
     }
-
 
     /* GTFS to objects conversion and vise versa */
 
