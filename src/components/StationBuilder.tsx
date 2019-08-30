@@ -4,7 +4,7 @@ import Vis from './Vis';
 import StopDialog from './StopDialog';
 import Stop from '../interfaces/Stop';
 import VisNode from '../interfaces/VisNode';
-import DataService from '../services/DataService';
+import VisService from '../services/VisService';
 import Communication from '../interfaces/Communication';
 import Pathway from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
@@ -49,7 +49,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleStopAdd = (node: VisNode, callback: (node?: VisNode) => void) => {
-		node = DataService.prepareNewNode(node);
+		node = VisService.prepareNewNode(node);
 		this.setState({
 			selectedStop: {
 				stop: node.stop,
@@ -91,7 +91,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	private handleStopDialogApply = (stop: Stop) => {
 		if (this.state.selectedStop) {
-			const node = DataService.attachStopToNode(stop, this.state.selectedStop.node);
+			const node = VisService.attachStopToNode(stop, this.state.selectedStop.node);
 			this.state.selectedStop.callback(node);
 			this.setState({
 				selectedStop: null
@@ -100,7 +100,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handlePathwayAdd = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
-		edge = DataService.prepareNewEdge(edge);
+		edge = VisService.prepareNewEdge(edge);
 		this.setState({
 			selectedPathway: {
 				pathway: edge.pathway,
@@ -135,7 +135,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	private handlePathwayDialogApply = (pathway: Pathway) => {
 		if (this.state.selectedPathway) {
-			const edge = DataService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
+			const edge = VisService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
 			this.state.selectedPathway.callback(edge);
 			this.setState({
 				selectedPathway: null

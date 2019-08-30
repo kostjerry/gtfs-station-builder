@@ -4,7 +4,7 @@ import 'vis/dist/vis-network.min.css';
 import './Vis.scss';
 import Stop, { LocationTypeSort } from '../interfaces/Stop';
 import VisNode from '../interfaces/VisNode';
-import DataService from '../services/DataService';
+import VisService from '../services/VisService';
 import VisEdge from '../interfaces/VisEdge';
 import Communication from '../interfaces/Communication';
 import Pathway from '../interfaces/Pathway';
@@ -45,7 +45,7 @@ export default class Vis extends Component<VisProps, VisState> {
 			levelsX[graphLevel] = x - stepX;
 		}
 		levelsX[graphLevel] += stepX;
-		const node = DataService.convertStopToNode(stop, levelsX[graphLevel], y + LocationTypeSort[stop.locationType] * stepY);
+		const node = VisService.convertStopToNode(stop, levelsX[graphLevel], y + LocationTypeSort[stop.locationType] * stepY);
 		return node;
 		});
 	}
@@ -54,7 +54,7 @@ export default class Vis extends Component<VisProps, VisState> {
 	let edges: VisEdge[] = [];
 	if (this.props.data.pathways) {
 		edges = this.props.data.pathways.map((pathway: Pathway): VisEdge => {
-		const edge = DataService.convertPathwayToEdge(pathway);
+		const edge = VisService.convertPathwayToEdge(pathway);
 		return edge;
 		});
 	}
