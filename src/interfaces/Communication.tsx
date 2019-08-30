@@ -1,9 +1,9 @@
-import GTFSStop from "./GTFSStop";
-import GTFSPathway from "./GTFSPathway";
-import GTFSLevel from "./GTFSLevel";
+import Stop from "./Stop";
+import Pathway from "./Pathway";
+import Level from "./Level";
 
 export default interface Communication {
-    stops: GTFSStop[];
-    pathways: GTFSPathway[];
-    levels: GTFSLevel[];
+	stops?: Stop[];
+	pathways?: Pathway[];
+	levels?: Level[];
 }
