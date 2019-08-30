@@ -143,27 +143,36 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		}
 	}
 
+	private handleSaveClick = () => {
+		console.log(this.props.data);
+	}
+
 	render() {
 		return (
 			<div className="station-builder">
-				<Vis
-					data={this.props.data}
-					onStopAdd={this.handleStopAdd}
-					onStopEdit={this.handleStopEdit}
-					onStopDelete={this.handleStopDelete}
-					onPathwayAdd={this.handlePathwayAdd}
-					onPathwayEdit={this.handlePathwayEdit}
-					onPathwayDelete={this.handlePathwayDelete}></Vis>
+				<div className="panel">
+					<a onClick={this.handleSaveClick}>Save</a>
+				</div>
+				<div className="graph">
+					<Vis
+						data={this.props.data}
+						onStopAdd={this.handleStopAdd}
+						onStopEdit={this.handleStopEdit}
+						onStopDelete={this.handleStopDelete}
+						onPathwayAdd={this.handlePathwayAdd}
+						onPathwayEdit={this.handlePathwayEdit}
+						onPathwayDelete={this.handlePathwayDelete}></Vis>
 
-				{this.state.selectedStop && <StopDialog
-					stop={this.state.selectedStop.stop}
-					onCancel={this.handleStopDialogCancel}
-					onApply={this.handleStopDialogApply}></StopDialog>}
+					{this.state.selectedStop && <StopDialog
+						stop={this.state.selectedStop.stop}
+						onCancel={this.handleStopDialogCancel}
+						onApply={this.handleStopDialogApply}></StopDialog>}
 
-				{this.state.selectedPathway && <PathwayDialog
-					pathway={this.state.selectedPathway.pathway}
-					onCancel={this.handlePathwayDialogCancel}
-					onApply={this.handlePathwayDialogApply}></PathwayDialog>}
+					{this.state.selectedPathway && <PathwayDialog
+						pathway={this.state.selectedPathway.pathway}
+						onCancel={this.handlePathwayDialogCancel}
+						onApply={this.handlePathwayDialogApply}></PathwayDialog>}
+				</div>
 			</div>
 		);
 	}

@@ -18,7 +18,12 @@ export default class VisService {
             if (stop.signpostedAs) {
                 label += '\nSignposted: "' + stop.signpostedAs + '"';
             }
-        }
+		}
+		else if (stop.locationType === 2) { // Entrance/Exit
+			if (stop.platformCode) {
+                label += '\nNumber: "' + stop.platformCode + '"';
+            }
+		}
         return label;
     }
 

@@ -101,7 +101,25 @@ export default class Vis extends Component<VisProps, VisState> {
             springLength: 200
           },
           maxVelocity: 40
-        }
+		},
+		locales: {
+			'gtfs': {
+				edit: 'Edit',
+				del: 'Delete selected',
+				back: 'Back',
+				addNode: 'Add Location',
+				addEdge: 'Add Pathway',
+				editNode: 'Edit Location',
+				editEdge: 'Edit Pathway',
+				addDescription: 'Click in an empty space to place a new location.',
+				edgeDescription: 'Click on a location and drag the pathway to another location to connect them.',
+				editEdgeDescription: 'Click on the control points and drag them to a location to connect to it.',
+				createEdgeError: 'Cannot link pathways to a cluster.',
+				deleteClusterError: 'Clusters cannot be deleted.',
+				editClusterError: 'Clusters cannot be edited.'
+			}
+		},
+		locale: 'gtfs'
     };
     let network = new vis.Network(container, {nodes, edges}, options);
 

@@ -109,7 +109,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
             <div>
               Name: <input type="text" value={this.state.stopName || ""} onChange={this.handleStopNameChange} />
             </div>
-            {[0].includes(this.state.locationType) && <div>
+            {[0, 2].includes(this.state.locationType) && <div>
               Platform code: <input type="text" value={this.state.platformCode || ""} onChange={this.handlePlatformCodeChange} />
             </div>}
             {[0].includes(this.state.locationType) && <div>
