@@ -9,25 +9,27 @@ export default class DataService {
         let records: T[] = [];
         let header: string[] = [];
         rows.forEach((row: string) => {
-            const cells = row.split(",");
-            // header
-            if (header.length === 0) {
-                cells.forEach((cell: string, cellIndex: number) => {
-                    header[cellIndex] = cell;
-                });
-            }
-            // data
-            else {
-                let recordGTFS: {[key: string]: string} = {};
-                cells.forEach((cell: string, cellIndex: number) => {
-                    if (cell !== '') {
-                        const fieldName = header[cellIndex];
-                        recordGTFS[fieldName] = cell;
-                    }
-                });
+			if (row) {
+				const cells = row.split(",");
+				// header
+				if (header.length === 0) {
+					cells.forEach((cell: string, cellIndex: number) => {
+						header[cellIndex] = cell;
+					});
+				}
+				// data
+				else {
+					let recordGTFS: {[key: string]: string} = {};
+					cells.forEach((cell: string, cellIndex: number) => {
+						if (cell !== '') {
+							const fieldName = header[cellIndex];
+							recordGTFS[fieldName] = cell;
+						}
+					});
 
-                records.push(recordFromGTFS(recordGTFS));
-            }
+					records.push(recordFromGTFS(recordGTFS));
+				}
+			}
         });
         return records;
     }

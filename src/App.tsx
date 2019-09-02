@@ -38,47 +38,81 @@ export default class App extends Component<AppProps, AppState> {
 				pathways: [],
 				levels: []
 			};
-			Array.from(event.target.files).forEach((file: File) => {
-				requiredFiles.splice(requiredFiles.indexOf(file.name), 1);
-				const fileReader = new FileReader();
-				fileReader.onload = () => {
-					switch (file.name) {
-						case "stops.txt":
-							requiredFilesCount--;
-							communicationPacket.stops = DataService.fromGTFS(
-								fileReader.result ? fileReader.result.toString() : "",
-								DataService.stopFromGTFS
-							);
-							break;
-						case "pathways.txt":
-							requiredFilesCount--;
-							communicationPacket.pathways = DataService.fromGTFS(
-								fileReader.result ? fileReader.result.toString() : "",
-								DataService.pathwayFromGTFS
-							);
-							break;
-						case "levels.txt":
-							requiredFilesCount--;
-							communicationPacket.levels = DataService.fromGTFS(
-								fileReader.result ? fileReader.result.toString() : "",
-								DataService.levelFromGTFS
-							);
-							break;
-					}
-					if (requiredFilesCount === 0) {
-						this.setState({
-							data: communicationPacket,
-							editMode: true
+			
+			// Zip
+			if (event.target.files.length === 1) {
+				const zipFile = event.target.files[0];
+				JSZip.loadAsync(zipFile).then((zip) => {
+					zip.forEach((relativePath, file) => {
+						requiredFiles.splice(requiredFiles.indexOf(file.name), 1);
+						file.async("text").then((fileContent: string) => {
+							if (this.extractData(file.name, fileContent, communicationPacket)) {
+								requiredFilesCount--;
+							}
+							if (requiredFilesCount === 0) {
+								this.setState({
+									data: communicationPacket,
+									editMode: true
+								});
+							}
 						});
+					});
+					if (requiredFiles.length !== 0) {
+						alert("Missing files: " + requiredFiles.join(", "));
 					}
-				};
-				fileReader.readAsText(file);
-			});
-			if (requiredFiles.length !== 0) {
-				alert("Missing files: " + requiredFiles.join(", "));
+				}, function (e) {
+					console.log(e);
+					alert(e.message);
+				});
+			}
+			// Separate files
+			else {
+				Array.from(event.target.files).forEach((file: File) => {
+					requiredFiles.splice(requiredFiles.indexOf(file.name), 1);
+					const fileReader = new FileReader();
+					fileReader.onload = () => {
+						if (this.extractData(file.name, fileReader.result ? fileReader.result.toString() : "", communicationPacket)) {
+							requiredFilesCount--;
+						}
+						if (requiredFilesCount === 0) {
+							this.setState({
+								data: communicationPacket,
+								editMode: true
+							});
+						}
+					};
+					fileReader.readAsText(file);
+				});
+				if (requiredFiles.length !== 0) {
+					alert("Missing files: " + requiredFiles.join(", "));
+				}
 			}
 		}
 	};
+
+	private extractData(fileName: string, data: string, communicationPacket: Communication): boolean {
+		switch (fileName) {
+			case "stops.txt":
+				communicationPacket.stops = DataService.fromGTFS(
+					data,
+					DataService.stopFromGTFS
+				);
+				return true;
+			case "pathways.txt":
+				communicationPacket.pathways = DataService.fromGTFS(
+					data,
+					DataService.pathwayFromGTFS
+				);
+				return true;
+			case "levels.txt":
+				communicationPacket.levels = DataService.fromGTFS(
+					data,
+					DataService.levelFromGTFS
+				);
+				return true;
+		}
+		return false;
+	}
 
 	private saveStation = (data: Communication) => {
 		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
@@ -99,6 +133,14 @@ export default class App extends Component<AppProps, AppState> {
 		zip.file('levels.txt', levelsTxt);
 		zip.generateAsync({ type: "blob" }).then(function (blob) {
 			saveAs(blob, "gtfs.zip");
+		});
+		this.setState({
+			editMode: false,
+			data: {
+				stops: [],
+				pathways: [],
+				levels: []
+			}
 		});
 	}
 
