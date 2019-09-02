@@ -44,14 +44,24 @@ export default class DataService {
         };
     }
 
+	static getStopGTFSHeader(): string {
+		return	'stop_id,' +
+				'stop_name,' +
+				'location_type,' +
+				'wheelchair_boarding,' +
+				'level_id,' +
+				'platform_code,' +
+				'signposted_as';
+	}
+
     static stopToGTFS(stop: Stop): string {
-        return  stop.stopId + ',' +
-                stop.stopName + ',' +
-                stop.locationType + ',' +
-                stop.wheelchairBoarding + ',' +
-                stop.levelId ? '1' : '0' + ',' +
-                stop.platformCode + ',' +
-                stop.signpostedAs;
+        return  stop.stopId.toString() + ',' +
+				this.escapeText(stop.stopName || '') + ',' +
+                stop.locationType.toString() + ',' +
+                stop.wheelchairBoarding.toString() + ',' +
+                (stop.levelId || '') + ',' +
+                this.escapeText(stop.platformCode || '') + ',' +
+                this.escapeText(stop.signpostedAs || '');
     }
 
     static pathwayFromGTFS(pathway: {[key: string]: string}): Pathway {
@@ -71,19 +81,34 @@ export default class DataService {
         };
     }
 
+	static getPathwayGTFSHeader(): string {
+		return	'pathway_id,' +
+				'from_stop_id,' +
+				'to_stop_id,' +
+				'pathway_mode,' +
+				'is_bidirectional,' +
+				'length,' +
+				'traversal_time,' +
+				'stair_count,' +
+				'max_slope,' +
+				'min_width,' +
+				'signposted_as,' +
+				'reversed_signposted_as';
+	}
+
     static pathwayToGTFS(pathway: Pathway): string {
-        return  pathway.pathwayId + ',' +
-                pathway.fromStopId + ',' +
-                pathway.toStopId + ',' +
-                pathway.pathwayMode + ',' +
-                pathway.isBidirectional ? '1' : '0' + ',' +
-                pathway.length + ',' +
-                pathway.traversalTime + ',' +
-                pathway.stairCount + ',' +
-                pathway.maxSlope + ',' +
-                pathway.minWidth + ',' +
-                pathway.signpostedAs + ',' +
-                pathway.reversedSignpostedAs;
+        return  pathway.pathwayId.toString() + ',' +
+                pathway.fromStopId.toString() + ',' +
+                pathway.toStopId.toString() + ',' +
+                pathway.pathwayMode.toString() + ',' +
+                (pathway.isBidirectional ? '1' : '0') + ',' +
+                (pathway.length || '') + ',' +
+                (pathway.traversalTime || '') + ',' +
+                (pathway.stairCount || '') + ',' +
+                (pathway.maxSlope || '') + ',' +
+                (pathway.minWidth || '') + ',' +
+                this.escapeText(pathway.signpostedAs || '') + ',' +
+                this.escapeText(pathway.reversedSignpostedAs || '');
     }
 
     static levelFromGTFS(level: {[key: string]: string}): Level {
@@ -94,9 +119,20 @@ export default class DataService {
         };
     }
 
+	static getLevelGTFSHeader(): string {
+		return	'level_id,' +
+				'level_name,' +
+				'level_index';
+	}
+
     static levelToGTFS(level: Level): string {
-        return  level.levelId + ',' +
-                level.levelName + ',' +
-                level.levelIndex;
-    }
+        return  level.levelId.toString() + ',' +
+				this.escapeText(level.levelName || '') + ',' +
+                level.levelIndex.toString();
+	}
+
+	// TODO
+	static escapeText(text: string): string {
+		return text;
+	}
 }

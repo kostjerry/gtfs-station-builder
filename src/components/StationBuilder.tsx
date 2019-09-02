@@ -12,7 +12,8 @@ import PathwayDialog from './PathwayDialog';
 import cloneDeep from 'lodash/cloneDeep';
 
 export interface StationBuilderProps {
-	data: Communication
+	data: Communication,
+	onSave: (data: Communication) => void
 }
 
 export interface StationBuilderState {
@@ -162,7 +163,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleSaveClick = () => {
-		console.log(this.state.data);
+		this.props.onSave(this.state.data);
 	}
 
 	render() {
