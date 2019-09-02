@@ -8,6 +8,9 @@ import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 // This service defines how to draw things
 //   and take care of stop-node and pathway-edge convertion
 export default class VisService {
+	static newStopId = -1;
+	static newPathwayId = -1;
+
     static getNodeLabel(stop: Stop): string {
         let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
         let label =  stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
@@ -64,18 +67,20 @@ export default class VisService {
     }
 
     static prepareNewNode(node: VisNode): VisNode {
+		node.id = this.newStopId;
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
         node.shape = 'circularImage';
         node.size = 12;
         node.stop = {
-            stopId: -1,
+            stopId: this.newStopId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,
             wheelchairBoarding: WheelchairBoardingMap.NoInfo,
             platformCode: "",
             signpostedAs: ""
-        };
+		};
+		this.newStopId--;
         return node;
     }
 
@@ -110,6 +115,7 @@ export default class VisService {
     }
 
     static prepareNewEdge(edge: VisEdge): VisEdge {
+		edge.id = this.newPathwayId;
         edge.color = {
             color: PathwayModeColors[PathwayModeMap.Escalator],
             highlight: PathwayModeColors[PathwayModeMap.Escalator]
@@ -123,7 +129,7 @@ export default class VisService {
         };
         edge.label = '';
         edge.pathway = {
-            pathwayId: -1,
+            pathwayId: this.newPathwayId,
             fromStopId: edge.from,
             toStopId: edge.to,
             pathwayMode: PathwayModeMap.Escalator,
@@ -135,7 +141,8 @@ export default class VisService {
             minWidth: undefined,
             signpostedAs: "",
             reversedSignpostedAs: ""
-        }
+		}
+		this.newPathwayId--;
         return edge;
     }
 }
