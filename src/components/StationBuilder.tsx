@@ -9,12 +9,14 @@ import Communication from '../interfaces/Communication';
 import Pathway from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
 import PathwayDialog from './PathwayDialog';
+import cloneDeep from 'lodash/cloneDeep';
 
 export interface StationBuilderProps {
 	data: Communication
 }
 
 export interface StationBuilderState {
+	data: Communication,
 	selectedStop: {
 		stop: Stop,
 		node: VisNode,
@@ -33,22 +35,21 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	constructor(props: StationBuilderProps) {
 		super(props);
 		this.state = {
+			data: cloneDeep(props.data),
 			selectedStop: null,
 			selectedPathway: null
 		};
-		if (this.props.data.stops) {
-			this.props.data.stops.map((stop: Stop) => {
-				if (stop.locationType === 1) {
-					this.stationId = stop.stopId;
-				}
-			});
-		}
+		this.props.data.stops.map((stop: Stop) => {
+			if (stop.locationType === 1) {
+				this.stationId = stop.stopId;
+			}
+		});
 		if (this.stationId === -1) {
 			throw "No station provided in input data";
 		}
 	}
 
-	private handleStopAdd = (node: VisNode, callback: (node?: VisNode) => void) => {
+	private handleStopAddMode = (node: VisNode, callback: (node?: VisNode) => void) => {
 		node = VisService.prepareNewNode(node);
 		this.setState({
 			selectedStop: {
@@ -59,7 +60,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
-	private handleStopEdit = (node: VisNode, callback: (node?: VisNode) => void) => {
+	private handleStopEditMode = (node: VisNode, callback: (node?: VisNode) => void) => {
 		this.setState({
 			selectedStop: {
 				stop: node.stop,
@@ -69,37 +70,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
-	private handleStopDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => {
-		const nodeId = dataToDelete.nodes[0];
-		if (this.stationId === nodeId) {
-			alert("It's disallowed to delete a station");
-			callback();
-		}
-		else {
-			callback(dataToDelete);
-		}
-	}
-
-	private handleStopDialogCancel = () => {
-		if (this.state.selectedStop) {
-			this.state.selectedStop.callback();
-			this.setState({
-				selectedStop: null
-			});
-		}
-	}
-
-	private handleStopDialogApply = (stop: Stop) => {
-		if (this.state.selectedStop) {
-			const node = VisService.attachStopToNode(stop, this.state.selectedStop.node);
-			this.state.selectedStop.callback(node);
-			this.setState({
-				selectedStop: null
-			});
-		}
-	}
-
-	private handlePathwayAdd = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
+	private handlePathwayAddMode = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
 		edge = VisService.prepareNewEdge(edge);
 		this.setState({
 			selectedPathway: {
@@ -110,7 +81,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
-	private handlePathwayEdit = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
+	private handlePathwayEditMode = (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
 		this.setState({
 			selectedPathway: {
 				pathway: edge.pathway,
@@ -120,21 +91,32 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
-	private handlePathwayDelete = (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => {
-		callback(dataToDelete);
-	}
-
-	private handlePathwayDialogCancel = () => {
-		if (this.state.selectedPathway) {
-			this.state.selectedPathway.callback();
+	private handleStopDialogApply = (stop: Stop) => {
+		if (this.state.selectedStop) {
+			const stopIndex = this.state.data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
+			if (stopIndex === -1) {
+				this.state.data.stops.push(stop);
+			}
+			else {
+				this.state.data.stops[stopIndex] = stop;
+			}
+			const node = VisService.attachStopToNode(stop, this.state.selectedStop.node);
+			this.state.selectedStop.callback(node);
 			this.setState({
-				selectedPathway: null
+				selectedStop: null
 			});
 		}
 	}
 
 	private handlePathwayDialogApply = (pathway: Pathway) => {
 		if (this.state.selectedPathway) {
+			const pathwayIndex = this.state.data.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
+			if (pathwayIndex === -1) {
+				this.state.data.pathways.push(pathway);
+			}
+			else {
+				this.state.data.pathways[pathwayIndex] = pathway;
+			}
 			const edge = VisService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
 			this.state.selectedPathway.callback(edge);
 			this.setState({
@@ -143,8 +125,44 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		}
 	}
 
+	private handleItemDelete = (
+		dataToDelete: { nodes: number[], edges: number[] },
+		callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void
+	) => {
+		dataToDelete.nodes.forEach((nodeId: number) => {
+			if (this.stationId === nodeId) {
+				alert("It's disallowed to delete a station");
+				callback();
+			}
+			else {
+				const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
+				this.state.data.stops.splice(stopIndex, 1);
+			}
+		});
+		dataToDelete.edges.forEach((pathwayId: number) => {
+			const pathwayIndex = this.state.data.pathways.findIndex(pathway => pathway.pathwayId === pathwayId);
+			this.state.data.pathways.splice(pathwayIndex, 1);
+		});
+		callback(dataToDelete);
+	}
+
+	private handleDialogCancel = () => {
+		if (this.state.selectedStop) {
+			this.state.selectedStop.callback();
+			this.setState({
+				selectedStop: null
+			});
+		}
+		if (this.state.selectedPathway) {
+			this.state.selectedPathway.callback();
+			this.setState({
+				selectedPathway: null
+			});
+		}
+	}
+
 	private handleSaveClick = () => {
-		console.log(this.props.data);
+		console.log(this.state.data);
 	}
 
 	render() {
@@ -155,22 +173,22 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				</div>
 				<div className="graph">
 					<Vis
-						data={this.props.data}
-						onStopAdd={this.handleStopAdd}
-						onStopEdit={this.handleStopEdit}
-						onStopDelete={this.handleStopDelete}
-						onPathwayAdd={this.handlePathwayAdd}
-						onPathwayEdit={this.handlePathwayEdit}
-						onPathwayDelete={this.handlePathwayDelete}></Vis>
+						data={this.state.data}
+						onStopAdd={this.handleStopAddMode}
+						onStopEdit={this.handleStopEditMode}
+						onStopDelete={this.handleItemDelete}
+						onPathwayAdd={this.handlePathwayAddMode}
+						onPathwayEdit={this.handlePathwayEditMode}
+						onPathwayDelete={this.handleItemDelete}></Vis>
 
 					{this.state.selectedStop && <StopDialog
 						stop={this.state.selectedStop.stop}
-						onCancel={this.handleStopDialogCancel}
+						onCancel={this.handleDialogCancel}
 						onApply={this.handleStopDialogApply}></StopDialog>}
 
 					{this.state.selectedPathway && <PathwayDialog
 						pathway={this.state.selectedPathway.pathway}
-						onCancel={this.handlePathwayDialogCancel}
+						onCancel={this.handleDialogCancel}
 						onApply={this.handlePathwayDialogApply}></PathwayDialog>}
 				</div>
 			</div>

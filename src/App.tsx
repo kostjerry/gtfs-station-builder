@@ -27,32 +27,40 @@ export default class App extends Component<AppProps, AppState> {
 	private handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files) {
 			let requiredFiles = ["stops.txt", "levels.txt", "pathways.txt"];
-			let communicationPacket: Communication = {};
+			let requiredFilesCount = requiredFiles.length;
+			let communicationPacket: Communication = {
+				stops: [],
+				pathways: [],
+				levels: []
+			};
 			Array.from(event.target.files).forEach((file: File) => {
 				requiredFiles.splice(requiredFiles.indexOf(file.name), 1);
 				const fileReader = new FileReader();
 				fileReader.onload = () => {
 					switch (file.name) {
 						case "stops.txt":
+							requiredFilesCount--;
 							communicationPacket.stops = DataService.fromGTFS(
 								fileReader.result ? fileReader.result.toString() : "",
 								DataService.stopFromGTFS
 							);
 							break;
 						case "pathways.txt":
+							requiredFilesCount--;
 							communicationPacket.pathways = DataService.fromGTFS(
 								fileReader.result ? fileReader.result.toString() : "",
 								DataService.pathwayFromGTFS
 							);
 							break;
 						case "levels.txt":
+							requiredFilesCount--;
 							communicationPacket.levels = DataService.fromGTFS(
 								fileReader.result ? fileReader.result.toString() : "",
 								DataService.levelFromGTFS
 							);
 							break;
 					}
-					if (Object.keys(communicationPacket).length === 3) {
+					if (requiredFilesCount === 0) {
 						this.setState({
 							data: communicationPacket,
 							editMode: true

@@ -37,9 +37,7 @@ export default class Vis extends Component<VisProps, VisState> {
     let levelsX: { [key: string]: number }  = {};
 
     // get nodes from stops
-	let nodes: VisNode[] = [];
-	if (this.props.data.stops) {
-		nodes = this.props.data.stops.map((stop: Stop): VisNode => {
+	const nodes: VisNode[] = this.props.data.stops.map((stop: Stop): VisNode => {
 		let graphLevel = LocationTypeSort[stop.locationType];
 		if (!levelsX[graphLevel]) {
 			levelsX[graphLevel] = x - stepX;
@@ -47,17 +45,13 @@ export default class Vis extends Component<VisProps, VisState> {
 		levelsX[graphLevel] += stepX;
 		const node = VisService.convertStopToNode(stop, levelsX[graphLevel], y + LocationTypeSort[stop.locationType] * stepY);
 		return node;
-		});
-	}
+	});
 
 	// get edges from pathways
-	let edges: VisEdge[] = [];
-	if (this.props.data.pathways) {
-		edges = this.props.data.pathways.map((pathway: Pathway): VisEdge => {
+	const edges: VisEdge[] = this.props.data.pathways.map((pathway: Pathway): VisEdge => {
 		const edge = VisService.convertPathwayToEdge(pathway);
 		return edge;
-		});
-	}
+	});
 
     // configure vis
     var options = {
@@ -72,7 +66,10 @@ export default class Vis extends Component<VisProps, VisState> {
           initiallyActive: true,
           addNode: this.props.onStopAdd,
           editNode: this.props.onStopEdit,
-          deleteNode: this.props.onStopDelete,
+          deleteNode: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void): void => {
+			dataToDelete.edges = network.getConnectedEdges(dataToDelete.nodes[0]);
+			this.props.onStopDelete(dataToDelete, callback);
+		  },
           addEdge: this.props.onPathwayAdd,
           editEdge:  {
             editWithoutDrag: (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
