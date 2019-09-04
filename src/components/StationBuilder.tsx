@@ -44,9 +44,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			if (stop.locationType === 1) {
 				this.stationId = stop.stopId;
 			}
+			return false;
 		});
 		if (this.stationId === -1) {
-			throw "No station provided in input data";
+			throw new Error("No station provided in input data");
 		}
 	}
 
@@ -170,7 +171,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		return (
 			<div className="station-builder">
 				<div className="panel">
-					<a onClick={this.handleSaveClick}>Save</a>
+					<button onClick={this.handleSaveClick}>Save</button>
 				</div>
 				<div className="graph">
 					<Vis

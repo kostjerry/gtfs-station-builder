@@ -66,7 +66,7 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 
   private handleLengthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      length: event.target.value.replace(",", ".").replace(/[^\d\.]/i, "")
+      length: event.target.value.replace(",", ".").replace(/[^\d.]/i, "")
     });
   }
   
@@ -84,13 +84,13 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 
   private handleMaxSlopeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      maxSlope: event.target.value.replace(",", ".").replace(/[^\d\.]/i, "")
+      maxSlope: event.target.value.replace(",", ".").replace(/[^\d.]/i, "")
     });
   }
 
   private handleMinWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      minWidth: event.target.value.replace(",", ".").replace(/[^\d\.]/i, "")
+      minWidth: event.target.value.replace(",", ".").replace(/[^\d.]/i, "")
     });
   }
 
