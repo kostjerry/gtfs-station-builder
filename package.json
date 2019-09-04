@@ -2,6 +2,7 @@
   "name": "gtfs-station-builder",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://kostjerry.github.io/gtfs-station-builder/sample",
   "dependencies": {
     "@types/file-saver": "^2.0.1",
     "@types/jest": "^24.0.16",
