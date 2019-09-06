@@ -52,7 +52,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleStopAddMode = (node: VisNode, callback: (node?: VisNode) => void) => {
-		node = VisService.prepareNewNode(node);
+		node = VisService.prepareNewNode(node, this.stationId);
 		this.setState({
 			selectedStop: {
 				stop: node.stop,

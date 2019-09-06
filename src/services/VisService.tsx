@@ -66,14 +66,15 @@ export default class VisService {
         return node;
     }
 
-    static prepareNewNode(node: VisNode): VisNode {
+    static prepareNewNode(node: VisNode, stationId: number): VisNode {
 		node.id = this.newStopId;
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
         node.shape = 'circularImage';
         node.size = 12;
         node.stop = {
-            stopId: this.newStopId,
+			stopId: this.newStopId,
+			parentStation: stationId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,
             wheelchairBoarding: WheelchairBoardingMap.NoInfo,

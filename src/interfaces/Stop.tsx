@@ -1,5 +1,6 @@
 export default interface Stop {
-    stopId: number;
+	stopId: number;
+	parentStation?: number,
     stopName?: string;
     locationType: number;
     wheelchairBoarding: number;

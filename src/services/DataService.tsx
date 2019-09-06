@@ -36,7 +36,8 @@ export default class DataService {
 
     static stopFromGTFS(stop: {[key: string]: string}): Stop {
         return {
-            stopId: Number(stop['stop_id']),
+			stopId: Number(stop['stop_id']),
+			parentStation: Number(stop['parent_station']),
             stopName: stop['stop_name'],
             locationType: Number(stop['location_type']),
             wheelchairBoarding: Number(stop['wheelchair_boarding']),
@@ -50,6 +51,7 @@ export default class DataService {
 		return	'stop_id,' +
 				'stop_name,' +
 				'location_type,' +
+				'parent_station,' +
 				'wheelchair_boarding,' +
 				'level_id,' +
 				'platform_code,' +
@@ -59,7 +61,8 @@ export default class DataService {
     static stopToGTFS(stop: Stop): string {
         return  stop.stopId.toString() + ',' +
 				this.escapeText(stop.stopName || '') + ',' +
-                stop.locationType.toString() + ',' +
+				stop.locationType.toString() + ',' +
+				(stop.parentStation || '') + ',' +
                 stop.wheelchairBoarding.toString() + ',' +
                 (stop.levelId || '') + ',' +
                 this.escapeText(stop.platformCode || '') + ',' +
