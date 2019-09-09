@@ -1,6 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import StationBuilder from './components/StationBuilder';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+window.GtfsStationBuilder = {
+    mount: (props, container) => {
+        ReactDOM.render(<StationBuilder {...props} />, container);
+    },
+    unmount: (container) => {
+        ReactDOM.unmountComponentAtNode(container);
+    }
+}
