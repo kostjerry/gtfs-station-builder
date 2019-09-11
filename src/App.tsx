@@ -3,11 +3,7 @@ import "./App.scss";
 import StationBuilder from "./components/StationBuilder";
 import Communication from "./interfaces/Communication";
 import DataService from "./services/DataService";
-import Stop from "./interfaces/Stop";
 import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import Pathway from "./interfaces/Pathway";
-import Level from "./interfaces/Level";
 
 export interface AppProps {}
 
@@ -114,26 +110,7 @@ export default class App extends Component<AppProps, AppState> {
 		return false;
 	}
 
-	private saveStation = (data: Communication) => {
-		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
-		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
-		let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
-		data.stops.forEach((stop: Stop) => {
-			stopsTxt += DataService.stopToGTFS(stop) + "\n";
-		});
-		data.pathways.forEach((pathway: Pathway) => {
-			pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
-		});
-		data.levels.forEach((level: Level) => {
-			levelsTxt += DataService.levelToGTFS(level) + "\n";
-		});
-		const zip = new JSZip();
-		zip.file('stops.txt', stopsTxt);
-		zip.file('pathways.txt', pathwaysTxt);
-		zip.file('levels.txt', levelsTxt);
-		zip.generateAsync({ type: "blob" }).then(function (blob) {
-			saveAs(blob, "gtfs.zip");
-		});
+	private saveStation = () => {
 		this.setState({
 			editMode: false,
 			data: {

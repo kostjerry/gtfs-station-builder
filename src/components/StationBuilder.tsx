@@ -10,6 +10,10 @@ import Pathway from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
 import PathwayDialog from './PathwayDialog';
 import cloneDeep from 'lodash/cloneDeep';
+import DataService from '../services/DataService';
+import Level from '../interfaces/Level';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 export interface StationBuilderProps {
 	data: Communication,
@@ -167,11 +171,34 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		this.props.onSave(this.state.data);
 	}
 
+	private handleDownloadClick = () => {
+		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
+		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
+		let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
+		this.state.data.stops.forEach((stop: Stop) => {
+			stopsTxt += DataService.stopToGTFS(stop) + "\n";
+		});
+		this.state.data.pathways.forEach((pathway: Pathway) => {
+			pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
+		});
+		this.state.data.levels.forEach((level: Level) => {
+			levelsTxt += DataService.levelToGTFS(level) + "\n";
+		});
+		const zip = new JSZip();
+		zip.file('stops.txt', stopsTxt);
+		zip.file('pathways.txt', pathwaysTxt);
+		zip.file('levels.txt', levelsTxt);
+		zip.generateAsync({ type: "blob" }).then(function (blob) {
+			saveAs(blob, "gtfs.zip");
+		});
+	}
+
 	render() {
 		return (
 			<div className="station-builder">
 				<div className="panel">
 					<button onClick={this.handleSaveClick}>Save</button>
+					<button className="download" onClick={this.handleDownloadClick}>Download</button>
 				</div>
 				<div className="graph">
 					<Vis

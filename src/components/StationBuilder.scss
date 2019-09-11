@@ -1,11 +1,11 @@
 .station-builder {
 	.panel {
 		width: 100vw;
-		height: 30px;
+		
 		display: block;
 		button {
 			width: 100%;
-			height: 100%;
+			height: 30px;
 			line-height: 30px;
 			display: block;
 			background: #000078;
@@ -16,6 +16,9 @@
 			font-weight: bold;
 			border: none;
 			padding: 0;
+			&.download {
+				background: #a2c970;
+			}
 		}
 	}
 	.graph {
