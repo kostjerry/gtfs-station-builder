@@ -15,9 +15,13 @@ import Level from '../interfaces/Level';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
+declare const google: any;
+
 export interface StationBuilderProps {
 	data: Communication,
-	onSave: (data: Communication) => void
+	onSave: (data: Communication) => void,
+	mapDiv?: HTMLDivElement,
+	map?: google.maps.Map
 }
 
 export interface StationBuilderState {
@@ -35,6 +39,7 @@ export interface StationBuilderState {
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
+	private mapRef: React.RefObject<HTMLDivElement> = React.createRef();
 	private stationId: number = -1;
 
 	constructor(props: StationBuilderProps) {
@@ -52,6 +57,28 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 		if (this.stationId === -1) {
 			throw new Error("No station provided in input data");
+		}
+	}
+
+	public componentDidMount() {
+		const bounds = new google.maps.LatLngBounds();
+		this.props.data.stops.forEach((stop: Stop) => {
+			bounds.extend({
+				lat: stop.stopLat,
+				lng: stop.stopLon
+			});
+		});
+
+		if (this.mapRef.current) {
+			if (this.props.mapDiv && this.props.map) {
+				this.mapRef.current.appendChild(this.props.mapDiv);
+				this.props.map.fitBounds(bounds);
+			}
+			else {
+				console.log("Google map initialized");
+				let map = new google.maps.Map(this.mapRef.current);
+				map.fitBounds(bounds);
+			}
 		}
 	}
 
@@ -200,25 +227,28 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 					<button onClick={this.handleSaveClick}>Save</button>
 					<button className="download" onClick={this.handleDownloadClick}>Download</button>
 				</div>
-				<div className="graph">
-					<Vis
-						data={this.state.data}
-						onStopAdd={this.handleStopAddMode}
-						onStopEdit={this.handleStopEditMode}
-						onStopDelete={this.handleItemDelete}
-						onPathwayAdd={this.handlePathwayAddMode}
-						onPathwayEdit={this.handlePathwayEditMode}
-						onPathwayDelete={this.handleItemDelete}></Vis>
+				<div className="main">
+					<div className="graph">
+						<Vis
+							data={this.state.data}
+							onStopAdd={this.handleStopAddMode}
+							onStopEdit={this.handleStopEditMode}
+							onStopDelete={this.handleItemDelete}
+							onPathwayAdd={this.handlePathwayAddMode}
+							onPathwayEdit={this.handlePathwayEditMode}
+							onPathwayDelete={this.handleItemDelete}></Vis>
 
-					{this.state.selectedStop && <StopDialog
-						stop={this.state.selectedStop.stop}
-						onCancel={this.handleDialogCancel}
-						onApply={this.handleStopDialogApply}></StopDialog>}
+						{this.state.selectedStop && <StopDialog
+							stop={this.state.selectedStop.stop}
+							onCancel={this.handleDialogCancel}
+							onApply={this.handleStopDialogApply}></StopDialog>}
 
-					{this.state.selectedPathway && <PathwayDialog
-						pathway={this.state.selectedPathway.pathway}
-						onCancel={this.handleDialogCancel}
-						onApply={this.handlePathwayDialogApply}></PathwayDialog>}
+						{this.state.selectedPathway && <PathwayDialog
+							pathway={this.state.selectedPathway.pathway}
+							onCancel={this.handleDialogCancel}
+							onApply={this.handlePathwayDialogApply}></PathwayDialog>}
+					</div>
+					<div className="map" ref={this.mapRef}></div>
 				</div>
 			</div>
 		);

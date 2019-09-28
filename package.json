@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@types/file-saver": "^2.0.1",
+    "@types/googlemaps": "^3.37.7",
     "@types/jest": "^24.0.16",
     "@types/jszip": "^3.1.6",
     "@types/lodash": "^4.14.138",

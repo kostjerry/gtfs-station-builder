@@ -21,9 +21,18 @@
 			}
 		}
 	}
-	.graph {
-		width: 100vw;
-		height: calc(100vh - 30px);
-		display: block;
+	.main {
+		display: flex;
+		flex-direction: row;
+		.graph {
+			width: 70vw;
+			height: calc(100vh - 30px);
+			display: block;
+		}
+		.map {
+			width: 30vw;
+			height: calc(100vh - 30px);
+			display: block;
+		}
 	}
 }
