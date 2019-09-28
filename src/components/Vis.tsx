@@ -51,7 +51,6 @@ export default class Vis extends Component<VisProps, VisState> {
 	});
 	let latGap = maxLat - minLat;
 	let lonGap = maxLon - minLon;
-	console.log(latGap*1000000, lonGap*1000000);
 	
     // get nodes from stops
 	const nodes: VisNode[] = this.props.data.stops.map((stop: Stop): VisNode => {
@@ -70,11 +69,16 @@ export default class Vis extends Component<VisProps, VisState> {
     // configure vis
     var options = {
         nodes: {
-          borderWidth: 2
+        	borderWidth: 2
         },
         edges: {
-		  selectionWidth: 2,
-		  smooth: true
+			width: 2,
+			selectionWidth: 3,
+			smooth: true,
+			font: {
+				align: 'middle',
+				size: 10
+			}
         },
         manipulation: {
           enabled: true,

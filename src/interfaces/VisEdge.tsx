@@ -16,9 +16,6 @@ export default interface VisEdge {
 		type: string,
 		roundness: number
 	},
-    font: {
-        align: string
-    },
-    label: string,
+	label: string,
     pathway: Pathway
 }

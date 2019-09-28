@@ -63,7 +63,6 @@ export default class VisService {
 	}
 
 	static convertStopToNode(stop: Stop): VisNode {
-		console.log(Math.round(stop.stopLon * 1000000), Math.round(stop.stopLat * 1000000));
         return {
             id: stop.stopId,
             label: VisService.getNodeLabel(stop),
@@ -125,9 +124,6 @@ export default class VisService {
                 to: true
 			},
 			smooth: this.getEdgeSmoothVariant(pathway.fromStopId, pathway.toStopId),
-            font: {
-                align: 'center'
-            },
             label: VisService.getEdgeLabel(pathway),
             pathway: pathway
 		};
@@ -138,7 +134,7 @@ export default class VisService {
         edge.color.highlight = PathwayModeColors[pathway.pathwayMode];
         edge.arrows.from = pathway.isBidirectional;
         edge.label = VisService.getEdgeLabel(pathway);
-        edge.pathway = pathway;
+		edge.pathway = pathway;
         return edge;
     }
 
@@ -151,9 +147,6 @@ export default class VisService {
         edge.arrows = {
             from: true,
             to: true
-        };
-        edge.font = {
-            align: 'center'
         };
         edge.label = '';
         edge.pathway = {
