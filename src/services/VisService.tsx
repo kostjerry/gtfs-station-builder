@@ -10,6 +10,29 @@ import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 export default class VisService {
 	static newStopId = -1;
 	static newPathwayId = -1;
+	static edgeRoundness: {
+		[key: string]: number
+	} = {};
+
+	static getEdgeSmoothVariant(from: number, to: number): { type: string, roundness: number } {
+		let hash = from + ":" + to + ":" + 1;
+		let hashReversedDir = from + ":" + to + ":" + 2;
+		if (from > to) {
+			hash = to + ":" + from + ":" + 2;
+			hashReversedDir = to + ":" + from + ":" + 1;
+		}
+		if (this.edgeRoundness[hash] === undefined) {
+			this.edgeRoundness[hash] = 0.0;
+			this.edgeRoundness[hashReversedDir] = 0.0;
+		}
+		else {
+			this.edgeRoundness[hash] += 0.2;
+		}
+		return {
+			type: "curvedCW",
+			roundness: this.edgeRoundness[hash]
+		}
+	}
 
     static getNodeLabel(stop: Stop): string {
         let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
@@ -97,13 +120,14 @@ export default class VisService {
             arrows: {
                 from: pathway.isBidirectional,
                 to: true
-            },
+			},
+			smooth: this.getEdgeSmoothVariant(pathway.fromStopId, pathway.toStopId),
             font: {
                 align: 'center'
             },
             label: VisService.getEdgeLabel(pathway),
             pathway: pathway
-        };
+		};
     }
 
     static attachPathwayToEdge(pathway: Pathway, edge: VisEdge): VisEdge {
@@ -143,6 +167,7 @@ export default class VisService {
             signpostedAs: "",
             reversedSignpostedAs: ""
 		}
+		edge.smooth = this.getEdgeSmoothVariant(edge.from, edge.to);
 		this.newPathwayId--;
         return edge;
     }

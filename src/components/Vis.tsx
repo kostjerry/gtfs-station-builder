@@ -59,7 +59,8 @@ export default class Vis extends Component<VisProps, VisState> {
           borderWidth: 2
         },
         edges: {
-          selectionWidth: 2
+		  selectionWidth: 2,
+		  smooth: true
         },
         manipulation: {
           enabled: true,
@@ -82,23 +83,24 @@ export default class Vis extends Component<VisProps, VisState> {
           deleteEdge: this.props.onPathwayDelete
         },
         interaction: {
-          dragView: false,
+          dragView: true,
           hoverConnectedEdges: false,
           selectConnectedEdges: false,
-          zoomView: false
-        },
-        physics: {
-          enabled: true,
-          barnesHut: {
-            avoidOverlap: 1,
-            gravitationalConstant: -0.03,
-            centralGravity: 0,
-            springConstant: 0,
-            damping: 1,
-            springLength: 200
-          },
-          maxVelocity: 40
+          zoomView: true
 		},
+		physics: false,
+        // physics: {
+        //   enabled: true,
+        //   barnesHut: {
+        //     avoidOverlap: 1,
+        //     gravitationalConstant: -0.03,
+        //     centralGravity: 0,
+        //     springConstant: 0,
+        //     damping: 1,
+        //     springLength: 200
+        //   },
+        //   maxVelocity: 40
+		// },
 		locales: {
 			'gtfs': {
 				edit: 'Edit',
@@ -128,7 +130,13 @@ export default class Vis extends Component<VisProps, VisState> {
       else if (selection.edges.length === 1) {
         network.editEdgeMode();
       }
-    });
+	});
+	
+	// network.on("stabilized", () => {
+	// 	network.setOptions({
+	// 		physics: false
+	// 	});
+	// });
   }
 
   render() {

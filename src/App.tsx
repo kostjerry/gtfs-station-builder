@@ -139,6 +139,11 @@ export default class App extends Component<AppProps, AppState> {
 			`pathway_id,from_stop_id,to_stop_id,pathway_mode,is_bidirectional,length,traversal_time,stair_count,max_slope,min_width,signposted_as,reversed_signposted_as
 			1,4,2,4,1,,60,,,,,
 			2,4,2,2,1,,120,,,,,
+			21,4,2,2,1,,120,,,,,
+			22,4,2,2,1,,120,,,,,
+			23,2,4,2,1,,120,,,,,
+			24,2,4,2,1,,120,,,,,
+			25,2,4,2,1,,120,,,,,
 			3,5,2,5,1,,20,,,,,
 			4,2,3,1,1,,30,,,,,`
 		, communicationPacket);
