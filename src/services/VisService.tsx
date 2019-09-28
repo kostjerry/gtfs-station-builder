@@ -63,12 +63,13 @@ export default class VisService {
 	}
 
 	static convertStopToNode(stop: Stop): VisNode {
+		console.log(Math.round(stop.stopLon * 1000000), Math.round(stop.stopLat * 1000000));
         return {
             id: stop.stopId,
             label: VisService.getNodeLabel(stop),
             color: LocationTypeColors[stop.locationType],
-            x: stop.stopLon,
-            y: stop.stopLat,
+            x: 0,
+            y: 0,
             image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
             shape: 'circularImage',
             size: 12,

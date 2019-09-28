@@ -29,10 +29,35 @@ export default class Vis extends Component<VisProps, VisState> {
     if (!container) {
       return;
     }
-    
+	
+	// Transform stop coordinates into Vis x:y
+	let minLat = 0;
+	let minLon = 0;
+	let maxLat = 0;
+	let maxLon = 0;
+	this.props.data.stops.forEach((stop: Stop) => {
+		if (!minLat || (stop.stopLat < minLat)) {
+			minLat = stop.stopLat;
+		}
+		if (!minLon || (stop.stopLon < minLon)) {
+			minLon = stop.stopLon;
+		}
+		if (!maxLat || (stop.stopLat > maxLat)) {
+			maxLat = stop.stopLat;
+		}
+		if (!maxLon || (stop.stopLon > maxLon)) {
+			maxLon = stop.stopLon;
+		}
+	});
+	let latGap = maxLat - minLat;
+	let lonGap = maxLon - minLon;
+	console.log(latGap*1000000, lonGap*1000000);
+	
     // get nodes from stops
 	const nodes: VisNode[] = this.props.data.stops.map((stop: Stop): VisNode => {
 		const node = VisService.convertStopToNode(stop);
+		node.x = (stop.stopLon - minLon) / lonGap * 500;
+		node.y = (maxLat - stop.stopLat) / latGap * 500;
 		return node;
 	});
 
