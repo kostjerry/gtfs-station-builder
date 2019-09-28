@@ -128,12 +128,12 @@ export default class App extends Component<AppProps, AppState> {
 			levels: []
 		};
 		this.extractData("stops.txt",
-			`stop_id,stop_name,location_type,parent_station,wheelchair_boarding,level_id,platform_code
-			1,XYZ,1,,0,,
-			2,1,0,1,1,2,K
-			3,2,0,1,1,,
-			4,Center,2,1,2,,
-			5,Park,2,1,1,1,`
+			`stop_id,stop_lat,stol_lon,stop_name,location_type,parent_station,wheelchair_boarding,level_id,platform_code
+			1,,,XYZ,1,,0,,
+			2,,,1,0,1,1,2,K
+			3,,,2,0,1,1,,
+			4,,,Center,2,1,2,,
+			5,,,Park,2,1,1,1,`
 		, communicationPacket);
 		this.extractData("pathways.txt",
 			`pathway_id,from_stop_id,to_stop_id,pathway_mode,is_bidirectional,length,traversal_time,stair_count,max_slope,min_width,signposted_as,reversed_signposted_as

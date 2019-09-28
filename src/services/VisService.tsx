@@ -62,13 +62,13 @@ export default class VisService {
         return label;
 	}
 
-	static convertStopToNode(stop: Stop, x: number, y: number): VisNode {
+	static convertStopToNode(stop: Stop): VisNode {
         return {
             id: stop.stopId,
             label: VisService.getNodeLabel(stop),
             color: LocationTypeColors[stop.locationType],
-            x: x,
-            y: y,
+            x: stop.stopLon,
+            y: stop.stopLat,
             image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
             shape: 'circularImage',
             size: 12,
@@ -97,6 +97,8 @@ export default class VisService {
         node.size = 12;
         node.stop = {
 			stopId: this.newStopId,
+			stopLat: node.x || 0,
+			stopLon: node.y || 0,
 			parentStation: stationId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,

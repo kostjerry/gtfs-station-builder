@@ -1,5 +1,7 @@
 export default interface Stop {
 	stopId: number;
+	stopLat: number,
+	stopLon: number,
 	parentStation?: number,
     stopName?: string;
     locationType: number;
@@ -37,8 +39,4 @@ export const LocationTypeColors = [
     "#f2565c",
     "#999999",
     "#7ecb7d"
-]
-
-export const LocationTypeSort = [
-    3, 0, 1, 2, 4
 ]

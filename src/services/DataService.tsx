@@ -37,6 +37,8 @@ export default class DataService {
     static stopFromGTFS(stop: {[key: string]: string}): Stop {
         return {
 			stopId: Number(stop['stop_id']),
+			stopLat: Number(stop['stop_lat']),
+			stopLon: Number(stop['stop_lon']),
 			parentStation: Number(stop['parent_station']),
             stopName: stop['stop_name'],
             locationType: Number(stop['location_type']),
@@ -49,6 +51,8 @@ export default class DataService {
 
 	static getStopGTFSHeader(): string {
 		return	'stop_id,' +
+				'stop_lat,' + 
+				'stop_lon,' + 
 				'stop_name,' +
 				'location_type,' +
 				'parent_station,' +
@@ -59,7 +63,9 @@ export default class DataService {
 	}
 
     static stopToGTFS(stop: Stop): string {
-        return  stop.stopId.toString() + ',' +
+		return  stop.stopId.toString() + ',' +
+				stop.stopLat.toString() + ',' +
+				stop.stopLon.toString() + ',' +
 				this.escapeText(stop.stopName || '') + ',' +
 				stop.locationType.toString() + ',' +
 				(stop.parentStation || '') + ',' +

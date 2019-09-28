@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
 import './Vis.scss';
-import Stop, { LocationTypeSort } from '../interfaces/Stop';
+import Stop from '../interfaces/Stop';
 import VisNode from '../interfaces/VisNode';
 import VisService from '../services/VisService';
 import VisEdge from '../interfaces/VisEdge';
@@ -30,20 +30,9 @@ export default class Vis extends Component<VisProps, VisState> {
       return;
     }
     
-    let x = - container.clientWidth / 2;
-    let y = - container.clientHeight / 2;
-    const stepX = 200;
-    const stepY = 100;
-    let levelsX: { [key: string]: number }  = {};
-
     // get nodes from stops
 	const nodes: VisNode[] = this.props.data.stops.map((stop: Stop): VisNode => {
-		let graphLevel = LocationTypeSort[stop.locationType];
-		if (!levelsX[graphLevel]) {
-			levelsX[graphLevel] = x - stepX;
-		}
-		levelsX[graphLevel] += stepX;
-		const node = VisService.convertStopToNode(stop, levelsX[graphLevel], y + LocationTypeSort[stop.locationType] * stepY);
+		const node = VisService.convertStopToNode(stop);
 		return node;
 	});
 
