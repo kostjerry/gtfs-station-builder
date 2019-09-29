@@ -53,7 +53,9 @@ export default class Vis extends Component<VisProps, VisState> {
 	let lonGap = maxLon - minLon;
 	
     // get nodes from stops
-	const nodes: VisNode[] = this.props.data.stops.map((stop: Stop): VisNode => {
+	const nodes: VisNode[] = this.props.data.stops.filter((stop: Stop) => {
+		return stop.locationType !== 1;
+	}).map((stop: Stop): VisNode => {
 		const node = VisService.convertStopToNode(stop);
 		node.x = (stop.stopLon - minLon) / lonGap * 500;
 		node.y = (maxLat - stop.stopLat) / latGap * 500;

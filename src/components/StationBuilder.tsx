@@ -35,29 +35,33 @@ export interface StationBuilderState {
 		pathway: Pathway,
 		edge: VisEdge,
 		callback: (edge?: VisEdge) => void
-	} | null
+	} | null,
+	mapMarkers: google.maps.Marker[],
+	stations: Stop[]
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
 	private mapRef: React.RefObject<HTMLDivElement> = React.createRef();
-	private stationId: number = -1;
 
 	constructor(props: StationBuilderProps) {
 		super(props);
-		this.state = {
-			data: cloneDeep(props.data),
-			selectedStop: null,
-			selectedPathway: null
-		};
+		let stations: Stop[] = [];
 		this.props.data.stops.map((stop: Stop) => {
 			if (stop.locationType === 1) {
-				this.stationId = stop.stopId;
+				stations.push(stop);
 			}
 			return false;
 		});
-		if (this.stationId === -1) {
+		if (stations.length === 0) {
 			throw new Error("No station provided in input data");
 		}
+		this.state = {
+			data: cloneDeep(props.data),
+			selectedStop: null,
+			selectedPathway: null,
+			mapMarkers: [],
+			stations
+		};
 	}
 
 	public componentDidMount() {
@@ -69,21 +73,42 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			});
 		});
 
+		let map: google.maps.Map;
+
 		if (this.mapRef.current) {
 			if (this.props.mapDiv && this.props.map) {
 				this.mapRef.current.appendChild(this.props.mapDiv);
 				this.props.map.fitBounds(bounds);
+				map = this.props.map;
 			}
 			else {
 				console.log("Google map initialized");
-				let map = new google.maps.Map(this.mapRef.current);
+				map = new google.maps.Map(this.mapRef.current);
 				map.fitBounds(bounds);
 			}
 		}
+
+		this.props.data.stops.filter((stop: Stop) => {
+			return stop.locationType !== 1;
+		}).forEach((stop: Stop) => {
+			this.state.mapMarkers.push(new google.maps.Marker({
+				map: map,
+				position: {
+					lat: stop.stopLat,
+					lng: stop.stopLon
+				}
+			}));
+		});
+	}
+
+	public componentWillUnmount() {
+		this.state.mapMarkers.forEach((marker) => {
+			marker.setMap(null);
+		});
 	}
 
 	private handleStopAddMode = (node: VisNode, callback: (node?: VisNode) => void) => {
-		node = VisService.prepareNewNode(node, this.stationId);
+		node = VisService.prepareNewNode(node, this.state.stations);
 		this.setState({
 			selectedStop: {
 				stop: node.stop,
@@ -163,14 +188,8 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void
 	) => {
 		dataToDelete.nodes.forEach((nodeId: number) => {
-			if (this.stationId === nodeId) {
-				alert("It's disallowed to delete a station");
-				callback();
-			}
-			else {
-				const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
-				this.state.data.stops.splice(stopIndex, 1);
-			}
+			const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
+			this.state.data.stops.splice(stopIndex, 1);
 		});
 		dataToDelete.edges.forEach((pathwayId: number) => {
 			const pathwayIndex = this.state.data.pathways.findIndex(pathway => pathway.pathwayId === pathwayId);
@@ -240,6 +259,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 						{this.state.selectedStop && <StopDialog
 							stop={this.state.selectedStop.stop}
+							stations={this.state.stations}
 							onCancel={this.handleDialogCancel}
 							onApply={this.handleStopDialogApply}></StopDialog>}
 
