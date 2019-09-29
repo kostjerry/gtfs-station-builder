@@ -37,7 +37,11 @@ export interface StationBuilderState {
 		callback: (edge?: VisEdge) => void
 	} | null,
 	mapMarkers: google.maps.Marker[],
-	stations: Stop[]
+	stations: Stop[],
+	latK: number,
+	latX: number,
+	lonK: number,
+	lonX: number
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
@@ -55,12 +59,42 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		if (stations.length === 0) {
 			throw new Error("No station provided in input data");
 		}
+
+		let minLat = 0;
+		let minLon = 0;
+		let maxLat = 0;
+		let maxLon = 0;
+		this.props.data.stops.forEach((stop: Stop) => {
+			if (!minLat || (stop.stopLat < minLat)) {
+				minLat = stop.stopLat;
+			}
+			if (!minLon || (stop.stopLon < minLon)) {
+				minLon = stop.stopLon;
+			}
+			if (!maxLat || (stop.stopLat > maxLat)) {
+				maxLat = stop.stopLat;
+			}
+			if (!maxLon || (stop.stopLon > maxLon)) {
+				maxLon = stop.stopLon;
+			}
+		});
+		let latGap = maxLat - minLat;
+		let lonGap = maxLon - minLon;
+		const lonK = 1000.0 / lonGap;
+		const lonX = -minLon * 1000.0 / lonGap;
+		const latK = -1000.0 / latGap;
+		const latX = maxLat * 1000.0 / latGap;
+
 		this.state = {
 			data: cloneDeep(props.data),
 			selectedStop: null,
 			selectedPathway: null,
 			mapMarkers: [],
-			stations
+			stations,
+			latK,
+			latX,
+			lonK,
+			lonX
 		};
 	}
 
@@ -108,7 +142,12 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleStopAddMode = (node: VisNode, callback: (node?: VisNode) => void) => {
-		node = VisService.prepareNewNode(node, this.state.stations);
+		node = VisService.prepareNewNode(node, this.state.stations, {
+			latK: this.state.latK,
+			latX: this.state.latX,
+			lonK: this.state.lonK,
+			lonX: this.state.lonX
+		});
 		this.setState({
 			selectedStop: {
 				stop: node.stop,
@@ -255,7 +294,11 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							onStopDelete={this.handleItemDelete}
 							onPathwayAdd={this.handlePathwayAddMode}
 							onPathwayEdit={this.handlePathwayEditMode}
-							onPathwayDelete={this.handleItemDelete}></Vis>
+							onPathwayDelete={this.handleItemDelete}
+							latK={this.state.latK}
+							latX={this.state.latX}
+							lonK={this.state.lonK}
+							lonX={this.state.lonX}></Vis>
 
 						{this.state.selectedStop && <StopDialog
 							stop={this.state.selectedStop.stop}

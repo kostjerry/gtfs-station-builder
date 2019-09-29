@@ -22,7 +22,7 @@ export default class VisService {
 			hashReversedDir = to + ":" + from + ":" + 1;
 		}
 		if (this.edgeRoundness[hash] === undefined) {
-			this.edgeRoundness[hash] = 0.0;
+			this.edgeRoundness[hash] = 0.2;
 			this.edgeRoundness[hashReversedDir] = 0.0;
 		}
 		else {
@@ -89,7 +89,7 @@ export default class VisService {
         return node;
     }
 
-    static prepareNewNode(node: VisNode, stations: Stop[]): VisNode {
+    static prepareNewNode(node: VisNode, stations: Stop[], coefs:{[key: string]: number}): VisNode {
 		node.id = this.newStopId;
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
@@ -97,8 +97,8 @@ export default class VisService {
         node.size = 12;
         node.stop = {
 			stopId: this.newStopId,
-			stopLat: node.x || 0,
-			stopLon: node.y || 0,
+			stopLat: ((node.y || 0) - coefs.latX) / coefs.latK,
+			stopLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
 			parentStation: stations[0].stopId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,
@@ -106,6 +106,7 @@ export default class VisService {
             platformCode: "",
             signpostedAs: ""
 		};
+		console.log(coefs, node);
 		this.newStopId--;
         return node;
     }
