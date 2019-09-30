@@ -20,6 +20,7 @@ declare const google: any;
 export interface StationBuilderProps {
 	data: Communication,
 	onSave: (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => void,
+	onCancel: () => void,
 	mapDiv?: HTMLDivElement,
 	map?: google.maps.Map
 }
@@ -86,6 +87,11 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		const lonX = -minLon * 1000.0 / lonGap;
 		const latK = -1000.0 / latGap;
 		const latX = maxLat * 1000.0 / latGap;
+
+		// Init VisService state
+		VisService.newStopId = -1;
+		VisService.newPathwayId = -1;
+		VisService.edgeRoundness = {};
 
 		this.state = {
 			data: cloneDeep(props.data),
@@ -276,6 +282,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		this.props.onSave(this.state.data, this.state.deletedStopsIds, this.state.deletedPathwaysIds);
 	}
 
+	private handleCancelClick = () => {
+		this.props.onCancel();
+	}
+
 	private handleDownloadClick = () => {
 		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
 		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
@@ -302,7 +312,8 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		return (
 			<div className="station-builder">
 				<div className="panel">
-					<button onClick={this.handleSaveClick}>Save</button>
+					<button className="save" onClick={this.handleSaveClick}>Save</button>
+					<button className="cancel" onClick={this.handleCancelClick}>Cancel</button>
 					<button className="download" onClick={this.handleDownloadClick}>Download</button>
 				</div>
 				<div className="main">

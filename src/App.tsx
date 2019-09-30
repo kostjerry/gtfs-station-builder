@@ -110,7 +110,18 @@ export default class App extends Component<AppProps, AppState> {
 		return false;
 	}
 
-	private saveStation = () => {
+	private handleStationSave = () => {
+		this.setState({
+			editMode: false,
+			data: {
+				stops: [],
+				pathways: [],
+				levels: []
+			}
+		});
+	}
+
+	private handleStationCancel = () => {
 		this.setState({
 			editMode: false,
 			data: {
@@ -179,7 +190,10 @@ export default class App extends Component<AppProps, AppState> {
 					</div>
 				)}
 				{this.state.editMode && (
-					<StationBuilder data={this.state.data} onSave={this.saveStation}></StationBuilder>
+					<StationBuilder
+						data={this.state.data}
+						onSave={this.handleStationSave}
+						onCancel={this.handleStationCancel}></StationBuilder>
 				)}
 			</div>
 		);
