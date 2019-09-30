@@ -41,7 +41,9 @@ export interface StationBuilderState {
 	latK: number,
 	latX: number,
 	lonK: number,
-	lonX: number
+	lonX: number,
+	deletedStopsIds: number[],
+	deletedPathwaysIds: number[]
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
@@ -94,7 +96,9 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			latK,
 			latX,
 			lonK,
-			lonX
+			lonX,
+			deletedStopsIds: [],
+			deletedPathwaysIds: []
 		};
 	}
 
@@ -226,10 +230,20 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		dataToDelete: { nodes: number[], edges: number[] },
 		callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void
 	) => {
-		dataToDelete.nodes.forEach((nodeId: number) => {
+		const hasError = dataToDelete.nodes.some((nodeId: number) => {
+			const stop: Stop | undefined = this.state.data.stops.find(stop => stop.stopId === nodeId);
+			if (stop && stop.locationType !== 3) {
+				alert("You can't delete this location type");
+				return true;
+			}
 			const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
 			this.state.data.stops.splice(stopIndex, 1);
+			return false;
 		});
+		if (hasError) {
+			callback();
+			return;
+		}
 		dataToDelete.edges.forEach((pathwayId: number) => {
 			const pathwayIndex = this.state.data.pathways.findIndex(pathway => pathway.pathwayId === pathwayId);
 			this.state.data.pathways.splice(pathwayIndex, 1);

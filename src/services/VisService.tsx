@@ -106,7 +106,6 @@ export default class VisService {
             platformCode: "",
             signpostedAs: ""
 		};
-		console.log(coefs, node);
 		this.newStopId--;
         return node;
     }
