@@ -19,7 +19,7 @@ declare const google: any;
 
 export interface StationBuilderProps {
 	data: Communication,
-	onSave: (data: Communication) => void,
+	onSave: (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => void,
 	mapDiv?: HTMLDivElement,
 	map?: google.maps.Map
 }
@@ -237,7 +237,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				return true;
 			}
 			const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
-			this.state.data.stops.splice(stopIndex, 1);
+			if (stopIndex !== -1) {
+				this.state.data.stops.splice(stopIndex, 1);
+				this.state.deletedStopsIds.push(nodeId);
+			}
 			return false;
 		});
 		if (hasError) {
@@ -246,7 +249,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		}
 		dataToDelete.edges.forEach((pathwayId: number) => {
 			const pathwayIndex = this.state.data.pathways.findIndex(pathway => pathway.pathwayId === pathwayId);
-			this.state.data.pathways.splice(pathwayIndex, 1);
+			if (pathwayIndex !== -1) {
+				this.state.data.pathways.splice(pathwayIndex, 1);
+				this.state.deletedPathwaysIds.push(pathwayId);
+			}
 		});
 		callback(dataToDelete);
 	}
@@ -267,7 +273,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleSaveClick = () => {
-		this.props.onSave(this.state.data);
+		this.props.onSave(this.state.data, this.state.deletedStopsIds, this.state.deletedPathwaysIds);
 	}
 
 	private handleDownloadClick = () => {
