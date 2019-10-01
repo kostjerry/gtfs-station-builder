@@ -18,6 +18,7 @@ export interface VisProps {
 	onStopAdd: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onStopEdit: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onStopDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
+	onStopDragEnd: (nodeId: number, position: {x: number, y: number}) => void,
 	onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
@@ -123,11 +124,13 @@ export default class Vis extends Component<VisProps, VisState> {
 			}
 		});
 
-		// network.on("stabilized", () => {
-		// 	network.setOptions({
-		// 		physics: false
-		// 	});
-		// });
+		network.on("dragEnd", (res: any) => {
+			if (res.nodes.length !== 0) {
+				const nodeId = res.nodes[0];
+				const position = res.pointer.canvas;
+				this.props.onStopDragEnd(nodeId, position);
+			}
+		});
 	}
 
 	render() {

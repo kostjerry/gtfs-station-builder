@@ -308,6 +308,17 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
+	private handleStopDragEnd = (nodeId: number, position: {x: number, y: number}) => {
+		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
+			return stop.stopId == nodeId;
+		});
+		// Update position for generic node
+		if (stop && stop.locationType === 3) {
+			stop.stopLat = ((position.y || 0) - this.state.latX) / this.state.latK;
+			stop.stopLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
+		}
+	}
+
 	render() {
 		return (
 			<div className="station-builder">
@@ -323,6 +334,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							onStopAdd={this.handleStopAddMode}
 							onStopEdit={this.handleStopEditMode}
 							onStopDelete={this.handleItemDelete}
+							onStopDragEnd={this.handleStopDragEnd}
 							onPathwayAdd={this.handlePathwayAddMode}
 							onPathwayEdit={this.handlePathwayEditMode}
 							onPathwayDelete={this.handleItemDelete}

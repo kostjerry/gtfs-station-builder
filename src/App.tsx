@@ -110,7 +110,8 @@ export default class App extends Component<AppProps, AppState> {
 		return false;
 	}
 
-	private handleStationSave = () => {
+	private handleStationSave = (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => {
+		console.log(data, deletedStopsIds, deletedPathwaysIds);
 		this.setState({
 			editMode: false,
 			data: {

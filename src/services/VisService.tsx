@@ -155,11 +155,6 @@ export default class VisService {
             toStopId: edge.to,
             pathwayMode: PathwayModeMap.Escalator,
             isBidirectional: true,
-            length: undefined,
-            traversalTime: undefined,
-            stairCount: undefined,
-            maxSlope: undefined,
-            minWidth: undefined,
             signpostedAs: "",
             reversedSignpostedAs: ""
 		}

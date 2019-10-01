@@ -41,13 +41,16 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
   }
 
   private handleApply = () => {
+	const length = parseFloat(this.state.length || "");
+	const maxSlope = parseFloat(this.state.maxSlope || "");
+	const minWidth = parseFloat(this.state.minWidth || "");
     this.props.onApply({
       ...this.props.pathway,
       ...this.state,
       ...{
-        length: parseFloat(this.state.length || ""),
-        maxSlope: parseFloat(this.state.maxSlope || ""),
-        minWidth: parseFloat(this.state.minWidth || "")
+        length: !isNaN(length) ? length : undefined,
+        maxSlope: !isNaN(maxSlope) ? maxSlope : undefined,
+        minWidth: !isNaN(minWidth) ? minWidth : undefined
       }
     });
   }
