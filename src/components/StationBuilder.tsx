@@ -39,6 +39,7 @@ export interface StationBuilderState {
 	} | null,
 	mapMarkers: google.maps.Marker[],
 	stations: Stop[],
+	levels: Level[],
 	latK: number,
 	latX: number,
 	lonK: number,
@@ -53,7 +54,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	constructor(props: StationBuilderProps) {
 		super(props);
 		let stations: Stop[] = [];
-		this.props.data.stops.map((stop: Stop) => {
+		props.data.stops.map((stop: Stop) => {
 			if (stop.locationType === 1) {
 				stations.push(stop);
 			}
@@ -67,7 +68,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		let minLon = 0;
 		let maxLat = 0;
 		let maxLon = 0;
-		this.props.data.stops.forEach((stop: Stop) => {
+		props.data.stops.forEach((stop: Stop) => {
 			if (!minLat || (stop.stopLat < minLat)) {
 				minLat = stop.stopLat;
 			}
@@ -99,6 +100,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			selectedPathway: null,
 			mapMarkers: [],
 			stations,
+			levels: props.data.levels,
 			latK,
 			latX,
 			lonK,
@@ -346,6 +348,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 						{this.state.selectedStop && <StopDialog
 							stop={this.state.selectedStop.stop}
 							stations={this.state.stations}
+							levels={this.state.levels}
 							onCancel={this.handleDialogCancel}
 							onApply={this.handleStopDialogApply}></StopDialog>}
 

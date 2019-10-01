@@ -4,10 +4,12 @@ import Stop, {
 	LocationTypeMap,
 	WheelchairBoardingMap
 } from "../interfaces/Stop";
+import Level from "../interfaces/Level";
 
 export interface StopDialogProps {
 	stop: Stop;
 	stations: Stop[];
+	levels: Level[];
 	onCancel: () => void;
 	onApply: (stop: Stop) => void;
 }
@@ -19,16 +21,15 @@ export interface StopDialogState {
 	wheelchairBoarding: number;
 	platformCode?: string;
 	signpostedAs?: string;
+	levelId?: number;
 }
 
-export default class StopDialog extends Component<
-	StopDialogProps,
-	StopDialogState
-	> {
+export default class StopDialog extends Component<StopDialogProps, StopDialogState> {
 	constructor(props: StopDialogProps) {
 		super(props);
 		this.state = {
 			parentStation: props.stop.parentStation || -1,
+			levelId: props.stop.levelId || -1,
 			stopName: props.stop.stopName,
 			locationType: props.stop.locationType,
 			wheelchairBoarding: props.stop.wheelchairBoarding,
@@ -61,6 +62,12 @@ export default class StopDialog extends Component<
 			parentStation: Number(event.target.value)
 		});
 	};
+
+	private handleLevelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+		this.setState({
+			levelId: Number(event.target.value)
+		});
+	}
 
 	private handleLocationTypeChange = (
 		event: React.ChangeEvent<HTMLSelectElement>
@@ -112,6 +119,20 @@ export default class StopDialog extends Component<
 			);
 		});
 
+		const levelOptions: JSX.Element[] = [];
+		levelOptions.push(
+			<option key={-1} value={-1}>
+				None
+			</option>
+		);
+		this.props.levels.forEach(level => {
+			levelOptions.push(
+				<option key={level.levelId} value={level.levelId}>
+					{level.levelIndex} {level.levelName}
+				</option>
+			);
+		});
+
 		const locationTypeOptions: JSX.Element[] = [];
 		for (const locationType in LocationTypeMap) {
 			if (locationType === "Station") {
@@ -147,6 +168,14 @@ export default class StopDialog extends Component<
 								value={this.state.parentStation}
 								onChange={this.handleParentStationChange}>
 								{parentStationOptions}
+							</select>
+						</div>
+						<div>
+							Level:
+              				<select
+								value={this.state.levelId}
+								onChange={this.handleLevelChange}>
+								{levelOptions}
 							</select>
 						</div>
 						{[0, 2, 3, 4].includes(this.state.locationType) && (
