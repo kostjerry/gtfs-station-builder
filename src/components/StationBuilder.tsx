@@ -145,12 +145,21 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				}
 			}));
 		});
+
+		document.addEventListener('keydown', this.handleDocumentKeydown);
+	}
+
+	private handleDocumentKeydown = (e: KeyboardEvent) => {
+		if (e.keyCode === 27) {
+			this.handleDialogCancel();
+		}
 	}
 
 	public componentWillUnmount() {
 		this.state.mapMarkers.forEach((marker) => {
 			marker.setMap(null);
 		});
+		document.removeEventListener('keydown', this.handleDocumentKeydown);
 	}
 
 	private handleStopAddMode = (node: VisNode, callback: (node?: VisNode) => void) => {
@@ -335,11 +344,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							data={this.state.data}
 							onStopAdd={this.handleStopAddMode}
 							onStopEdit={this.handleStopEditMode}
-							onStopDelete={this.handleItemDelete}
+							onItemDelete={this.handleItemDelete}
 							onStopDragEnd={this.handleStopDragEnd}
 							onPathwayAdd={this.handlePathwayAddMode}
 							onPathwayEdit={this.handlePathwayEditMode}
-							onPathwayDelete={this.handleItemDelete}
 							latK={this.state.latK}
 							latX={this.state.latX}
 							lonK={this.state.lonK}
@@ -359,6 +367,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 					</div>
 					<div className="map" ref={this.mapRef}></div>
 				</div>
+				{(this.state.selectedStop || this.state.selectedPathway) && <div className="dialog-bg" onClick={this.handleDialogCancel}></div>}
 			</div>
 		);
 	}

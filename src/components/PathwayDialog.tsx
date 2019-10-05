@@ -113,6 +113,12 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 		});
 	}
 
+	private handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		if (event.keyCode === 13) {
+			this.handleApply();
+		}
+	}
+
 	render() {
 		const pathwayModeOptions: JSX.Element[] = [];
 		for (const pathwayModeKey in PathwayModeMap) {
@@ -122,7 +128,7 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 		}
 
 		return (
-			<div className="pathway-dialog">
+			<div className="pathway-dialog" onKeyDown={this.handleKeyDown}>
 				<div className="header">Pathway properties</div>
 				<div className="content">
 					<div>

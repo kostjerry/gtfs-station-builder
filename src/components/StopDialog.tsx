@@ -109,6 +109,12 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		});
 	};
 
+	private handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		if (event.keyCode === 13) {
+			this.handleApply();
+		}
+	}
+
 	render() {
 		const parentStationOptions: JSX.Element[] = [];
 		this.props.stations.forEach(station => {
@@ -157,7 +163,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		}
 
 		return (
-			<div className="stop-dialog">
+			<div className="stop-dialog" onKeyDown={this.handleKeyDown}>
 				<div className="header">Location properties</div>
 				<div className="content">
 					<div>ID: {this.props.stop.stopId}</div>

@@ -17,11 +17,10 @@ export interface VisProps {
 	data: Communication,
 	onStopAdd: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onStopEdit: (node: VisNode, callback: (node?: VisNode) => void) => void,
-	onStopDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
+	onItemDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
 	onStopDragEnd: (nodeId: number, position: {x: number, y: number}) => void,
 	onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
-	onPathwayDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
 	latK: number,
 	latX: number,
 	lonK: number,
@@ -29,7 +28,9 @@ export interface VisProps {
 }
 
 export default class Vis extends Component<VisProps, VisState> {
-	componentDidMount() {
+	private network: any;
+
+	public componentDidMount() {
 		var container = document.getElementById('vis');
 		if (!container) {
 			return;
@@ -73,7 +74,7 @@ export default class Vis extends Component<VisProps, VisState> {
 				editNode: this.props.onStopEdit,
 				deleteNode: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void): void => {
 					dataToDelete.edges = network.getConnectedEdges(dataToDelete.nodes[0]);
-					this.props.onStopDelete(dataToDelete, callback);
+					this.props.onItemDelete(dataToDelete, callback);
 				},
 				addEdge: this.props.onPathwayAdd,
 				editEdge: (movedEdge: VisEdge, callback: (edge: VisEdge) => {}) => {
@@ -84,7 +85,7 @@ export default class Vis extends Component<VisProps, VisState> {
 					edge = VisService.updatePathwayInEdge(edge);
 					callback(edge);
 				},
-				deleteEdge: this.props.onPathwayDelete
+				deleteEdge: this.props.onItemDelete
 			},
 			interaction: {
 				dragView: true,
@@ -112,21 +113,36 @@ export default class Vis extends Component<VisProps, VisState> {
 			},
 			locale: 'gtfs'
 		};
-		let network = new vis.Network(container, { nodes, edges }, options);
 
-		network.on("doubleClick", () => {
-			let selection = network.getSelection();
+		let network = new vis.Network(container, { nodes, edges }, options);
+		this.network = network;
+
+		network.on("doubleClick", (e: any) => {
+			const selection = network.getSelection();
+			const edgesDataSet = network.body.data.edges;
+			const nodesDataSet = network.body.data.nodes;
 			if (selection.nodes.length === 1) {
 				network.editNode();
 			}
 			else if (selection.edges.length === 1) {
-				let edgesDataSet = network.body.data.edges;
-				let edge: any = edgesDataSet.get(selection.edges[0]);
+				const edge: any = edgesDataSet.get(selection.edges[0]);
 				this.props.onPathwayEdit(edge, (edge?: VisEdge) => {
 					if (edge) {
 						edgesDataSet.update(edge);
 					}
 				});
+			}
+			else {
+				const position = e.pointer.canvas;
+				const newNode: any = {
+					x: position.x,
+					y: position.y
+				};
+				this.props.onStopAdd(newNode, (node?: VisNode) => {
+					if (node) {
+						nodesDataSet.add(node);
+					}
+				})
 			}
 		});
 
@@ -138,13 +154,32 @@ export default class Vis extends Component<VisProps, VisState> {
 			}
 		});
 
-		network.on("dragEnd", (res: any) => {
-			if (res.nodes.length !== 0) {
-				const nodeId = res.nodes[0];
-				const position = res.pointer.canvas;
+		network.on("dragEnd", (e: any) => {
+			if (e.nodes.length !== 0) {
+				const nodeId = e.nodes[0];
+				const position = e.pointer.canvas;
 				this.props.onStopDragEnd(nodeId, position);
 			}
 		});
+
+		document.addEventListener('keydown', this.handleDocumentKeydown);
+	}
+
+	public componentWillUnmount() {
+		document.removeEventListener('keydown', this.handleDocumentKeydown);
+	} 
+
+	private handleDocumentKeydown = (e: KeyboardEvent) => {
+		if (e.keyCode === 8) {
+			const selection = this.network.getSelection();
+			if ((selection.nodes.length === 1) || (selection.edges.length === 1)) {
+				this.props.onItemDelete(selection, (dataToDelete?: { nodes: number[], edges: number[] }) => {
+					if (dataToDelete) {
+						this.network.deleteSelected();
+					}
+				});
+			}
+		}
 	}
 
 	render() {
