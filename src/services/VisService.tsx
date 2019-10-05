@@ -136,6 +136,12 @@ export default class VisService {
         edge.label = VisService.getEdgeLabel(pathway);
 		edge.pathway = pathway;
         return edge;
+	}
+	
+	static updatePathwayInEdge(edge: VisEdge): VisEdge {
+		edge.pathway.fromStopId = edge.from;
+		edge.pathway.toStopId = edge.to;
+        return edge;
     }
 
     static prepareNewEdge(edge: VisEdge): VisEdge {

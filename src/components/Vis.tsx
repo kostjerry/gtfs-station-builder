@@ -76,13 +76,13 @@ export default class Vis extends Component<VisProps, VisState> {
 					this.props.onStopDelete(dataToDelete, callback);
 				},
 				addEdge: this.props.onPathwayAdd,
-				editEdge: {
-					editWithoutDrag: (edge: VisEdge, callback: (edge?: VisEdge) => void) => {
-						// Get edge from DataSets because from params we can't get attached information
-						let edgesDataSet = network.body.data.edges;
-						edge = edgesDataSet.get(edge.id);
-						this.props.onPathwayEdit(edge, callback);
-					}
+				editEdge: (movedEdge: VisEdge, callback: (edge: VisEdge) => {}) => {
+					let edgesDataSet = network.body.data.edges;
+					let edge = edgesDataSet.get(movedEdge.id);
+					edge.from = movedEdge.from;
+					edge.to = movedEdge.to;
+					edge = VisService.updatePathwayInEdge(edge);
+					callback(edge);
 				},
 				deleteEdge: this.props.onPathwayDelete
 			},
@@ -120,6 +120,20 @@ export default class Vis extends Component<VisProps, VisState> {
 				network.editNode();
 			}
 			else if (selection.edges.length === 1) {
+				let edgesDataSet = network.body.data.edges;
+				let edge: any = edgesDataSet.get(selection.edges[0]);
+				this.props.onPathwayEdit(edge, (edge?: VisEdge) => {
+					if (edge) {
+						edgesDataSet.update(edge);
+					}
+				});
+			}
+		});
+
+		network.on("oncontext", (e: any) => {
+			e.event.preventDefault();
+			let selection = network.getSelection();
+			if (selection.edges.length === 1) {
 				network.editEdgeMode();
 			}
 		});

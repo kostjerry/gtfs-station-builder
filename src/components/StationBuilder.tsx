@@ -135,7 +135,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		}
 
 		this.props.data.stops.filter((stop: Stop) => {
-			return stop.locationType !== 1;
+			return ![1, 3].includes(stop.locationType);
 		}).forEach((stop: Stop) => {
 			this.state.mapMarkers.push(new google.maps.Marker({
 				map: map,
