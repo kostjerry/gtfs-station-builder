@@ -21,10 +21,12 @@ export interface VisProps {
 	onStopDragEnd: (nodeId: number, position: {x: number, y: number}) => void,
 	onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
+	onFareZoneAdd: (position: {x: number, y: number}, callback: (nodes: VisNode[], edges: VisEdge[]) => void) => void,
 	latK: number,
 	latX: number,
 	lonK: number,
-	lonX: number
+	lonX: number,
+	isDialogShown: boolean
 }
 
 export default class Vis extends Component<VisProps, VisState> {
@@ -121,28 +123,41 @@ export default class Vis extends Component<VisProps, VisState> {
 			const selection = network.getSelection();
 			const edgesDataSet = network.body.data.edges;
 			const nodesDataSet = network.body.data.nodes;
-			if (selection.nodes.length === 1) {
-				network.editNode();
-			}
-			else if (selection.edges.length === 1) {
-				const edge: any = edgesDataSet.get(selection.edges[0]);
-				this.props.onPathwayEdit(edge, (edge?: VisEdge) => {
-					if (edge) {
-						edgesDataSet.update(edge);
-					}
+			if (e.event.srcEvent.ctrlKey) {
+				const position = e.pointer.canvas;
+				this.props.onFareZoneAdd(position, (nodes: VisNode[], edges: VisEdge[]) => {
+					nodes.forEach((node) => {
+						nodesDataSet.add(node);
+					});
+					edges.forEach((edge) => {
+						edgesDataSet.add(edge);
+					});
 				});
 			}
 			else {
-				const position = e.pointer.canvas;
-				const newNode: any = {
-					x: position.x,
-					y: position.y
-				};
-				this.props.onStopAdd(newNode, (node?: VisNode) => {
-					if (node) {
-						nodesDataSet.add(node);
-					}
-				})
+				if (selection.nodes.length === 1) {
+					network.editNode();
+				}
+				else if (selection.edges.length === 1) {
+					const edge: any = edgesDataSet.get(selection.edges[0]);
+					this.props.onPathwayEdit(edge, (edge?: VisEdge) => {
+						if (edge) {
+							edgesDataSet.update(edge);
+						}
+					});
+				}
+				else {
+					const position = e.pointer.canvas;
+					const newNode: any = {
+						x: position.x,
+						y: position.y
+					};
+					this.props.onStopAdd(newNode, (node?: VisNode) => {
+						if (node) {
+							nodesDataSet.add(node);
+						}
+					})
+				}
 			}
 		});
 
@@ -170,7 +185,7 @@ export default class Vis extends Component<VisProps, VisState> {
 	} 
 
 	private handleDocumentKeydown = (e: KeyboardEvent) => {
-		if (e.keyCode === 8) {
+		if (!this.props.isDialogShown && e.keyCode === 8) {
 			const selection = this.network.getSelection();
 			if ((selection.nodes.length === 1) || (selection.edges.length === 1)) {
 				this.props.onItemDelete(selection, (dataToDelete?: { nodes: number[], edges: number[] }) => {

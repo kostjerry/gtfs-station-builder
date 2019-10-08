@@ -6,7 +6,7 @@ import Stop from '../interfaces/Stop';
 import VisNode from '../interfaces/VisNode';
 import VisService from '../services/VisService';
 import Communication from '../interfaces/Communication';
-import Pathway from '../interfaces/Pathway';
+import Pathway, { PathwayModeMap } from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
 import PathwayDialog from './PathwayDialog';
 import cloneDeep from 'lodash/cloneDeep';
@@ -330,6 +330,52 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		}
 	}
 
+	private handleFareZoneAdd = (position: {x: number, y: number}, callback: (nodes: VisNode[], edges: VisEdge[]) => void) => {
+		const node1: VisNode = VisService.prepareNewNode({
+			x: position.x,
+			y: position.y
+		} as VisNode, this.state.stations, {
+			latK: this.state.latK,
+			latX: this.state.latX,
+			lonK: this.state.lonK,
+			lonX: this.state.lonX
+		});
+		this.state.data.stops.push(node1.stop);
+
+		const node2: VisNode = VisService.prepareNewNode({
+			x: position.x - 100,
+			y: position.y
+		} as VisNode, this.state.stations, {
+			latK: this.state.latK,
+			latX: this.state.latX,
+			lonK: this.state.lonK,
+			lonX: this.state.lonX
+		});
+		this.state.data.stops.push(node2.stop);
+
+		let edge1: VisEdge = VisService.prepareNewEdge({
+			from: node1.id,
+			to: node2.id
+		} as VisEdge);
+		edge1.pathway.pathwayMode = PathwayModeMap['FareGate'];
+		edge1.pathway.isBidirectional = false;
+		edge1.pathway.traversalTime = 10;
+		edge1 = VisService.attachPathwayToEdge(edge1.pathway, edge1);
+		this.state.data.pathways.push(edge1.pathway);
+
+		let edge2: VisEdge = VisService.prepareNewEdge({
+			from: node2.id,
+			to: node1.id
+		} as VisEdge);
+		edge2.pathway.pathwayMode = PathwayModeMap['ExitGate'];
+		edge2.pathway.isBidirectional = false;
+		edge2.pathway.traversalTime = 10;
+		edge2 = VisService.attachPathwayToEdge(edge2.pathway, edge2);
+		this.state.data.pathways.push(edge2.pathway);
+
+		callback([node1, node2], [edge1, edge2]);
+	}
+
 	render() {
 		return (
 			<div className="station-builder">
@@ -348,10 +394,12 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							onStopDragEnd={this.handleStopDragEnd}
 							onPathwayAdd={this.handlePathwayAddMode}
 							onPathwayEdit={this.handlePathwayEditMode}
+							onFareZoneAdd={this.handleFareZoneAdd}
 							latK={this.state.latK}
 							latX={this.state.latX}
 							lonK={this.state.lonK}
-							lonX={this.state.lonX}></Vis>
+							lonX={this.state.lonX}
+							isDialogShown={!!(this.state.selectedStop || this.state.selectedPathway)}></Vis>
 
 						{this.state.selectedStop && <StopDialog
 							stop={this.state.selectedStop.stop}

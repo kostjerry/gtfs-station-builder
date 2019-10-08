@@ -94,7 +94,8 @@ export default class VisService {
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
         node.shape = 'circularImage';
-        node.size = 12;
+		node.size = 12;
+		node.image = "";
         node.stop = {
 			stopId: this.newStopId,
 			stopLat: ((node.y || 0) - coefs.latX) / coefs.latK,
