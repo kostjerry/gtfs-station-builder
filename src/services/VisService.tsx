@@ -38,7 +38,8 @@ export default class VisService {
         let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
         let label =  stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
         if (stop.locationType === 0) { // Platform
-            if (stop.platformCode) {
+			label = prefix + ' #' + stop.stopId;
+			if (stop.platformCode) {
                 label += '\nCode: "' + stop.platformCode + '"';
             }
             if (stop.signpostedAs) {
@@ -49,6 +50,9 @@ export default class VisService {
 			if (stop.platformCode) {
                 label += '\nNumber: "' + stop.platformCode + '"';
             }
+		}
+		else if (stop.locationType === 4) { // Boarding Area
+            label = prefix + ' for #' + stop.parentStation;
 		}
         return label;
     }

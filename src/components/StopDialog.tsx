@@ -2,13 +2,15 @@ import React, { Component } from "react";
 import "./StopDialog.scss";
 import Stop, {
 	LocationTypeMap,
-	WheelchairBoardingMap
+	WheelchairBoardingMap,
+	LocationTypeOnNodeLabelMap
 } from "../interfaces/Stop";
 import Level from "../interfaces/Level";
 
 export interface StopDialogProps {
 	stop: Stop;
 	stations: Stop[];
+	platforms: Stop[];
 	levels: Level[];
 	onCancel: () => void;
 	onApply: (stop: Stop) => void;
@@ -72,8 +74,16 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 	private handleLocationTypeChange = (
 		event: React.ChangeEvent<HTMLSelectElement>
 	) => {
+		let parentStation = -1;
+		if (Number(event.target.value) === 3) { // Station for Generic Node
+			parentStation = this.props.stations[0].stopId;
+		}
+		else if (Number(event.target.value) === 4) { // Platform for Boarding Area
+			parentStation = this.props.platforms[0].stopId;
+		}
 		this.setState({
-			locationType: Number(event.target.value)
+			locationType: Number(event.target.value),
+			parentStation
 		});
 	};
 
@@ -125,6 +135,15 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 			);
 		});
 
+		const parentPlatformOptions: JSX.Element[] = [];
+		this.props.platforms.forEach(platform => {
+			parentPlatformOptions.push(
+				<option key={platform.stopId} value={platform.stopId}>
+					{platform.stopId}. {platform.stopName}
+				</option>
+			);
+		});
+
 		const levelOptions: JSX.Element[] = [];
 		levelOptions.push(
 			<option key={-1} value={-1}>
@@ -141,7 +160,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 
 		const locationTypeOptions: JSX.Element[] = [];
 		for (const locationType in LocationTypeMap) {
-			if (locationType === "Station") {
+			if (["Platform", "Station", "Entrance/Exit"].includes(locationType)) {
 				continue;
 			}
 			locationTypeOptions.push(
@@ -168,26 +187,38 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 				<div className="content">
 					<div>ID: {this.props.stop.stopId}</div>
 					<div>
-						<div>
-							Parent station:
+						{(this.state.locationType === 4) ? <div>
+							Parent platform:{" "}
+              				<select
+								value={this.state.parentStation}
+								onChange={this.handleParentStationChange}>
+								{parentPlatformOptions}
+							</select>
+						</div> : <div>
+							Parent station:{" "}
               				<select
 								value={this.state.parentStation}
 								onChange={this.handleParentStationChange}>
 								{parentStationOptions}
 							</select>
-						</div>
+						</div>}
 						<div>
-							Level:
+							Level:{" "}
               				<select
 								value={this.state.levelId}
 								onChange={this.handleLevelChange}>
 								{levelOptions}
 							</select>
 						</div>
-						{[0, 2, 3, 4].includes(this.state.locationType) && (
+						{[0, 2].includes(this.state.locationType) && (
 							<div>
-								Location type:
-                				<select disabled={true}
+								Location type: {LocationTypeOnNodeLabelMap[this.state.locationType]}
+							</div>
+						)}
+						{[3, 4].includes(this.state.locationType) && (
+							<div>
+								Location type:{" "}
+                				<select
 									value={this.state.locationType}
 									onChange={this.handleLocationTypeChange}>
 									{locationTypeOptions}
@@ -225,7 +256,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 						)}
 						{[0, 2].includes(this.state.locationType) && (
 							<div>
-								Wheelchair boarding:
+								Wheelchair boarding:{" "}
                 				<select
 									value={this.state.wheelchairBoarding}
 									onChange={this.handleWheelchairBoardingChange}>

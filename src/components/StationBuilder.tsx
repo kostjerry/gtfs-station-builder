@@ -39,6 +39,7 @@ export interface StationBuilderState {
 	} | null,
 	mapMarkers: google.maps.Marker[],
 	stations: Stop[],
+	platforms: Stop[],
 	levels: Level[],
 	latK: number,
 	latX: number,
@@ -54,7 +55,11 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	constructor(props: StationBuilderProps) {
 		super(props);
 		let stations: Stop[] = [];
+		let platforms: Stop[] = [];
 		props.data.stops.map((stop: Stop) => {
+			if (stop.locationType === 0) {
+				platforms.push(stop);
+			}
 			if (stop.locationType === 1) {
 				stations.push(stop);
 			}
@@ -62,6 +67,9 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 		if (stations.length === 0) {
 			throw new Error("No station provided in input data");
+		}
+		if (platforms.length === 0) {
+			throw new Error("No platforms provided in input data");
 		}
 
 		let minLat = 0;
@@ -100,6 +108,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			selectedPathway: null,
 			mapMarkers: [],
 			stations,
+			platforms,
 			levels: props.data.levels,
 			latK,
 			latX,
@@ -249,7 +258,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	) => {
 		const hasError = dataToDelete.nodes.some((nodeId: number) => {
 			const stop: Stop | undefined = this.state.data.stops.find(stop => stop.stopId === nodeId);
-			if (stop && stop.locationType !== 3) {
+			if (stop && ![3, 4].includes(stop.locationType)) {
 				alert("You can't delete this location type");
 				return true;
 			}
@@ -404,6 +413,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 						{this.state.selectedStop && <StopDialog
 							stop={this.state.selectedStop.stop}
 							stations={this.state.stations}
+							platforms={this.state.platforms}
 							levels={this.state.levels}
 							onCancel={this.handleDialogCancel}
 							onApply={this.handleStopDialogApply}></StopDialog>}
