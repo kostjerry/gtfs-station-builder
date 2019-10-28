@@ -228,7 +228,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 						<div>
 							Name:{" "}
 							<input
-								disabled={this.state.locationType !== 3}
+								disabled={![3, 4].includes(this.state.locationType)}
 								type="text"
 								value={this.state.stopName || ""}
 								onChange={this.handleStopNameChange}

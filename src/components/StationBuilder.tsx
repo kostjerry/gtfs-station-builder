@@ -330,10 +330,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	private handleStopDragEnd = (nodeId: number, position: {x: number, y: number}) => {
 		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
-			return stop.stopId == nodeId;
+			return stop.stopId === nodeId;
 		});
-		// Update position for generic node
-		if (stop && stop.locationType === 3) {
+		// Update position for generic nodes and boarding areas
+		if (stop && [3, 4].includes(stop.locationType)) {
 			stop.stopLat = ((position.y || 0) - this.state.latX) / this.state.latK;
 			stop.stopLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
 		}

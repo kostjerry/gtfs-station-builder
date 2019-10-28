@@ -52,7 +52,7 @@ export default class VisService {
             }
 		}
 		else if (stop.locationType === 4) { // Boarding Area
-            label = prefix + ' for #' + stop.parentStation;
+            label += '\nFor #' + stop.parentStation;
 		}
         return label;
     }
@@ -152,8 +152,8 @@ export default class VisService {
     static prepareNewEdge(edge: VisEdge): VisEdge {
 		edge.id = this.newPathwayId;
         edge.color = {
-            color: PathwayModeColors[PathwayModeMap.Escalator],
-            highlight: PathwayModeColors[PathwayModeMap.Escalator]
+            color: PathwayModeColors[PathwayModeMap.Walkway],
+            highlight: PathwayModeColors[PathwayModeMap.Walkway]
         }
         edge.arrows = {
             from: true,
@@ -161,10 +161,11 @@ export default class VisService {
         };
         edge.label = '';
         edge.pathway = {
-            pathwayId: this.newPathwayId,
+			pathwayId: this.newPathwayId,
+			traversalTime: 10,
             fromStopId: edge.from,
             toStopId: edge.to,
-            pathwayMode: PathwayModeMap.Escalator,
+            pathwayMode: PathwayModeMap.Walkway,
             isBidirectional: true,
             signpostedAs: "",
             reversedSignpostedAs: ""
