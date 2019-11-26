@@ -14,6 +14,8 @@ import DataService from '../services/DataService';
 import Level from '../interfaces/Level';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import circleRedImage from '../images/circle-red.png';
+import circleBlueImage from '../images/circle-blue.png';
 
 declare const google: any;
 
@@ -144,14 +146,15 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		}
 
 		this.props.data.stops.filter((stop: Stop) => {
-			return ![1, 3].includes(stop.locationType);
+			return [0, 2].includes(stop.locationType);
 		}).forEach((stop: Stop) => {
 			this.state.mapMarkers.push(new google.maps.Marker({
 				map: map,
 				position: {
 					lat: stop.stopLat,
 					lng: stop.stopLon
-				}
+				},
+				icon: stop.locationType === 0 ? circleBlueImage : circleRedImage
 			}));
 		});
 
