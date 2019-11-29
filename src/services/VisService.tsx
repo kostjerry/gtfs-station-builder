@@ -10,12 +10,36 @@ import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 export default class VisService {
 	static newStopId = -1;
 	static newPathwayId = -1;
+	static edgeRoundness: {
+		[key: string]: number
+	} = {};
+
+	static getEdgeSmoothVariant(from: number, to: number): { type: string, roundness: number } {
+		let hash = from + ":" + to + ":" + 1;
+		let hashReversedDir = from + ":" + to + ":" + 2;
+		if (from > to) {
+			hash = to + ":" + from + ":" + 2;
+			hashReversedDir = to + ":" + from + ":" + 1;
+		}
+		if (this.edgeRoundness[hash] === undefined) {
+			this.edgeRoundness[hash] = 0.2;
+			this.edgeRoundness[hashReversedDir] = 0.0;
+		}
+		else {
+			this.edgeRoundness[hash] += 0.2;
+		}
+		return {
+			type: "curvedCW",
+			roundness: this.edgeRoundness[hash]
+		}
+	}
 
     static getNodeLabel(stop: Stop): string {
         let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
         let label =  stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
         if (stop.locationType === 0) { // Platform
-            if (stop.platformCode) {
+			label = prefix + ' #' + stop.stopId;
+			if (stop.platformCode) {
                 label += '\nCode: "' + stop.platformCode + '"';
             }
             if (stop.signpostedAs) {
@@ -26,6 +50,9 @@ export default class VisService {
 			if (stop.platformCode) {
                 label += '\nNumber: "' + stop.platformCode + '"';
             }
+		}
+		else if (stop.locationType === 4) { // Boarding Area
+            label += '\nFor #' + stop.parentStation;
 		}
         return label;
     }
@@ -39,13 +66,13 @@ export default class VisService {
         return label;
 	}
 
-	static convertStopToNode(stop: Stop, x: number, y: number): VisNode {
+	static convertStopToNode(stop: Stop): VisNode {
         return {
             id: stop.stopId,
             label: VisService.getNodeLabel(stop),
             color: LocationTypeColors[stop.locationType],
-            x: x,
-            y: y,
+            x: 0,
+            y: 0,
             image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
             shape: 'circularImage',
             size: 12,
@@ -66,14 +93,18 @@ export default class VisService {
         return node;
     }
 
-    static prepareNewNode(node: VisNode): VisNode {
+    static prepareNewNode(node: VisNode, stations: Stop[], coefs:{[key: string]: number}): VisNode {
 		node.id = this.newStopId;
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
         node.shape = 'circularImage';
-        node.size = 12;
+		node.size = 12;
+		node.image = "";
         node.stop = {
-            stopId: this.newStopId,
+			stopId: this.newStopId,
+			stopLat: ((node.y || 0) - coefs.latX) / coefs.latK,
+			stopLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
+			parentStation: stations[0].stopId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,
             wheelchairBoarding: WheelchairBoardingMap.NoInfo,
@@ -96,13 +127,11 @@ export default class VisService {
             arrows: {
                 from: pathway.isBidirectional,
                 to: true
-            },
-            font: {
-                align: 'center'
-            },
+			},
+			smooth: this.getEdgeSmoothVariant(pathway.fromStopId, pathway.toStopId),
             label: VisService.getEdgeLabel(pathway),
             pathway: pathway
-        };
+		};
     }
 
     static attachPathwayToEdge(pathway: Pathway, edge: VisEdge): VisEdge {
@@ -110,38 +139,38 @@ export default class VisService {
         edge.color.highlight = PathwayModeColors[pathway.pathwayMode];
         edge.arrows.from = pathway.isBidirectional;
         edge.label = VisService.getEdgeLabel(pathway);
-        edge.pathway = pathway;
+		edge.pathway = pathway;
+        return edge;
+	}
+	
+	static updatePathwayInEdge(edge: VisEdge): VisEdge {
+		edge.pathway.fromStopId = edge.from;
+		edge.pathway.toStopId = edge.to;
         return edge;
     }
 
     static prepareNewEdge(edge: VisEdge): VisEdge {
 		edge.id = this.newPathwayId;
         edge.color = {
-            color: PathwayModeColors[PathwayModeMap.Escalator],
-            highlight: PathwayModeColors[PathwayModeMap.Escalator]
+            color: PathwayModeColors[PathwayModeMap.Walkway],
+            highlight: PathwayModeColors[PathwayModeMap.Walkway]
         }
         edge.arrows = {
             from: true,
             to: true
         };
-        edge.font = {
-            align: 'center'
-        };
         edge.label = '';
         edge.pathway = {
-            pathwayId: this.newPathwayId,
+			pathwayId: this.newPathwayId,
+			traversalTime: 10,
             fromStopId: edge.from,
             toStopId: edge.to,
-            pathwayMode: PathwayModeMap.Escalator,
+            pathwayMode: PathwayModeMap.Walkway,
             isBidirectional: true,
-            length: undefined,
-            traversalTime: undefined,
-            stairCount: undefined,
-            maxSlope: undefined,
-            minWidth: undefined,
             signpostedAs: "",
             reversedSignpostedAs: ""
 		}
+		edge.smooth = this.getEdgeSmoothVariant(edge.from, edge.to);
 		this.newPathwayId--;
         return edge;
     }

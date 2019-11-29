@@ -6,10 +6,11 @@
     height: 350px;
     display: flex;
     flex-direction: column;
-    background: #aaa;
-    border: solid 1px #555;
+    background: #55aa55;
+    border: solid 1px #296b29;
     border-radius: 5px;
-    padding: 10px;
+	padding: 10px;
+	z-index: 101;
     .header {
         height: 25px;
         border-bottom: solid 1px #555;

@@ -3,11 +3,7 @@ import "./App.scss";
 import StationBuilder from "./components/StationBuilder";
 import Communication from "./interfaces/Communication";
 import DataService from "./services/DataService";
-import Stop from "./interfaces/Stop";
 import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import Pathway from "./interfaces/Pathway";
-import Level from "./interfaces/Level";
 
 export interface AppProps {}
 
@@ -114,26 +110,8 @@ export default class App extends Component<AppProps, AppState> {
 		return false;
 	}
 
-	private saveStation = (data: Communication) => {
-		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
-		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
-		let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
-		data.stops.forEach((stop: Stop) => {
-			stopsTxt += DataService.stopToGTFS(stop) + "\n";
-		});
-		data.pathways.forEach((pathway: Pathway) => {
-			pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
-		});
-		data.levels.forEach((level: Level) => {
-			levelsTxt += DataService.levelToGTFS(level) + "\n";
-		});
-		const zip = new JSZip();
-		zip.file('stops.txt', stopsTxt);
-		zip.file('pathways.txt', pathwaysTxt);
-		zip.file('levels.txt', levelsTxt);
-		zip.generateAsync({ type: "blob" }).then(function (blob) {
-			saveAs(blob, "gtfs.zip");
-		});
+	private handleStationSave = (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => {
+		console.log(data, deletedStopsIds, deletedPathwaysIds);
 		this.setState({
 			editMode: false,
 			data: {
@@ -144,37 +122,53 @@ export default class App extends Component<AppProps, AppState> {
 		});
 	}
 
-	private loadSampleData = () => {
-		let communicationPacket: Communication = {
-			stops: [],
-			pathways: [],
-			levels: []
-		};
-		this.extractData("stops.txt",
-			`stop_id,stop_name,location_type,parent_station,wheelchair_boarding,level_id,platform_code
-			1,XYZ,1,,0,,
-			2,1,0,1,1,2,K
-			3,2,0,1,1,,
-			4,Center,2,1,2,,
-			5,Park,2,1,1,1,`
-		, communicationPacket);
-		this.extractData("pathways.txt",
-			`pathway_id,from_stop_id,to_stop_id,pathway_mode,is_bidirectional,length,traversal_time,stair_count,max_slope,min_width,signposted_as,reversed_signposted_as
-			1,4,2,4,1,,60,,,,,
-			2,4,2,2,1,,120,,,,,
-			3,5,2,5,1,,20,,,,,
-			4,2,3,1,1,,30,,,,,`
-		, communicationPacket);
-		this.extractData("levels.txt",
-			`level_id,level_index,level_name
-			1,0,
-			2,-1,`
-		, communicationPacket);
+	private handleStationCancel = () => {
 		this.setState({
-			data: communicationPacket,
-			editMode: true
+			editMode: false,
+			data: {
+				stops: [],
+				pathways: [],
+				levels: []
+			}
 		});
 	}
+
+	// private loadSampleData = () => {
+	// 	let communicationPacket: Communication = {
+	// 		stops: [],
+	// 		pathways: [],
+	// 		levels: []
+	// 	};
+	// 	this.extractData("stops.txt",
+	// 		`stop_id,stop_lat,stol_lon,stop_name,location_type,parent_station,wheelchair_boarding,level_id,platform_code
+	// 		1,,,XYZ,1,,0,,
+	// 		2,,,1,0,1,1,2,K
+	// 		3,,,2,0,1,1,,
+	// 		4,,,Center,2,1,2,,
+	// 		5,,,Park,2,1,1,1,`
+	// 	, communicationPacket);
+	// 	this.extractData("pathways.txt",
+	// 		`pathway_id,from_stop_id,to_stop_id,pathway_mode,is_bidirectional,length,traversal_time,stair_count,max_slope,min_width,signposted_as,reversed_signposted_as
+	// 		1,4,2,4,1,,60,,,,,
+	// 		2,4,2,2,1,,120,,,,,
+	// 		21,4,2,2,1,,120,,,,,
+	// 		22,4,2,2,1,,120,,,,,
+	// 		23,2,4,2,1,,120,,,,,
+	// 		24,2,4,2,1,,120,,,,,
+	// 		25,2,4,2,1,,120,,,,,
+	// 		3,5,2,5,1,,20,,,,,
+	// 		4,2,3,1,1,,30,,,,,`
+	// 	, communicationPacket);
+	// 	this.extractData("levels.txt",
+	// 		`level_id,level_index,level_name
+	// 		1,0,
+	// 		2,-1,`
+	// 	, communicationPacket);
+	// 	this.setState({
+	// 		data: communicationPacket,
+	// 		editMode: true
+	// 	});
+	// }
 
 	render() {
 		return (
@@ -189,15 +183,18 @@ export default class App extends Component<AppProps, AppState> {
 							multiple={true}
 							onChange={this.handleFileChange}
 						/>
-						<br />
+						{/* <br />
 						<br />
 						<div>OR</div>
 						<br />
-						<button onClick={this.loadSampleData}>LOAD SAMPLE DATA</button>
+						<button onClick={this.loadSampleData}>LOAD SAMPLE DATA</button> */}
 					</div>
 				)}
 				{this.state.editMode && (
-					<StationBuilder data={this.state.data} onSave={this.saveStation}></StationBuilder>
+					<StationBuilder
+						data={this.state.data}
+						onSave={this.handleStationSave}
+						onCancel={this.handleStationCancel}></StationBuilder>
 				)}
 			</div>
 		);

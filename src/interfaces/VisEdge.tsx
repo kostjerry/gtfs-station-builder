@@ -11,10 +11,11 @@ export default interface VisEdge {
     arrows: {
         to: boolean,
         from: boolean
-    },
-    font: {
-        align: string
-    },
-    label: string,
+	},
+	smooth: {
+		type: string,
+		roundness: number
+	},
+	label: string,
     pathway: Pathway
 }

@@ -52,6 +52,8 @@ You will also see any lint errors in the console.
  - location_type=4 (Boarding Area) is currently not processed
  - levels.txt is currently not processed
  - no translations support
+ - only one station mode supported
+ - no other fields preservation
 
 ## License
 

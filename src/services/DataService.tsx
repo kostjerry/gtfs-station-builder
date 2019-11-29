@@ -36,11 +36,14 @@ export default class DataService {
 
     static stopFromGTFS(stop: {[key: string]: string}): Stop {
         return {
-            stopId: Number(stop['stop_id']),
+			stopId: Number(stop['stop_id']),
+			stopLat: Number(stop['stop_lat']),
+			stopLon: Number(stop['stop_lon']),
+			parentStation: stop['parent_station'] ? Number(stop['parent_station']) : undefined,
             stopName: stop['stop_name'],
             locationType: Number(stop['location_type']),
             wheelchairBoarding: Number(stop['wheelchair_boarding']),
-            levelId: Number(stop['level_id']),
+            levelId: stop['level_id'] ? Number(stop['level_id']) : undefined,
             platformCode: stop['platform_code'],
             signpostedAs: stop['signposted_as']
         };
@@ -48,8 +51,11 @@ export default class DataService {
 
 	static getStopGTFSHeader(): string {
 		return	'stop_id,' +
+				'stop_lat,' + 
+				'stop_lon,' + 
 				'stop_name,' +
 				'location_type,' +
+				'parent_station,' +
 				'wheelchair_boarding,' +
 				'level_id,' +
 				'platform_code,' +
@@ -57,9 +63,12 @@ export default class DataService {
 	}
 
     static stopToGTFS(stop: Stop): string {
-        return  stop.stopId.toString() + ',' +
+		return  stop.stopId.toString() + ',' +
+				stop.stopLat.toString() + ',' +
+				stop.stopLon.toString() + ',' +
 				this.escapeText(stop.stopName || '') + ',' +
-                stop.locationType.toString() + ',' +
+				stop.locationType.toString() + ',' +
+				(stop.parentStation || '') + ',' +
                 stop.wheelchairBoarding.toString() + ',' +
                 (stop.levelId || '') + ',' +
                 this.escapeText(stop.platformCode || '') + ',' +
@@ -73,11 +82,11 @@ export default class DataService {
             toStopId: Number(pathway['to_stop_id']),
             pathwayMode: Number(pathway['pathway_mode']),
             isBidirectional: Number(pathway['is_bidirectional']) === 1,
-            length: Number(pathway['length']),
-            traversalTime: Number(pathway['traversal_time']),
-            stairCount: Number(pathway['stair_count']),
-            maxSlope: Number(pathway['max_slope']),
-            minWidth: Number(pathway['min_width']),
+            length: pathway['length'] ? Number(pathway['length']) : undefined,
+            traversalTime: pathway['traversal_time'] ? Number(pathway['traversal_time']) : undefined,
+            stairCount: pathway['stair_count'] ? Number(pathway['stair_count']) : undefined,
+            maxSlope: pathway['max_slope'] ? Number(pathway['max_slope']) : undefined,
+            minWidth: pathway['min_width'] ? Number(pathway['min_width']) : undefined,
             signpostedAs: pathway['signposted_as'],
             reversedSignpostedAs: pathway['reversed_signposted_as']
         };

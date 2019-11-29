@@ -6,14 +6,25 @@ import Stop from '../interfaces/Stop';
 import VisNode from '../interfaces/VisNode';
 import VisService from '../services/VisService';
 import Communication from '../interfaces/Communication';
-import Pathway from '../interfaces/Pathway';
+import Pathway, { PathwayModeMap } from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
 import PathwayDialog from './PathwayDialog';
 import cloneDeep from 'lodash/cloneDeep';
+import DataService from '../services/DataService';
+import Level from '../interfaces/Level';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import circleRedImage from '../images/circle-red.png';
+import circleBlueImage from '../images/circle-blue.png';
+
+declare const google: any;
 
 export interface StationBuilderProps {
 	data: Communication,
-	onSave: (data: Communication) => void
+	onSave: (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => void,
+	onCancel: () => void,
+	mapDiv?: HTMLDivElement,
+	map?: google.maps.Map
 }
 
 export interface StationBuilderState {
@@ -27,32 +38,149 @@ export interface StationBuilderState {
 		pathway: Pathway,
 		edge: VisEdge,
 		callback: (edge?: VisEdge) => void
-	} | null
+	} | null,
+	mapMarkers: google.maps.Marker[],
+	stations: Stop[],
+	platforms: Stop[],
+	levels: Level[],
+	latK: number,
+	latX: number,
+	lonK: number,
+	lonX: number,
+	deletedStopsIds: number[],
+	deletedPathwaysIds: number[]
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
-	private stationId: number = -1;
+	private mapRef: React.RefObject<HTMLDivElement> = React.createRef();
 
 	constructor(props: StationBuilderProps) {
 		super(props);
-		this.state = {
-			data: cloneDeep(props.data),
-			selectedStop: null,
-			selectedPathway: null
-		};
-		this.props.data.stops.map((stop: Stop) => {
+		let stations: Stop[] = [];
+		let platforms: Stop[] = [];
+		props.data.stops.map((stop: Stop) => {
+			if (stop.locationType === 0) {
+				platforms.push(stop);
+			}
 			if (stop.locationType === 1) {
-				this.stationId = stop.stopId;
+				stations.push(stop);
 			}
 			return false;
 		});
-		if (this.stationId === -1) {
+		if (stations.length === 0) {
 			throw new Error("No station provided in input data");
+		}
+		if (platforms.length === 0) {
+			throw new Error("No platforms provided in input data");
+		}
+
+		let minLat = 0;
+		let minLon = 0;
+		let maxLat = 0;
+		let maxLon = 0;
+		props.data.stops.forEach((stop: Stop) => {
+			if (!minLat || (stop.stopLat < minLat)) {
+				minLat = stop.stopLat;
+			}
+			if (!minLon || (stop.stopLon < minLon)) {
+				minLon = stop.stopLon;
+			}
+			if (!maxLat || (stop.stopLat > maxLat)) {
+				maxLat = stop.stopLat;
+			}
+			if (!maxLon || (stop.stopLon > maxLon)) {
+				maxLon = stop.stopLon;
+			}
+		});
+		let latGap = maxLat - minLat;
+		let lonGap = maxLon - minLon;
+		const lonK = 1000.0 / lonGap;
+		const lonX = -minLon * 1000.0 / lonGap;
+		const latK = -1000.0 / latGap;
+		const latX = maxLat * 1000.0 / latGap;
+
+		// Init VisService state
+		VisService.newStopId = -1;
+		VisService.newPathwayId = -1;
+		VisService.edgeRoundness = {};
+
+		this.state = {
+			data: cloneDeep(props.data),
+			selectedStop: null,
+			selectedPathway: null,
+			mapMarkers: [],
+			stations,
+			platforms,
+			levels: props.data.levels,
+			latK,
+			latX,
+			lonK,
+			lonX,
+			deletedStopsIds: [],
+			deletedPathwaysIds: []
+		};
+	}
+
+	public componentDidMount() {
+		const bounds = new google.maps.LatLngBounds();
+		this.props.data.stops.forEach((stop: Stop) => {
+			bounds.extend({
+				lat: stop.stopLat,
+				lng: stop.stopLon
+			});
+		});
+
+		let map: google.maps.Map;
+
+		if (this.mapRef.current) {
+			if (this.props.mapDiv && this.props.map) {
+				this.mapRef.current.appendChild(this.props.mapDiv);
+				this.props.map.fitBounds(bounds);
+				map = this.props.map;
+			}
+			else {
+				console.log("Google map initialized");
+				map = new google.maps.Map(this.mapRef.current);
+				map.fitBounds(bounds);
+			}
+		}
+
+		this.props.data.stops.filter((stop: Stop) => {
+			return [0, 2].includes(stop.locationType);
+		}).forEach((stop: Stop) => {
+			this.state.mapMarkers.push(new google.maps.Marker({
+				map: map,
+				position: {
+					lat: stop.stopLat,
+					lng: stop.stopLon
+				},
+				icon: stop.locationType === 0 ? circleBlueImage : circleRedImage
+			}));
+		});
+
+		document.addEventListener('keydown', this.handleDocumentKeydown);
+	}
+
+	private handleDocumentKeydown = (e: KeyboardEvent) => {
+		if (e.keyCode === 27) {
+			this.handleDialogCancel();
 		}
 	}
 
+	public componentWillUnmount() {
+		this.state.mapMarkers.forEach((marker) => {
+			marker.setMap(null);
+		});
+		document.removeEventListener('keydown', this.handleDocumentKeydown);
+	}
+
 	private handleStopAddMode = (node: VisNode, callback: (node?: VisNode) => void) => {
-		node = VisService.prepareNewNode(node);
+		node = VisService.prepareNewNode(node, this.state.stations, {
+			latK: this.state.latK,
+			latX: this.state.latX,
+			lonK: this.state.lonK,
+			lonX: this.state.lonX
+		});
 		this.setState({
 			selectedStop: {
 				stop: node.stop,
@@ -131,19 +259,29 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		dataToDelete: { nodes: number[], edges: number[] },
 		callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void
 	) => {
-		dataToDelete.nodes.forEach((nodeId: number) => {
-			if (this.stationId === nodeId) {
-				alert("It's disallowed to delete a station");
-				callback();
+		const hasError = dataToDelete.nodes.some((nodeId: number) => {
+			const stop: Stop | undefined = this.state.data.stops.find(stop => stop.stopId === nodeId);
+			if (stop && ![3, 4].includes(stop.locationType)) {
+				alert("You can't delete this location type");
+				return true;
 			}
-			else {
-				const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
+			const stopIndex = this.state.data.stops.findIndex(stop => stop.stopId === nodeId);
+			if (stopIndex !== -1) {
 				this.state.data.stops.splice(stopIndex, 1);
+				this.state.deletedStopsIds.push(nodeId);
 			}
+			return false;
 		});
+		if (hasError) {
+			callback();
+			return;
+		}
 		dataToDelete.edges.forEach((pathwayId: number) => {
 			const pathwayIndex = this.state.data.pathways.findIndex(pathway => pathway.pathwayId === pathwayId);
-			this.state.data.pathways.splice(pathwayIndex, 1);
+			if (pathwayIndex !== -1) {
+				this.state.data.pathways.splice(pathwayIndex, 1);
+				this.state.deletedPathwaysIds.push(pathwayId);
+			}
 		});
 		callback(dataToDelete);
 	}
@@ -164,35 +302,133 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleSaveClick = () => {
-		this.props.onSave(this.state.data);
+		this.props.onSave(this.state.data, this.state.deletedStopsIds, this.state.deletedPathwaysIds);
+	}
+
+	private handleCancelClick = () => {
+		this.props.onCancel();
+	}
+
+	private handleDownloadClick = () => {
+		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
+		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
+		let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
+		this.state.data.stops.forEach((stop: Stop) => {
+			stopsTxt += DataService.stopToGTFS(stop) + "\n";
+		});
+		this.state.data.pathways.forEach((pathway: Pathway) => {
+			pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
+		});
+		this.state.data.levels.forEach((level: Level) => {
+			levelsTxt += DataService.levelToGTFS(level) + "\n";
+		});
+		const zip = new JSZip();
+		zip.file('stops.txt', stopsTxt);
+		zip.file('pathways.txt', pathwaysTxt);
+		zip.file('levels.txt', levelsTxt);
+		zip.generateAsync({ type: "blob" }).then(function (blob) {
+			saveAs(blob, "gtfs.zip");
+		});
+	}
+
+	private handleStopDragEnd = (nodeId: number, position: {x: number, y: number}) => {
+		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
+			return stop.stopId === nodeId;
+		});
+		// Update position for generic nodes and boarding areas
+		if (stop && [3, 4].includes(stop.locationType)) {
+			stop.stopLat = ((position.y || 0) - this.state.latX) / this.state.latK;
+			stop.stopLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
+		}
+	}
+
+	private handleFareZoneAdd = (position: {x: number, y: number}, callback: (nodes: VisNode[], edges: VisEdge[]) => void) => {
+		const node1: VisNode = VisService.prepareNewNode({
+			x: position.x,
+			y: position.y
+		} as VisNode, this.state.stations, {
+			latK: this.state.latK,
+			latX: this.state.latX,
+			lonK: this.state.lonK,
+			lonX: this.state.lonX
+		});
+		this.state.data.stops.push(node1.stop);
+
+		const node2: VisNode = VisService.prepareNewNode({
+			x: position.x - 100,
+			y: position.y
+		} as VisNode, this.state.stations, {
+			latK: this.state.latK,
+			latX: this.state.latX,
+			lonK: this.state.lonK,
+			lonX: this.state.lonX
+		});
+		this.state.data.stops.push(node2.stop);
+
+		let edge1: VisEdge = VisService.prepareNewEdge({
+			from: node1.id,
+			to: node2.id
+		} as VisEdge);
+		edge1.pathway.pathwayMode = PathwayModeMap['FareGate'];
+		edge1.pathway.isBidirectional = false;
+		edge1.pathway.traversalTime = 10;
+		edge1 = VisService.attachPathwayToEdge(edge1.pathway, edge1);
+		this.state.data.pathways.push(edge1.pathway);
+
+		let edge2: VisEdge = VisService.prepareNewEdge({
+			from: node2.id,
+			to: node1.id
+		} as VisEdge);
+		edge2.pathway.pathwayMode = PathwayModeMap['ExitGate'];
+		edge2.pathway.isBidirectional = false;
+		edge2.pathway.traversalTime = 10;
+		edge2 = VisService.attachPathwayToEdge(edge2.pathway, edge2);
+		this.state.data.pathways.push(edge2.pathway);
+
+		callback([node1, node2], [edge1, edge2]);
 	}
 
 	render() {
 		return (
 			<div className="station-builder">
 				<div className="panel">
-					<button onClick={this.handleSaveClick}>Save</button>
+					<button className="save" onClick={this.handleSaveClick}>Save</button>
+					<button className="cancel" onClick={this.handleCancelClick}>Cancel</button>
+					<button className="download" onClick={this.handleDownloadClick}>Download</button>
 				</div>
-				<div className="graph">
-					<Vis
-						data={this.state.data}
-						onStopAdd={this.handleStopAddMode}
-						onStopEdit={this.handleStopEditMode}
-						onStopDelete={this.handleItemDelete}
-						onPathwayAdd={this.handlePathwayAddMode}
-						onPathwayEdit={this.handlePathwayEditMode}
-						onPathwayDelete={this.handleItemDelete}></Vis>
+				<div className="main">
+					<div className="graph">
+						<Vis
+							data={this.state.data}
+							onStopAdd={this.handleStopAddMode}
+							onStopEdit={this.handleStopEditMode}
+							onItemDelete={this.handleItemDelete}
+							onStopDragEnd={this.handleStopDragEnd}
+							onPathwayAdd={this.handlePathwayAddMode}
+							onPathwayEdit={this.handlePathwayEditMode}
+							onFareZoneAdd={this.handleFareZoneAdd}
+							latK={this.state.latK}
+							latX={this.state.latX}
+							lonK={this.state.lonK}
+							lonX={this.state.lonX}
+							isDialogShown={!!(this.state.selectedStop || this.state.selectedPathway)}></Vis>
 
-					{this.state.selectedStop && <StopDialog
-						stop={this.state.selectedStop.stop}
-						onCancel={this.handleDialogCancel}
-						onApply={this.handleStopDialogApply}></StopDialog>}
+						{this.state.selectedStop && <StopDialog
+							stop={this.state.selectedStop.stop}
+							stations={this.state.stations}
+							platforms={this.state.platforms}
+							levels={this.state.levels}
+							onCancel={this.handleDialogCancel}
+							onApply={this.handleStopDialogApply}></StopDialog>}
 
-					{this.state.selectedPathway && <PathwayDialog
-						pathway={this.state.selectedPathway.pathway}
-						onCancel={this.handleDialogCancel}
-						onApply={this.handlePathwayDialogApply}></PathwayDialog>}
+						{this.state.selectedPathway && <PathwayDialog
+							pathway={this.state.selectedPathway.pathway}
+							onCancel={this.handleDialogCancel}
+							onApply={this.handlePathwayDialogApply}></PathwayDialog>}
+					</div>
+					<div className="map" ref={this.mapRef}></div>
 				</div>
+				{(this.state.selectedStop || this.state.selectedPathway) && <div className="dialog-bg" onClick={this.handleDialogCancel}></div>}
 			</div>
 		);
 	}
