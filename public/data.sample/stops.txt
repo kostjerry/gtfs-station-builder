@@ -1,6 +1,0 @@
-stop_id,stop_name,location_type,parent_station,wheelchair_boarding,level_id,platform_code
-1,XYZ,1,,0,,
-2,1,0,1,1,2,K
-3,2,0,1,1,,
-4,Center,2,1,2,,
-5,Park,2,1,1,1,

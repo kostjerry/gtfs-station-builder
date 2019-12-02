@@ -10,10 +10,7 @@ import Pathway, { PathwayModeMap } from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
 import PathwayDialog from './PathwayDialog';
 import cloneDeep from 'lodash/cloneDeep';
-import DataService from '../services/DataService';
 import Level from '../interfaces/Level';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import circleRedImage from '../images/circle-red.png';
 import circleBlueImage from '../images/circle-blue.png';
 
@@ -58,14 +55,13 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		super(props);
 		let stations: Stop[] = [];
 		let platforms: Stop[] = [];
-		props.data.stops.map((stop: Stop) => {
+		props.data.stops.forEach((stop: Stop) => {
 			if (stop.locationType === 0) {
 				platforms.push(stop);
 			}
 			if (stop.locationType === 1) {
 				stations.push(stop);
 			}
-			return false;
 		});
 		if (stations.length === 0) {
 			throw new Error("No station provided in input data");
@@ -223,34 +219,38 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	private handleStopDialogApply = (stop: Stop) => {
 		if (this.state.selectedStop) {
-			const stopIndex = this.state.data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
+			const data = this.state.data;
+			const stopIndex = data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
 			if (stopIndex === -1) {
-				this.state.data.stops.push(stop);
+				data.stops.push(stop);
 			}
 			else {
-				this.state.data.stops[stopIndex] = stop;
+				data.stops[stopIndex] = stop;
 			}
 			const node = VisService.attachStopToNode(stop, this.state.selectedStop.node);
 			this.state.selectedStop.callback(node);
 			this.setState({
-				selectedStop: null
+				selectedStop: null,
+				data
 			});
 		}
 	}
 
 	private handlePathwayDialogApply = (pathway: Pathway) => {
 		if (this.state.selectedPathway) {
-			const pathwayIndex = this.state.data.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
+			const data = this.state.data;
+			const pathwayIndex = data.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
 			if (pathwayIndex === -1) {
-				this.state.data.pathways.push(pathway);
+				data.pathways.push(pathway);
 			}
 			else {
-				this.state.data.pathways[pathwayIndex] = pathway;
+				data.pathways[pathwayIndex] = pathway;
 			}
 			const edge = VisService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
 			this.state.selectedPathway.callback(edge);
 			this.setState({
-				selectedPathway: null
+				selectedPathway: null,
+				data
 			});
 		}
 	}
@@ -307,28 +307,6 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	private handleCancelClick = () => {
 		this.props.onCancel();
-	}
-
-	private handleDownloadClick = () => {
-		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
-		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
-		let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
-		this.state.data.stops.forEach((stop: Stop) => {
-			stopsTxt += DataService.stopToGTFS(stop) + "\n";
-		});
-		this.state.data.pathways.forEach((pathway: Pathway) => {
-			pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
-		});
-		this.state.data.levels.forEach((level: Level) => {
-			levelsTxt += DataService.levelToGTFS(level) + "\n";
-		});
-		const zip = new JSZip();
-		zip.file('stops.txt', stopsTxt);
-		zip.file('pathways.txt', pathwaysTxt);
-		zip.file('levels.txt', levelsTxt);
-		zip.generateAsync({ type: "blob" }).then(function (blob) {
-			saveAs(blob, "gtfs.zip");
-		});
 	}
 
 	private handleStopDragEnd = (nodeId: number, position: {x: number, y: number}) => {
@@ -394,7 +372,6 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				<div className="panel">
 					<button className="save" onClick={this.handleSaveClick}>Save</button>
 					<button className="cancel" onClick={this.handleCancelClick}>Cancel</button>
-					<button className="download" onClick={this.handleDownloadClick}>Download</button>
 				</div>
 				<div className="main">
 					<div className="graph">
