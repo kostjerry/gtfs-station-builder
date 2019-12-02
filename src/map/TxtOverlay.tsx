@@ -62,7 +62,7 @@ class TxtOverlay extends google.maps.OverlayView {
 	
 	public toggle = () => {
 		if (this.div_) {
-			if (this.div_.style.visibility == "hidden") {
+			if (this.div_.style.visibility === "hidden") {
 				this.show();
 			} else {
 				this.hide();

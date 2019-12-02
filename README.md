@@ -1,59 +1,50 @@
 # GTFS-station-builder
 
-![](./public/images/screenshot.png)
+![](./public/images/screenshot.jpg)
 
 ## Try it out!
 
 1. Open [https://kostjerry.github.io/gtfs-station-builder/sample/](https://kostjerry.github.io/gtfs-station-builder/sample/).<br>
-2. Click "LOAD SAMPLE DATA" button.<br>
-3. Enjoy the station building process.<br>
-4. Click "Save" to download .zip with the station.<br>
+2. Click "LOAD SAMPLE DATA" button or choose your own feed.<br>
+3. Choose which station to build.<br>
+4. Enjoy the station building process.<br>
+5. Click "Save".<br>
+6. Click "Download" to get the zipped feed.<br>
 
-## Sample of GTFS data
+## Shortcuts
 
-### stops.txt
+ - Double click on map: add location.
+ - Double click on location: open location properties popup.
+ - Double click on pathway: open pathway properties popup.
+ - Ctrl+double click on map: add several objects describing fare and exit gates.
+ - Right click on pathway: make it able to be reconnected to another location.
+ - Enter on any input field in Location or Pathway popup: apply changes.
+ - Delete on location or on pathway: delete it.
+ - ESC: close Location or Pathway popup.
 
-```
-stop_id,stop_name,location_type,parent_station,wheelchair_boarding,level_id,platform_code
-1,XYZ,1,,0,,
-2,1,0,1,1,2,K
-3,2,0,1,1,,
-4,Center,2,1,2,,
-5,Park,2,1,1,1,
-```
+## Restrictions on the input data
 
-### pathways.txt
+The input is GTFS-static feed in one zip archive or a set of files that form GTFS-static feed together.
+ - Required files: stops.txt and pathways.txt.
+ - Stops.txt must contain at least one station.
+ - Stops.txt must have located platforms and entrances because there is no way to add them in the builder.
+ - All locations in stops.txt must have specified coordinates (even if it's a generic node). This way we will know how to place all locations relative to each other on the plane to show you the network.
 
-```
-pathway_id,from_stop_id,to_stop_id,pathway_mode,is_bidirectional,length,traversal_time,stair_count,max_slope,min_width,signposted_as,reversed_signposted_as
-1,4,2,4,1,,60,,,,,
-2,4,2,2,1,,120,,,,,
-3,5,2,5,1,,20,,,,,
-4,2,3,1,1,,30,,,,,
-```
+## Data sample
 
-### "levels.txt",
-
-```
-level_id,level_index,level_name
-1,0,
-2,-1,
-```
+[Download the sample.](https://kostjerry.github.io/gtfs-station-builder/sample/gtfs-translations-pathways-vehicles-sample.zip)
 
 ## Contributing
 
 Project in written based on ReactJs framework.<br>
 To run project locally in development mode type `npm start`.<br>
 Open http://localhost:3000 to view it in the browser.<br>
-The page will reload if you make edits.<br>
+The page automatcally reloads once you edit the code.<br>
 You will also see any lint errors in the console.
 
 ## Known issues
- - location_type=4 (Boarding Area) is currently not processed
- - levels.txt is currently not processed
- - no translations support
- - only one station mode supported
- - no other fields preservation
+ - No translations support.
+ - No way to add platforms and entrances.
 
 ## License
 

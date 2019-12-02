@@ -7,6 +7,7 @@ import JSZip, { JSZipObject } from 'jszip';
 import FileService from "./services/FileService";
 import Stop from "./interfaces/Stop";
 import circleBlackImage from './images/circle-black.png';
+import ewayLogo from './images/eway-logo.png';
 import TxtOverlay from "./map/TxtOverlay";
 import Pathway from "./interfaces/Pathway";
 import Level from "./interfaces/Level";
@@ -29,7 +30,7 @@ export interface AppState {
 
 export default class App extends Component<AppProps, AppState> {
 	private mapRef: React.RefObject<HTMLDivElement> = React.createRef();
-	private requiredFiles = ["stops.txt", "pathways.txt", "levels.txt"];
+	private requiredFiles = ["stops.txt", "pathways.txt"]; // "levels.txt"
 
 	public constructor(props: AppProps) {
 		super(props);
@@ -77,7 +78,9 @@ export default class App extends Component<AppProps, AppState> {
 				return FileService.readUploadedFileAsText(file);
 			}));
 		
-		this.checkRequiredFiles(requiredFileNames);
+		if (!this.checkRequiredFiles(requiredFileNames)) {
+			return;
+		}
 
 		this.handleFilePromises(
 			untouchedFilePromises, 
@@ -112,7 +115,9 @@ export default class App extends Component<AppProps, AppState> {
 					return file.async("text");
 				}));
 			
-			this.checkRequiredFiles(requiredFileNames);
+			if (!this.checkRequiredFiles(requiredFileNames)) {
+				return;
+			}
 
 			this.handleFilePromises(
 				untouchedFilePromises, 
@@ -159,15 +164,7 @@ export default class App extends Component<AppProps, AppState> {
 	private showStationsOnMap(stops: Stop[]) {
 		let map: google.maps.Map;
 		if (!this.state.map) {
-			const bounds = new google.maps.LatLngBounds();
 			map = new google.maps.Map(this.mapRef.current);
-			stops.filter(stop => stop.locationType === 1).forEach(stop => {
-				bounds.extend({
-					lat: stop.stopLat,
-					lng: stop.stopLon
-				});
-			});
-			map.fitBounds(bounds);
 			console.log("Google map initialized");
 			this.setState({
 				map
@@ -178,13 +175,16 @@ export default class App extends Component<AppProps, AppState> {
 		}
 
 		if (this.state.mapObjects.length === 0) {
+			const bounds = new google.maps.LatLngBounds();
 			stops.filter(stop => stop.locationType === 1).forEach(stop => {
+				const position = {
+					lat: stop.stopLat,
+					lng: stop.stopLon
+				};
+				bounds.extend(position);
 				const marker = new google.maps.Marker({
 					map,
-					position: {
-						lat: stop.stopLat,
-						lng: stop.stopLon
-					},
+					position,
 					icon: circleBlackImage
 				});
 				const label = new TxtOverlay(
@@ -199,15 +199,20 @@ export default class App extends Component<AppProps, AppState> {
 				this.state.mapObjects.push(marker);
 				this.state.mapObjects.push(label);
 			});
+			map.fitBounds(bounds);
 		}
 	}
 
-	private checkRequiredFiles(fileNames: string[]) {
+	private checkRequiredFiles(fileNames: string[]): boolean {
 		const fileMissing = this.requiredFiles.some((requiredFileName: string) => {
 			return fileNames.findIndex(name => name === requiredFileName) === -1;
 		});
 		if (fileMissing) {
 			alert("You missed some of the required files: [" + this.requiredFiles.join(", ") + "]");
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 
@@ -295,10 +300,23 @@ export default class App extends Component<AppProps, AppState> {
 			const station = this.state.stations.stops.find(stop => stop.stopId === stationId);
 			if (station) {
 				// Filter selected station and its neighbors
-				const stops = this.state.stations.stops.filter(stop => {
-					return ((Math.abs(stop.stopLat - station.stopLat) < 0.02)
-						&& (Math.abs(stop.stopLon - station.stopLon) < 0.02));
+				const stationIds = this.state.stations.stops.filter(stop => {
+					return ((Math.abs(stop.stopLat - station.stopLat) < 0.005)
+						&& (Math.abs(stop.stopLon - station.stopLon) < 0.005)
+						&& (stop.locationType === 1));
+				}).map(station => station.stopId);
+				let platformIds: number[] = [];
+				this.state.stations.stops.forEach(stop => {
+					if (stationIds.includes(stop.parentStation || -1) && (stop.locationType === 0)) {
+						platformIds.push(stop.stopId);
+					}
 				});
+				const stops = this.state.stations.stops.filter(stop => {
+					return (stationIds.includes(stop.parentStation || -1)
+						|| stationIds.includes(stop.stopId)
+						|| platformIds.includes(stop.parentStation || -1));
+				});
+
 				const stopIds = stops.map(stop => stop.stopId);
 				const pathways = this.state.stations.pathways.filter(pathway => {
 					return stopIds.includes(pathway.fromStopId) ||
@@ -361,6 +379,8 @@ export default class App extends Component<AppProps, AppState> {
 			<div className="container">
 				{this.state.mode === "FILE_UPLADING" && (
 					<div className="controls">
+						<img src={ewayLogo} alt="" />
+						<h2>GTFS station builder</h2>
 						<div>
 							Select stops.txt, pathways.txt and levels.txt (you can also select a .zip containing those files):
 						</div>
@@ -369,7 +389,6 @@ export default class App extends Component<AppProps, AppState> {
 							multiple={true}
 							onChange={this.handleFileChange}
 						/>
-						<br />
 						<br />
 						<div>OR</div>
 						<br />

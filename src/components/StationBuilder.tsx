@@ -219,34 +219,38 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	private handleStopDialogApply = (stop: Stop) => {
 		if (this.state.selectedStop) {
-			const stopIndex = this.state.data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
+			const data = this.state.data;
+			const stopIndex = data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
 			if (stopIndex === -1) {
-				this.state.data.stops.push(stop);
+				data.stops.push(stop);
 			}
 			else {
-				this.state.data.stops[stopIndex] = stop;
+				data.stops[stopIndex] = stop;
 			}
 			const node = VisService.attachStopToNode(stop, this.state.selectedStop.node);
 			this.state.selectedStop.callback(node);
 			this.setState({
-				selectedStop: null
+				selectedStop: null,
+				data
 			});
 		}
 	}
 
 	private handlePathwayDialogApply = (pathway: Pathway) => {
 		if (this.state.selectedPathway) {
-			const pathwayIndex = this.state.data.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
+			const data = this.state.data;
+			const pathwayIndex = data.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
 			if (pathwayIndex === -1) {
-				this.state.data.pathways.push(pathway);
+				data.pathways.push(pathway);
 			}
 			else {
-				this.state.data.pathways[pathwayIndex] = pathway;
+				data.pathways[pathwayIndex] = pathway;
 			}
 			const edge = VisService.attachPathwayToEdge(pathway, this.state.selectedPathway.edge);
 			this.state.selectedPathway.callback(edge);
 			this.setState({
-				selectedPathway: null
+				selectedPathway: null,
+				data
 			});
 		}
 	}
