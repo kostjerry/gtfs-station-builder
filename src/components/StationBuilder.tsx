@@ -10,10 +10,7 @@ import Pathway, { PathwayModeMap } from '../interfaces/Pathway';
 import VisEdge from '../interfaces/VisEdge';
 import PathwayDialog from './PathwayDialog';
 import cloneDeep from 'lodash/cloneDeep';
-import DataService from '../services/DataService';
 import Level from '../interfaces/Level';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import circleRedImage from '../images/circle-red.png';
 import circleBlueImage from '../images/circle-blue.png';
 
@@ -58,14 +55,13 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		super(props);
 		let stations: Stop[] = [];
 		let platforms: Stop[] = [];
-		props.data.stops.map((stop: Stop) => {
+		props.data.stops.forEach((stop: Stop) => {
 			if (stop.locationType === 0) {
 				platforms.push(stop);
 			}
 			if (stop.locationType === 1) {
 				stations.push(stop);
 			}
-			return false;
 		});
 		if (stations.length === 0) {
 			throw new Error("No station provided in input data");
@@ -309,28 +305,6 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		this.props.onCancel();
 	}
 
-	private handleDownloadClick = () => {
-		let stopsTxt = DataService.getStopGTFSHeader() + "\n";
-		let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
-		let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
-		this.state.data.stops.forEach((stop: Stop) => {
-			stopsTxt += DataService.stopToGTFS(stop) + "\n";
-		});
-		this.state.data.pathways.forEach((pathway: Pathway) => {
-			pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
-		});
-		this.state.data.levels.forEach((level: Level) => {
-			levelsTxt += DataService.levelToGTFS(level) + "\n";
-		});
-		const zip = new JSZip();
-		zip.file('stops.txt', stopsTxt);
-		zip.file('pathways.txt', pathwaysTxt);
-		zip.file('levels.txt', levelsTxt);
-		zip.generateAsync({ type: "blob" }).then(function (blob) {
-			saveAs(blob, "gtfs.zip");
-		});
-	}
-
 	private handleStopDragEnd = (nodeId: number, position: {x: number, y: number}) => {
 		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
 			return stop.stopId === nodeId;
@@ -394,7 +368,6 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				<div className="panel">
 					<button className="save" onClick={this.handleSaveClick}>Save</button>
 					<button className="cancel" onClick={this.handleCancelClick}>Cancel</button>
-					<button className="download" onClick={this.handleDownloadClick}>Download</button>
 				</div>
 				<div className="main">
 					<div className="graph">
