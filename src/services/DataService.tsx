@@ -150,7 +150,7 @@ export default class DataService {
 	// Return array of string values
 	// Source: https://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript-which-contains-comma-in-data
 	static csvToArray(text: string) {
-		var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
+		var re_value = /(?!\s*$)\s*(?:"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,\s\\]*(?:\s+[^,\s\\]+)*))\s*(?:,|$)/g;
 		var a = [];                     // Initialize array to receive values.
 		text.replace(re_value, // "Walk" the string using replace with callback.
 			function(m0, m1, m2, m3) {

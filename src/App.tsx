@@ -12,6 +12,7 @@ import TxtOverlay from "./map/TxtOverlay";
 import Pathway from "./interfaces/Pathway";
 import Level from "./interfaces/Level";
 import { saveAs } from 'file-saver';
+import VisService from "./services/VisService";
 
 export interface AppProps {}
 
@@ -149,6 +150,22 @@ export default class App extends Component<AppProps, AppState> {
 				fileContents.forEach((content: string, index: number) => {
 					this.extractData(requiredFileNames[index], content, communicationPacket);
 				});
+
+				// Set id's initial values for new stops and pathways
+				let minStopId = 0;
+				communicationPacket.stops.forEach(stop => {
+					if (Number(stop.stopId) < minStopId) {
+						minStopId = Number(stop.stopId);
+					}
+				});
+				let minPathwayId = 0;
+				communicationPacket.pathways.forEach(pathway => {
+					if (Number(pathway.pathwayId) < minPathwayId) {
+						minPathwayId = Number(pathway.pathwayId);
+					}
+				});
+				VisService.newStopId = minStopId - 1;
+				VisService.newPathwayId = minPathwayId - 1;
 
 				this.setState({
 					stations: communicationPacket,
