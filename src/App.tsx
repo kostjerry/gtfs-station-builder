@@ -368,7 +368,15 @@ export default class App extends Component<AppProps, AppState> {
 			for (const fileName in this.state.untouchedFiles) {
 				zip.file(fileName, this.state.untouchedFiles[fileName]);
 			}
-			zip.generateAsync({ type: "blob" }).then(function (blob) {
+			
+			zip.generateAsync({
+				type: "blob",
+				platform: "UNIX",
+				compression: "DEFLATE",
+				compressionOptions: {
+					level: 5
+				}
+			}).then(function (blob) {
 				saveAs(blob, "gtfs.zip");
 			});
 		}
