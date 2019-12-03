@@ -96,8 +96,6 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		const latX = maxLat * 1000.0 / latGap;
 
 		// Init VisService state
-		VisService.newStopId = -1;
-		VisService.newPathwayId = -1;
 		VisService.edgeRoundness = {};
 
 		this.state = {

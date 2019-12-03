@@ -21,6 +21,7 @@ type AppMode = "FILE_UPLADING" | "STATION_SELECTION" | "STATION_BUILDER";
 declare const google: any;
 
 export interface AppState {
+	isLoading: boolean;
 	mode: AppMode;
 	stations: Communication | null;
 	selectedStation: Communication | null;
@@ -36,6 +37,7 @@ export default class App extends Component<AppProps, AppState> {
 	public constructor(props: AppProps) {
 		super(props);
 		this.state = {
+			isLoading: false,
 			mode: "FILE_UPLADING",
 			stations: null,
 			selectedStation: null,
@@ -46,6 +48,9 @@ export default class App extends Component<AppProps, AppState> {
 
 	private handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files) {
+			this.setState({
+				isLoading: true
+			});
 			// Zip
 			if (event.target.files.length === 1) {
 				const zipFile = event.target.files[0];
@@ -80,6 +85,9 @@ export default class App extends Component<AppProps, AppState> {
 			}));
 		
 		if (!this.checkRequiredFiles(requiredFileNames)) {
+			this.setState({
+				isLoading: false
+			});
 			return;
 		}
 
@@ -117,6 +125,9 @@ export default class App extends Component<AppProps, AppState> {
 				}));
 			
 			if (!this.checkRequiredFiles(requiredFileNames)) {
+				this.setState({
+					isLoading: false
+				});
 				return;
 			}
 
@@ -168,6 +179,7 @@ export default class App extends Component<AppProps, AppState> {
 				VisService.newPathwayId = minPathwayId - 1;
 
 				this.setState({
+					isLoading: false,
 					stations: communicationPacket,
 					mode: "STATION_SELECTION",
 					untouchedFiles
@@ -302,6 +314,9 @@ export default class App extends Component<AppProps, AppState> {
 	}
 
 	private loadSampleData = () => {
+		this.setState({
+			isLoading: true
+		});
 		const sampleZip = fetch("https://kostjerry.github.io/gtfs-station-builder/sample/gtfs-translations-pathways-vehicles-sample.zip");
 		sampleZip.then(response => {
 			if (response.ok) {
@@ -366,6 +381,9 @@ export default class App extends Component<AppProps, AppState> {
 
 	private handleDownloadClick = () => {
 		if (this.state.stations) {
+			this.setState({
+				isLoading: true
+			});
 			let stopsTxt = DataService.getStopGTFSHeader() + "\n";
 			let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
 			let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
@@ -393,7 +411,10 @@ export default class App extends Component<AppProps, AppState> {
 				compressionOptions: {
 					level: 5
 				}
-			}).then(function (blob) {
+			}).then((blob) => {
+				this.setState({
+					isLoading: false
+				});
 				saveAs(blob, "gtfs.zip");
 			});
 		}
@@ -402,6 +423,8 @@ export default class App extends Component<AppProps, AppState> {
 	render() {
 		return (
 			<div className="container">
+				{this.state.isLoading && <div className="loader"></div>}
+
 				{this.state.mode === "FILE_UPLADING" && (
 					<div className="controls">
 						<img src={ewayLogo} alt="" />

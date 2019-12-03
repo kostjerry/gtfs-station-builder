@@ -8,8 +8,8 @@ import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 // This service defines how to draw things
 //   and take care of stop-node and pathway-edge convertion
 export default class VisService {
-	static newStopId = -1;
-	static newPathwayId = -1;
+	public static newStopId = -1;
+	public static newPathwayId = -1;
 	static edgeRoundness: {
 		[key: string]: number
 	} = {};
