@@ -13,12 +13,14 @@ import cloneDeep from 'lodash/cloneDeep';
 import Level from '../interfaces/Level';
 import circleRedImage from '../images/circle-red.png';
 import circleBlueImage from '../images/circle-blue.png';
+import VehicleBoarding from '../interfaces/VehicleBoarding';
+import DataService from '../services/DataService';
 
 declare const google: any;
 
 export interface StationBuilderProps {
 	data: Communication,
-	onSave: (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => void,
+	onSave: (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[], deletedVehicleBoardingsIds: string[]) => void,
 	onCancel: () => void,
 	mapDiv?: HTMLDivElement,
 	map?: google.maps.Map
@@ -215,7 +217,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
-	private handleStopDialogApply = (stop: Stop) => {
+	private handleStopDialogApply = (stop: Stop, newVehicleBoardings: VehicleBoarding[]) => {
 		if (this.state.selectedStop) {
 			const data = this.state.data;
 			const stopIndex = data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
@@ -227,6 +229,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			}
 			const node = VisService.attachStopToNode(stop, this.state.selectedStop.node);
 			this.state.selectedStop.callback(node);
+			data.vehicleBoardings = newVehicleBoardings;
 			this.setState({
 				selectedStop: null,
 				data
@@ -300,7 +303,21 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleSaveClick = () => {
-		this.props.onSave(this.state.data, this.state.deletedStopsIds, this.state.deletedPathwaysIds);
+		// Get deleted vehicleBoardings
+		const oldVehicleBoardings = this.props.data.vehicleBoardings;
+		const newVehicleBoardings = this.state.data.vehicleBoardings;
+		let deletedVehicleBoardingsIds: string[] = oldVehicleBoardings.filter(oldVehicleBoarding => {
+			const oldId = DataService.getVehicleBoardingId(oldVehicleBoarding);
+			const index = newVehicleBoardings.findIndex(newVehicleBoarding => {
+				return DataService.getVehicleBoardingId(newVehicleBoarding) === oldId;
+			});
+			return (index === -1);
+		}).map(vehicleBoarding => DataService.getVehicleBoardingId(vehicleBoarding));
+
+		this.props.onSave(this.state.data,
+			this.state.deletedStopsIds,
+			this.state.deletedPathwaysIds,
+			deletedVehicleBoardingsIds);
 	}
 
 	private handleCancelClick = () => {
@@ -393,6 +410,8 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							stations={this.state.stations}
 							platforms={this.state.platforms}
 							levels={this.state.levels}
+							vehicles={this.state.data.vehicles}
+							vehicleBoardings={this.state.data.vehicleBoardings}
 							onCancel={this.handleDialogCancel}
 							onApply={this.handleStopDialogApply}></StopDialog>}
 

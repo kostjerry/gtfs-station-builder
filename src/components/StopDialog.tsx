@@ -6,14 +6,19 @@ import Stop, {
 	LocationTypeOnNodeLabelMap
 } from "../interfaces/Stop";
 import Level from "../interfaces/Level";
+import VehicleBoarding from "../interfaces/VehicleBoarding";
+import Vehicle from "../interfaces/Vehicle";
+import cloneDeep from 'lodash/cloneDeep';
 
 export interface StopDialogProps {
 	stop: Stop;
 	stations: Stop[];
 	platforms: Stop[];
 	levels: Level[];
+	vehicles: Vehicle[];
+	vehicleBoardings: VehicleBoarding[];
 	onCancel: () => void;
-	onApply: (stop: Stop) => void;
+	onApply: (stop: Stop, vehicleBoardings: VehicleBoarding[]) => void;
 }
 
 export interface StopDialogState {
@@ -24,6 +29,7 @@ export interface StopDialogState {
 	platformCode?: string;
 	signpostedAs?: string;
 	levelId?: number;
+	vehicleBoardings: VehicleBoarding[];
 }
 
 export default class StopDialog extends Component<StopDialogProps, StopDialogState> {
@@ -36,7 +42,8 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 			locationType: props.stop.locationType,
 			wheelchairBoarding: props.stop.wheelchairBoarding,
 			platformCode: props.stop.platformCode,
-			signpostedAs: props.stop.signpostedAs
+			signpostedAs: props.stop.signpostedAs,
+			vehicleBoardings: cloneDeep(props.vehicleBoardings)
 		};
 	}
 
@@ -54,7 +61,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.props.onApply({
 			...this.props.stop,
 			...this.state
-		});
+		}, this.state.vehicleBoardings);
 	};
 
 	private handleParentStationChange = (

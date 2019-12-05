@@ -196,6 +196,11 @@ export default class DataService {
 
 	// --------------------------
 
+	static getVehicleBoardingId(vehicleBoarding: VehicleBoarding): string {
+		return vehicleBoarding.vehicleCategoryId + "-" + vehicleBoarding.childSequence + "-" +
+			vehicleBoarding.boardingAreaId + "-" + vehicleBoarding.doorId;
+	}
+
 	// TODO
 	static escapeText(text: string): string {
 		return text;

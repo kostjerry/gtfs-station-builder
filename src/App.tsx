@@ -298,39 +298,59 @@ export default class App extends Component<AppProps, AppState> {
 		}
 	}
 
-	private handleStationSave = (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[]) => {
-		const dataAll = this.state.stations;
-		if (dataAll) {
-			data.stops.forEach(stop => {
-				const stopIndex = dataAll.stops.findIndex(curStop => curStop.stopId === stop.stopId);
+	private handleStationSave = (dataNew: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[], deletedVehicleBoardingsIds: string[]) => {
+		const dataActual = this.state.stations;
+		if (dataActual) {
+			dataNew.stops.forEach(stop => {
+				const stopIndex = dataActual.stops.findIndex(curStop => curStop.stopId === stop.stopId);
 				if (stopIndex !== -1) {
-					dataAll.stops[stopIndex] = stop;
+					dataActual.stops[stopIndex] = stop;
 				}
 				else {
-					dataAll.stops.push(stop);
+					dataActual.stops.push(stop);
 				}
 			});
 			deletedStopsIds.forEach(stopId => {
-				const stopIndex = dataAll.stops.findIndex(curStop => curStop.stopId === stopId);
+				const stopIndex = dataActual.stops.findIndex(curStop => curStop.stopId === stopId);
 				if (stopIndex !== -1) {
-					dataAll.stops.splice(stopIndex, 1);
+					dataActual.stops.splice(stopIndex, 1);
 				}
 			});
-			data.pathways.forEach(pathway => {
-				const pathwayIndex = dataAll.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
+
+			dataNew.pathways.forEach(pathway => {
+				const pathwayIndex = dataActual.pathways.findIndex(curPathway => curPathway.pathwayId === pathway.pathwayId);
 				if (pathwayIndex !== -1) {
-					dataAll.pathways[pathwayIndex] = pathway;
+					dataActual.pathways[pathwayIndex] = pathway;
 				}
 				else {
-					dataAll.pathways.push(pathway);
+					dataActual.pathways.push(pathway);
 				}
 			});
 			deletedPathwaysIds.forEach(pathwayId => {
-				const pathwayIndex = dataAll.pathways.findIndex(curPathway => curPathway.pathwayId === pathwayId);
+				const pathwayIndex = dataActual.pathways.findIndex(curPathway => curPathway.pathwayId === pathwayId);
 				if (pathwayIndex !== -1) {
-					dataAll.pathways.splice(pathwayIndex, 1);
+					dataActual.pathways.splice(pathwayIndex, 1);
 				}
 			});
+
+			dataNew.vehicleBoardings.forEach(vehicleBoardingNew => {
+				const vehicleBoardingNewId = DataService.getVehicleBoardingId(vehicleBoardingNew);
+				const vehicleBoardingIndex = dataActual.vehicleBoardings.findIndex(
+					curVehicleBoarding => DataService.getVehicleBoardingId(curVehicleBoarding) === vehicleBoardingNewId
+				);
+				if (vehicleBoardingIndex === -1) {
+					dataActual.vehicleBoardings.push(vehicleBoardingNew);
+				}
+			});
+			deletedVehicleBoardingsIds.forEach(vehicleBoardingId => {
+				const vehicleBoardingIndex = dataActual.vehicleBoardings.findIndex(
+					curVehicleBoarding => DataService.getVehicleBoardingId(curVehicleBoarding) === vehicleBoardingId
+				);
+				if (vehicleBoardingIndex !== -1) {
+					dataActual.vehicleBoardings.splice(vehicleBoardingIndex, 1);
+				}
+			});
+
 			this.setState({
 				mode: "STATION_SELECTION"
 			});
