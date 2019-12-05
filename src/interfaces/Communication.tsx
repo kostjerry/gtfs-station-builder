@@ -7,8 +7,8 @@ import VehicleBoarding from "./VehicleBoarding";
 export default interface Communication {
 	stops: Stop[];
 	pathways: Pathway[];
-	vehicleBoardings: VehicleBoarding[];
-
 	levels: Level[];
+	vehicleBoardings: VehicleBoarding[];
+	
 	vehicles: Vehicle[];
 }

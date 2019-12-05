@@ -2,6 +2,9 @@ import Stop from "../interfaces/Stop";
 import Pathway from "../interfaces/Pathway";
 import Level from "../interfaces/Level";
 import VehicleBoarding from "../interfaces/VehicleBoarding";
+import VehicleCategory from "../interfaces/VehicleCategory";
+import VehicleCoupling from "../interfaces/VehicleCoupling";
+import VehicleDoor from "../interfaces/VehicleDoor";
 
 /* GTFS to objects conversion and vise versa */
 export default class DataService {
@@ -165,6 +168,33 @@ export default class DataService {
                 vehicleBoarding.boardingAreaId.toString() + ',' +
                 vehicleBoarding.doorId.toString();
 	}
+
+	// --------------------------
+
+	static vehicleCategoryFromGTFS(vehicleCategory: {[key: string]: string}): VehicleCategory {
+        return {
+			vehicleCategoryId: Number(vehicleCategory['vehicle_category_id']),
+			vehicleCategoryName: vehicleCategory['vehicle_category_name']
+        };
+	}
+
+	static vehicleCouplingFromGTFS(vehicleCoupling: {[key: string]: string}): VehicleCoupling {
+        return {
+			parentId: Number(vehicleCoupling['parent_id']),
+			childId: Number(vehicleCoupling['child_id']),
+			childSequence: Number(vehicleCoupling['child_sequence'])
+        };
+	}
+
+	static vehicleDoorFromGTFS(vehicleDoor: {[key: string]: string}): VehicleDoor {
+        return {
+			doorId: Number(vehicleDoor['door_id']),
+			vehicleCategoryId: Number(vehicleDoor['vehicle_category_id']),
+			doorSequence: Number(vehicleDoor['door_sequence'])
+        };
+	}
+
+	// --------------------------
 
 	// TODO
 	static escapeText(text: string): string {

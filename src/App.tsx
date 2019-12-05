@@ -14,6 +14,10 @@ import Level from "./interfaces/Level";
 import { saveAs } from 'file-saver';
 import VisService from "./services/VisService";
 import VehicleBoarding from "./interfaces/VehicleBoarding";
+import Vehicle from "./interfaces/Vehicle";
+import VehicleCategory from "./interfaces/VehicleCategory";
+import VehicleCoupling from "./interfaces/VehicleCoupling";
+import VehicleDoor from "./interfaces/VehicleDoor";
 
 export interface AppProps {}
 
@@ -149,6 +153,16 @@ export default class App extends Component<AppProps, AppState> {
 			VisService.newStopId = minStopId - 1;
 			VisService.newPathwayId = minPathwayId - 1;
 
+			// Extract vehicles from untouched files
+			if (untouchedFiles["vehicle_categories.txt"]
+				&& untouchedFiles["vehicle_couplings.txt"]
+				&& untouchedFiles["vehicle_doors.txt"]) {
+				communicationPacket.vehicles = this.extractVehicles(
+					untouchedFiles["vehicle_categories.txt"],
+					untouchedFiles["vehicle_couplings.txt"],
+					untouchedFiles["vehicle_doors.txt"]);
+			}
+
 			this.setState({
 				isLoading: false,
 				stations: communicationPacket,
@@ -158,6 +172,44 @@ export default class App extends Component<AppProps, AppState> {
 				this.showStationsOnMap(communicationPacket.stops);
 			});
 		});
+	}
+
+	private extractVehicles(vehicleCategoriesTxt: string,
+		vehicleCouplingsTxt: string,
+		vehicleDoorsTxt: string): Vehicle[] {
+		
+		const vehicles: {[key: number]: Vehicle} = {};
+		const categories: VehicleCategory[] = DataService.fromGTFS(vehicleCategoriesTxt, DataService.vehicleCategoryFromGTFS);
+		const couplings: VehicleCoupling[] = DataService.fromGTFS(vehicleCouplingsTxt, DataService.vehicleCouplingFromGTFS);
+		const doors: VehicleDoor[] = DataService.fromGTFS(vehicleDoorsTxt, DataService.vehicleDoorFromGTFS);
+
+		const categoriesHash: {[key: number]: VehicleCategory} = {};
+		categories.forEach(category => {
+			categoriesHash[category.vehicleCategoryId] = category;
+		});
+		const doorsHash: {[key: number]: VehicleDoor[]} = {};
+		doors.forEach(door => {
+			if (!doorsHash[door.vehicleCategoryId]) {
+				doorsHash[door.vehicleCategoryId] = [];
+			}
+			doorsHash[door.vehicleCategoryId].push(door);
+		});
+
+		couplings.forEach(coupling => {
+			if (!vehicles[coupling.parentId]) {
+				vehicles[coupling.parentId] = {
+					...categoriesHash[coupling.parentId],
+					children: []
+				};
+			}
+			vehicles[coupling.parentId].children.push({
+				vehicleCategoryId: coupling.childId,
+				childSequence: coupling.childSequence,
+				doors: doorsHash[coupling.childId]
+			});
+		});
+
+		return Object.values(vehicles);
 	}
 
 	private showStationsOnMap(stops: Stop[]) {
@@ -309,6 +361,7 @@ export default class App extends Component<AppProps, AppState> {
 		if (this.state.stations) {
 			const station = this.state.stations.stops.find(stop => stop.stopId === stationId);
 			if (station) {
+
 				// Filter selected station and its neighbors
 				const stationIds = this.state.stations.stops.filter(stop => {
 					return ((Math.abs(stop.stopLat - station.stopLat) < 0.005)
@@ -332,11 +385,16 @@ export default class App extends Component<AppProps, AppState> {
 					return stopIds.includes(pathway.fromStopId) ||
 						stopIds.includes(pathway.toStopId);
 				});
+
+				const vehicleBoardings = this.state.stations.vehicleBoardings.filter(vehicleBoarding => {
+					return stopIds.includes(vehicleBoarding.boardingAreaId);
+				});
+
 				this.setState({
 					selectedStation: {
 						stops,
 						pathways,
-						vehicleBoardings: this.state.stations.vehicleBoardings, // TODO
+						vehicleBoardings,
 						levels: this.state.stations.levels,
 						vehicles: this.state.stations.vehicles
 					},

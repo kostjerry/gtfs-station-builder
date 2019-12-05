@@ -1,16 +1,15 @@
+import VehicleDoor from "./VehicleDoor";
+
 export default interface Vehicle {
-	id: number;
-	name: string;
+	vehicleCategoryId: number;
+	vehicleCategoryName: string;
+
 	children: VehicleChild[];
 }
 
 export interface VehicleChild {
-	id: number;
-	sequence: number;
+	vehicleCategoryId: number;
+	childSequence: number;
+	
 	doors: VehicleDoor[];
-}
-
-export interface VehicleDoor {
-	id: number;
-	sequence: number;
 }
