@@ -32,7 +32,7 @@ export interface AppState {
 
 export default class App extends Component<AppProps, AppState> {
 	private mapRef: React.RefObject<HTMLDivElement> = React.createRef();
-	private requiredFiles = ["stops.txt", "pathways.txt"]; // "levels.txt"
+	private requiredFileNames = ["stops.txt", "pathways.txt"];
 
 	public constructor(props: AppProps) {
 		super(props);
@@ -65,127 +65,96 @@ export default class App extends Component<AppProps, AppState> {
 	}
 
 	private handleFiles(files: File[]) {
-		const requiredFileNames: string[] = [];
-		const untouchedFileNames: string[] = [];
-		let requiredFilePromises;
-		let untouchedFilePromises;
-		
-		requiredFilePromises = Promise.all(files
-			.filter((file: File) => this.requiredFiles.indexOf(file.name) !== -1)
-			.map((file: File) => {
-				requiredFileNames.push(file.name);
-				return FileService.readUploadedFileAsText(file);
-			}));
-		untouchedFilePromises = Promise.all(files
+		const fileNames: string[] = [];
+		const filePromises = Promise.all(files
 			.filter((file: File) => file.name.indexOf(".txt") !== -1)
-			.filter((file: File) => this.requiredFiles.indexOf(file.name) === -1)
 			.map((file: File) => {
-				untouchedFileNames.push(file.name);
+				fileNames.push(file.name);
 				return FileService.readUploadedFileAsText(file);
 			}));
 		
-		if (!this.checkRequiredFiles(requiredFileNames)) {
+		if (!this.checkRequiredFiles(fileNames)) {
 			this.setState({
 				isLoading: false
 			});
 			return;
 		}
 
-		this.handleFilePromises(
-			untouchedFilePromises, 
-			requiredFilePromises, 
-			untouchedFileNames, 
-			requiredFileNames);
+		this.handleFilePromises(filePromises, fileNames);
 	}
 
 	private handleZip(zipFile: Blob | File) {
-		const requiredFileNames: string[] = [];
-		const untouchedFileNames: string[] = [];
-		let requiredFilePromises;
-		let untouchedFilePromises;
-
 		JSZip.loadAsync(zipFile).then((zip) => {
 			const files: JSZipObject[] = [];
 			zip.forEach((relativePath, file) => {
 				files.push(file);
 			});
-
-			requiredFilePromises = Promise.all(files
-				.filter((file: JSZipObject) => this.requiredFiles.indexOf(file.name) !== -1)
-				.map((file: JSZipObject) => {
-					requiredFileNames.push(file.name);
-					return file.async("text");
-				}));
-			untouchedFilePromises = Promise.all(files
+			
+			const fileNames: string[] = [];
+			const filePromises = Promise.all(files
 				.filter((file: JSZipObject) => file.name.indexOf(".txt") !== -1)
-				.filter((file: JSZipObject) => this.requiredFiles.indexOf(file.name) === -1)
 				.map((file: JSZipObject) => {
-					untouchedFileNames.push(file.name);
+					fileNames.push(file.name);
 					return file.async("text");
 				}));
 			
-			if (!this.checkRequiredFiles(requiredFileNames)) {
+			if (!this.checkRequiredFiles(fileNames)) {
 				this.setState({
 					isLoading: false
 				});
 				return;
 			}
 
-			this.handleFilePromises(
-				untouchedFilePromises, 
-				requiredFilePromises, 
-				untouchedFileNames, 
-				requiredFileNames);
+			this.handleFilePromises(filePromises, fileNames);
 		}, function (e) {
 			alert(e.message);
 		});
 	}
 
 	private handleFilePromises(
-		untouchedFilePromises: Promise<string[]>, 
-		requiredFilePromises: Promise<string[]>, 
-		untouchedFileNames: string[], 
-		requiredFileNames: string[]
+		filePromises: Promise<string[]>,
+		fileNames: string[]
 	) {
 		let communicationPacket: Communication = {
 			stops: [],
 			pathways: [],
-			levels: []
+			vehicleBoardings: [],
+			levels: [],
+			vehicles: []
 		};
-		untouchedFilePromises.then((fileContents: string[]) => {
+
+		filePromises.then((fileContents: string[]) => {
 			const untouchedFiles: {[key: string]: string} = {};
-			fileContents.forEach((fileContent, fileIndex) => {
-				untouchedFiles[untouchedFileNames[fileIndex]] = fileContent;
+			fileContents.forEach((fileContent: string, fileIndex: number) => {
+				const fileExtracted = this.extractData(fileNames[fileIndex], fileContent, communicationPacket);
+				if (!fileExtracted) {
+					untouchedFiles[fileNames[fileIndex]] = fileContent;
+				}
 			});
-			requiredFilePromises.then((fileContents: string[]) => {
-				fileContents.forEach((content: string, index: number) => {
-					this.extractData(requiredFileNames[index], content, communicationPacket);
-				});
 
-				// Set id's initial values for new stops and pathways
-				let minStopId = 0;
-				communicationPacket.stops.forEach(stop => {
-					if (Number(stop.stopId) < minStopId) {
-						minStopId = Number(stop.stopId);
-					}
-				});
-				let minPathwayId = 0;
-				communicationPacket.pathways.forEach(pathway => {
-					if (Number(pathway.pathwayId) < minPathwayId) {
-						minPathwayId = Number(pathway.pathwayId);
-					}
-				});
-				VisService.newStopId = minStopId - 1;
-				VisService.newPathwayId = minPathwayId - 1;
+			// Set id's initial values for new stops and pathways
+			let minStopId = 0;
+			communicationPacket.stops.forEach(stop => {
+				if (Number(stop.stopId) < minStopId) {
+					minStopId = Number(stop.stopId);
+				}
+			});
+			let minPathwayId = 0;
+			communicationPacket.pathways.forEach(pathway => {
+				if (Number(pathway.pathwayId) < minPathwayId) {
+					minPathwayId = Number(pathway.pathwayId);
+				}
+			});
+			VisService.newStopId = minStopId - 1;
+			VisService.newPathwayId = minPathwayId - 1;
 
-				this.setState({
-					isLoading: false,
-					stations: communicationPacket,
-					mode: "STATION_SELECTION",
-					untouchedFiles
-				}, () => {
-					this.showStationsOnMap(communicationPacket.stops);
-				});
+			this.setState({
+				isLoading: false,
+				stations: communicationPacket,
+				mode: "STATION_SELECTION",
+				untouchedFiles
+			}, () => {
+				this.showStationsOnMap(communicationPacket.stops);
 			});
 		});
 	}
@@ -233,11 +202,11 @@ export default class App extends Component<AppProps, AppState> {
 	}
 
 	private checkRequiredFiles(fileNames: string[]): boolean {
-		const fileMissing = this.requiredFiles.some((requiredFileName: string) => {
-			return fileNames.findIndex(name => name === requiredFileName) === -1;
+		const requiredFileMissing = this.requiredFileNames.some((requiredFileName: string) => {
+			return fileNames.findIndex(fileName => fileName === requiredFileName) === -1;
 		});
-		if (fileMissing) {
-			alert("You missed some of the required files: [" + this.requiredFiles.join(", ") + "]");
+		if (requiredFileMissing) {
+			alert("You missed some of the required files: [" + this.requiredFileNames.join(", ") + "]");
 			return false;
 		}
 		else {
@@ -245,26 +214,28 @@ export default class App extends Component<AppProps, AppState> {
 		}
 	}
 
-	private extractData(fileName: string, data: string, communicationPacket: Communication): void {
+	private extractData(fileName: string, data: string, communicationPacket: Communication): boolean {
 		switch (fileName) {
 			case "stops.txt":
 				communicationPacket.stops = DataService.fromGTFS(
 					data,
 					DataService.stopFromGTFS
 				);
-				break;
+				return true;
 			case "pathways.txt":
 				communicationPacket.pathways = DataService.fromGTFS(
 					data,
 					DataService.pathwayFromGTFS
 				);
-				break;
-			case "levels.txt":
-				communicationPacket.levels = DataService.fromGTFS(
-					data,
-					DataService.levelFromGTFS
-				);
-				break;
+				return true;
+			// case "levels.txt":
+			// 	communicationPacket.levels = DataService.fromGTFS(
+			// 		data,
+			// 		DataService.levelFromGTFS
+			// 	);
+			// 	break;
+			default:
+				return false;
 		}
 	}
 
@@ -358,7 +329,9 @@ export default class App extends Component<AppProps, AppState> {
 					selectedStation: {
 						stops,
 						pathways,
-						levels: this.state.stations.levels
+						vehicleBoardings: this.state.stations.vehicleBoardings, // TODO
+						levels: this.state.stations.levels,
+						vehicles: this.state.stations.vehicles
 					},
 					mode: "STATION_BUILDER"
 				});
