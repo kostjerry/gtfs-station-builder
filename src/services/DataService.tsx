@@ -1,6 +1,7 @@
 import Stop from "../interfaces/Stop";
 import Pathway from "../interfaces/Pathway";
 import Level from "../interfaces/Level";
+import VehicleBoarding from "../interfaces/VehicleBoarding";
 
 /* GTFS to objects conversion and vise versa */
 export default class DataService {
@@ -142,6 +143,29 @@ export default class DataService {
                 level.levelIndex.toString();
 	}
 
+	static vehicleBoardingFromGTFS(vehicleBoarding: {[key: string]: string}): VehicleBoarding {
+        return {
+			vehicleCategoryId: Number(vehicleBoarding['vehicle_category_id']),
+			childSequence: Number(vehicleBoarding['child_sequence']),
+			boardingAreaId: Number(vehicleBoarding['boarding_area_id']),
+			doorId: Number(vehicleBoarding['door_id'])
+        };
+	}
+	
+	static getVehicleBoardingGTFSHeader(): string {
+		return	'vehicle_category_id,' +
+				'child_sequence,' +
+				'boarding_area_id,' +
+				'door_id';
+	}
+
+    static vehicleBoardingToGTFS(vehicleBoarding: VehicleBoarding): string {
+        return  vehicleBoarding.vehicleCategoryId.toString() + ',' +
+				vehicleBoarding.childSequence.toString() + ',' +
+                vehicleBoarding.boardingAreaId.toString() + ',' +
+                vehicleBoarding.doorId.toString();
+	}
+
 	// TODO
 	static escapeText(text: string): string {
 		return text;
@@ -166,4 +190,3 @@ export default class DataService {
 		return a;
 	};
 }
-

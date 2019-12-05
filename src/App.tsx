@@ -13,6 +13,7 @@ import Pathway from "./interfaces/Pathway";
 import Level from "./interfaces/Level";
 import { saveAs } from 'file-saver';
 import VisService from "./services/VisService";
+import VehicleBoarding from "./interfaces/VehicleBoarding";
 
 export interface AppProps {}
 
@@ -228,12 +229,18 @@ export default class App extends Component<AppProps, AppState> {
 					DataService.pathwayFromGTFS
 				);
 				return true;
-			// case "levels.txt":
-			// 	communicationPacket.levels = DataService.fromGTFS(
-			// 		data,
-			// 		DataService.levelFromGTFS
-			// 	);
-			// 	break;
+			case "levels.txt":
+				communicationPacket.levels = DataService.fromGTFS(
+					data,
+					DataService.levelFromGTFS
+				);
+				return true;
+			case "vehicle_boardings.txt":
+				communicationPacket.vehicleBoardings = DataService.fromGTFS(
+					data,
+					DataService.vehicleBoardingFromGTFS
+				);
+				return true;
 			default:
 				return false;
 		}
@@ -357,22 +364,32 @@ export default class App extends Component<AppProps, AppState> {
 			this.setState({
 				isLoading: true
 			});
+
 			let stopsTxt = DataService.getStopGTFSHeader() + "\n";
-			let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
-			let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
 			this.state.stations.stops.forEach((stop: Stop) => {
 				stopsTxt += DataService.stopToGTFS(stop) + "\n";
 			});
+
+			let pathwaysTxt = DataService.getPathwayGTFSHeader() + "\n";
 			this.state.stations.pathways.forEach((pathway: Pathway) => {
 				pathwaysTxt += DataService.pathwayToGTFS(pathway) + "\n";
 			});
+
+			let levelsTxt = DataService.getLevelGTFSHeader() + "\n";
 			this.state.stations.levels.forEach((level: Level) => {
 				levelsTxt += DataService.levelToGTFS(level) + "\n";
 			});
+
+			let vehicleBoardingsTxt = DataService.getVehicleBoardingGTFSHeader() + "\n";
+			this.state.stations.vehicleBoardings.forEach((vehicleBoarding: VehicleBoarding) => {
+				vehicleBoardingsTxt += DataService.vehicleBoardingToGTFS(vehicleBoarding) + "\n";
+			});
+
 			const zip = new JSZip();
 			zip.file('stops.txt', stopsTxt);
 			zip.file('pathways.txt', pathwaysTxt);
 			zip.file('levels.txt', levelsTxt);
+			zip.file('vehicle_boardings.txt', vehicleBoardingsTxt);
 			for (const fileName in this.state.untouchedFiles) {
 				zip.file(fileName, this.state.untouchedFiles[fileName]);
 			}
