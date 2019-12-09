@@ -11,13 +11,49 @@
     border-radius: 5px;
 	padding: 10px;
 	z-index: 101;
+	&.extended {
+		top: calc(100vh / 2 - 200px);
+		left: calc(100vw / 2 - 300px);
+		width: 600px;
+		height: 400px;
+	}
     .header {
         height: 25px;
         border-bottom: solid 1px #555;
     }
     .content {
         flex: auto;
-        padding-top: 5px;
+		padding-top: 5px;
+		display: flex;
+		flex-direction: row;
+		.right {
+			padding-left: 20px;
+			table {
+				border-top: solid 1px #555555;
+				border-left: solid 1px #555555;
+				margin: 0;
+				padding: 0;
+				tbody {
+					margin: 0;
+					padding: 0;
+					tr {
+						margin: 0;
+						padding: 0;
+						&.header {
+							td {
+								font-weight: bold;
+							}
+						}
+						td {
+							border-bottom: solid 1px #555555;
+							border-right: solid 1px #555555;
+							margin: 0;
+							padding: 3px;
+						}
+					}
+				}
+			}
+		}
         div {
             padding: 5px 0 0 0;
         }

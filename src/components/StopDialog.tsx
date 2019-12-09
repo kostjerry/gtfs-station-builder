@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, RefObject } from "react";
 import "./StopDialog.scss";
 import Stop, {
 	LocationTypeMap,
@@ -33,6 +33,8 @@ export interface StopDialogState {
 }
 
 export default class StopDialog extends Component<StopDialogProps, StopDialogState> {
+	private vehicleSelectRef: RefObject<HTMLSelectElement> = React.createRef();
+
 	constructor(props: StopDialogProps) {
 		super(props);
 		this.state = {
@@ -132,6 +134,43 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		}
 	}
 
+	private handleVehicleDeleteClick = (vehicleKey: string) => {
+		const index = this.state.vehicleBoardings.findIndex(vehicleBoarding => {
+			const key = vehicleBoarding.boardingAreaId + "-" + 
+						vehicleBoarding.vehicleCategoryId + "-" + 
+						vehicleBoarding.childSequence + "-" + 
+						vehicleBoarding.doorId;
+			return key === vehicleKey;
+		});
+		if (index !== -1) {
+			this.state.vehicleBoardings.splice(index, 1);
+			this.forceUpdate();
+		}
+	}
+
+	private handleVehicleAddClick = () => {
+		if (this.vehicleSelectRef.current) {
+			const selectedVehicleKey = this.vehicleSelectRef.current.value;
+			const index = this.state.vehicleBoardings.findIndex(vehicleBoarding => {
+				const key = vehicleBoarding.boardingAreaId + "-" + 
+							vehicleBoarding.vehicleCategoryId + "-" + 
+							vehicleBoarding.childSequence + "-" + 
+							vehicleBoarding.doorId;
+				return key === selectedVehicleKey;
+			});
+			if (index === -1) {
+				const selectedVehicleProps = selectedVehicleKey.split("-").map(prop => Number(prop));
+				this.state.vehicleBoardings.push({
+					boardingAreaId: selectedVehicleProps[0],
+					vehicleCategoryId: selectedVehicleProps[1],
+					childSequence: selectedVehicleProps[2],
+					doorId: selectedVehicleProps[3]
+				});
+				this.forceUpdate();
+			}
+		}
+	}
+
 	render() {
 		const parentStationOptions: JSX.Element[] = [];
 		this.props.stations.forEach(station => {
@@ -189,89 +228,153 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		}
 
 		return (
-			<div className="stop-dialog" onKeyDown={this.handleKeyDown}>
+			<div className={"stop-dialog" + ((this.state.locationType === 4) && this.props.vehicles ? " extended" : "")} onKeyDown={this.handleKeyDown}>
 				<div className="header">Location properties</div>
 				<div className="content">
-					<div>ID: {this.props.stop.stopId}</div>
-					<div>
-						{(this.state.locationType === 4) ? <div>
-							Parent platform:{" "}
-              				<select
-								value={this.state.parentStation}
-								onChange={this.handleParentStationChange}>
-								{parentPlatformOptions}
-							</select>
-						</div> : <div>
-							Parent station:{" "}
-              				<select
-								value={this.state.parentStation}
-								onChange={this.handleParentStationChange}>
-								{parentStationOptions}
-							</select>
-						</div>}
+					<div className="left">
+						<div>ID: {this.props.stop.stopId}</div>
 						<div>
-							Level:{" "}
-              				<select
-								value={this.state.levelId}
-								onChange={this.handleLevelChange}>
-								{levelOptions}
-							</select>
-						</div>
-						{[0, 2].includes(this.state.locationType) && (
+							{(this.state.locationType === 4) ? <div>
+								Parent platform:{" "}
+								<select
+									value={this.state.parentStation}
+									onChange={this.handleParentStationChange}>
+									{parentPlatformOptions}
+								</select>
+							</div> : <div>
+								Parent station:{" "}
+								<select
+									value={this.state.parentStation}
+									onChange={this.handleParentStationChange}>
+									{parentStationOptions}
+								</select>
+							</div>}
 							<div>
-								Location type: {LocationTypeOnNodeLabelMap[this.state.locationType]}
-							</div>
-						)}
-						{[3, 4].includes(this.state.locationType) && (
-							<div>
-								Location type:{" "}
-                				<select
-									value={this.state.locationType}
-									onChange={this.handleLocationTypeChange}>
-									{locationTypeOptions}
+								Level:{" "}
+								<select
+									value={this.state.levelId}
+									onChange={this.handleLevelChange}>
+									{levelOptions}
 								</select>
 							</div>
-						)}
-						<div>
-							Name:{" "}
-							<input
-								disabled={![3, 4].includes(this.state.locationType)}
-								type="text"
-								value={this.state.stopName || ""}
-								onChange={this.handleStopNameChange}
-							/>
+							{[0, 2].includes(this.state.locationType) && (
+								<div>
+									Location type: {LocationTypeOnNodeLabelMap[this.state.locationType]}
+								</div>
+							)}
+							{[3, 4].includes(this.state.locationType) && (
+								<div>
+									Location type:{" "}
+									<select
+										value={this.state.locationType}
+										onChange={this.handleLocationTypeChange}>
+										{locationTypeOptions}
+									</select>
+								</div>
+							)}
+							<div>
+								Name:{" "}
+								<input
+									disabled={![3, 4].includes(this.state.locationType)}
+									type="text"
+									value={this.state.stopName || ""}
+									onChange={this.handleStopNameChange}
+								/>
+							</div>
+							{[0, 2].includes(this.state.locationType) && (
+								<div>
+									Platform code:{" "}
+									<input
+										type="text"
+										value={this.state.platformCode || ""}
+										onChange={this.handlePlatformCodeChange}
+									/>
+								</div>
+							)}
+							{[0].includes(this.state.locationType) && (
+								<div>
+									Signposted as:{" "}
+									<input
+										type="text"
+										value={this.state.signpostedAs || ""}
+										onChange={this.handleSignpostedAsChange}
+									/>
+								</div>
+							)}
+							{[0, 2].includes(this.state.locationType) && (
+								<div>
+									Wheelchair boarding:{" "}
+									<select
+										value={this.state.wheelchairBoarding}
+										onChange={this.handleWheelchairBoardingChange}>
+										{wheelchairBoardingOptions}
+									</select>
+								</div>
+							)}
 						</div>
-						{[0, 2].includes(this.state.locationType) && (
-							<div>
-								Platform code:{" "}
-								<input
-									type="text"
-									value={this.state.platformCode || ""}
-									onChange={this.handlePlatformCodeChange}
-								/>
-							</div>
-						)}
-						{[0].includes(this.state.locationType) && (
-							<div>
-								Signposted as:{" "}
-								<input
-									type="text"
-									value={this.state.signpostedAs || ""}
-									onChange={this.handleSignpostedAsChange}
-								/>
-							</div>
-						)}
-						{[0, 2].includes(this.state.locationType) && (
-							<div>
-								Wheelchair boarding:{" "}
-                				<select
-									value={this.state.wheelchairBoarding}
-									onChange={this.handleWheelchairBoardingChange}>
-									{wheelchairBoardingOptions}
-								</select>
-							</div>
-						)}
 					</div>
+					{(this.state.locationType === 4) && this.props.vehicles && 
+					<div className="right">
+						<table cellPadding="0" cellSpacing="0">
+							<tbody>
+							<tr className="header">
+								<td>Vehicle</td>
+								<td>Child</td>
+								<td>Door</td>
+								<td></td>
+							</tr>
+							{this.state.vehicleBoardings
+								.filter(vehicleBoarding => vehicleBoarding.boardingAreaId === this.props.stop.stopId)
+								.map(vehicleBoarding => {
+									const key = vehicleBoarding.boardingAreaId + "-" + 
+												vehicleBoarding.vehicleCategoryId + "-" + 
+												vehicleBoarding.childSequence + "-" + 
+												vehicleBoarding.doorId;
+									const vehicle = this.props.vehicles.find(vehicle => {
+										return vehicle.vehicleCategoryId === vehicleBoarding.vehicleCategoryId;
+									});
+									if (vehicle) {
+										const child = vehicle.children.find(child => child.childSequence === vehicleBoarding.childSequence);
+										if (child) {
+											const door = child.doors.find(door => vehicleBoarding.doorId === door.doorId);
+											if (door) {
+												return (<tr key={key}>
+													<td>{vehicle.vehicleCategoryName}</td>
+													<td>{child.childSequence}</td>
+													<td>{door.doorSequence}</td>
+													<td>
+														<button onClick={() => { this.handleVehicleDeleteClick(key); }}>Delete</button>
+													</td>
+												</tr>);
+											}
+										}
+									}
+									return null;
+								})
+								.filter(vehicleBoarding => vehicleBoarding !== null)
+							}
+							<tr>
+								<td colSpan={3}>
+									<select ref={this.vehicleSelectRef}>
+										{this.props.vehicles.map(vehicle =>
+											vehicle.children.map(child =>
+												child.doors.map(door => {
+													const key = this.props.stop.stopId + "-" + vehicle.vehicleCategoryId + "-" + child.childSequence + "-" + door.doorId;
+													return (<option key={key} value={key}>
+														{vehicle.vehicleCategoryName} - {child.childSequence} - {door.doorSequence}
+													</option>);
+												})
+											)
+										)}
+									</select>
+								</td>
+								<td>
+									<button onClick={this.handleVehicleAddClick}>Add</button>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>}
 				</div>
 				<div className="footer">
 					<button onClick={this.handleCancel}>Cancel</button>
