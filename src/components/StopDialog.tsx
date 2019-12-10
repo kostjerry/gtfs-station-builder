@@ -151,23 +151,49 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 	private handleVehicleAddClick = () => {
 		if (this.vehicleSelectRef.current) {
 			const selectedVehicleKey = this.vehicleSelectRef.current.value;
-			const index = this.state.vehicleBoardings.findIndex(vehicleBoarding => {
-				const key = vehicleBoarding.boardingAreaId + "-" + 
-							vehicleBoarding.vehicleCategoryId + "-" + 
-							vehicleBoarding.childSequence + "-" + 
-							vehicleBoarding.doorId;
-				return key === selectedVehicleKey;
-			});
-			if (index === -1) {
-				const selectedVehicleProps = selectedVehicleKey.split("-").map(prop => Number(prop));
-				this.state.vehicleBoardings.push({
-					boardingAreaId: selectedVehicleProps[0],
-					vehicleCategoryId: selectedVehicleProps[1],
-					childSequence: selectedVehicleProps[2],
-					doorId: selectedVehicleProps[3]
+
+
+			const selectedVehicleProps = selectedVehicleKey.split("-").map(prop => Number(prop));
+			const boardingAreaId = selectedVehicleProps[0];
+			const childSequence = selectedVehicleProps[1];
+			const doorSequence = selectedVehicleProps[2];
+			this.props.vehicles
+				.filter(vehicle => {
+					if (vehicle.platformIds) {
+						if (vehicle.platformIds.includes(this.state.parentStation)) {
+							return true;
+						}
+						else {
+							return false;
+						}
+					}
+					else {
+						return true;
+					}
+				}).forEach(vehicle => {
+					const child = vehicle.children.find(child => child.childSequence === childSequence);
+					if (child) {
+						const door = child.doors.find(door => door.doorSequence === doorSequence);
+						if (door) {
+							const curKey = boardingAreaId + "-" + childSequence + "-" + door.doorId;
+							const index = this.state.vehicleBoardings.findIndex(vehicleBoarding => {
+								const key = vehicleBoarding.boardingAreaId + "-" + 
+											vehicleBoarding.childSequence + "-" + 
+											vehicleBoarding.doorId;
+								return key === curKey;
+							});
+							if (index === -1) {
+								this.state.vehicleBoardings.push({
+									boardingAreaId,
+									vehicleCategoryId: vehicle.vehicleCategoryId,
+									childSequence,
+									doorId: door.doorId
+								});
+							}
+						}
+					}
 				});
-				this.forceUpdate();
-			}
+			this.forceUpdate();
 		}
 	}
 
@@ -226,6 +252,22 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 				</option>
 			);
 		}
+
+		const vehiclesToSelect = this.props.vehicles
+							.filter(vehicle => {
+								if (vehicle.platformIds) {
+									if (vehicle.platformIds.includes(this.state.parentStation)) {
+										return true;
+									}
+									else {
+										return false;
+									}
+								}
+								else {
+									return true;
+								}
+							});
+		const vehicleToSelect: Vehicle | null = vehiclesToSelect ? vehiclesToSelect[0] : null;
 
 		return (
 			<div className={"stop-dialog" + ((this.state.locationType === 4) && this.props.vehicles && (this.props.vehicles.length !== 0) ? " extended" : "")} onKeyDown={this.handleKeyDown}>
@@ -357,31 +399,14 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 							<tr>
 								<td colSpan={3}>
 									<select ref={this.vehicleSelectRef}>
-										{this.props.vehicles
-											.filter(vehicle => {
-												if (vehicle.platformIds) {
-													if (vehicle.platformIds.includes(this.props.stop.parentStation || -1000)) {
-														return true;
-													}
-													else {
-														return false;
-													}
-												}
-												else {
-													return true;
-												}
+										{vehicleToSelect && vehicleToSelect.children.map(child =>
+											child.doors.map(door => {
+												const key = this.props.stop.stopId + "-" + child.childSequence + "-" + door.doorSequence;
+												return (<option key={key} value={key}>
+													{child.childSequence} - {door.doorSequence}
+												</option>);
 											})
-											.map(vehicle =>
-												vehicle.children.map(child =>
-													child.doors.map(door => {
-														const key = this.props.stop.stopId + "-" + vehicle.vehicleCategoryId + "-" + child.childSequence + "-" + door.doorId;
-														return (<option key={key} value={key}>
-															{vehicle.vehicleCategoryName} - {child.childSequence} - {door.doorSequence}
-														</option>);
-													})
-												)
-											)
-										}
+										)}
 									</select>
 								</td>
 								<td>

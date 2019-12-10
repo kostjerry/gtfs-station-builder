@@ -8,7 +8,9 @@ export default interface Stop {
     wheelchairBoarding: number;
     levelId?: number;
     platformCode?: string;
-    signpostedAs?: string;
+	signpostedAs?: string;
+
+	vehiclesInfo?: string;
 }
 
 export const LocationTypeMap: { [key: string]: number } = {

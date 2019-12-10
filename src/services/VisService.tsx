@@ -52,7 +52,10 @@ export default class VisService {
             }
 		}
 		else if (stop.locationType === 4) { // Boarding Area
-            label += '\nFor #' + stop.parentStation;
+			label = 'BA for platform #' + stop.parentStation;
+			if (stop.vehiclesInfo) {
+				label += '\n' + stop.vehiclesInfo;
+			}
 		}
         return label;
     }

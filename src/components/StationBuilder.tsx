@@ -89,6 +89,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			if (!maxLon || (stop.stopLon > maxLon)) {
 				maxLon = stop.stopLon;
 			}
+			this.attachVehiclesInfoToStop(stop, this.props.data.vehicleBoardings);
 		});
 		let latGap = maxLat - minLat;
 		let lonGap = maxLon - minLon;
@@ -217,8 +218,31 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		});
 	}
 
+	private attachVehiclesInfoToStop(stop: Stop, vehicleBoardings: VehicleBoarding[]): Stop {
+		const vehiclesInfo = vehicleBoardings
+			.filter(vehicleBoarding => vehicleBoarding.boardingAreaId === stop.stopId)
+			.map((vehicleBoarding): string => {
+				const vehicle = this.props.data.vehicles.find(vehicle => vehicle.vehicleCategoryId === vehicleBoarding.vehicleCategoryId);
+				if (vehicle) {
+					const child = vehicle.children.find(child => child.childSequence === vehicleBoarding.childSequence);
+					if (child) {
+						const door = child.doors.find(door => vehicleBoarding.doorId === door.doorId);
+						if (door) {
+							return child.childSequence + "-" + door.doorSequence;
+						}
+					}
+				}
+				return "";
+			})
+			.filter(vehicleBoarding => vehicleBoarding !== "");
+		stop.vehiclesInfo = vehiclesInfo ? vehiclesInfo[0] : "";
+		return stop;
+	}
+
 	private handleStopDialogApply = (stop: Stop, newVehicleBoardings: VehicleBoarding[]) => {
 		if (this.state.selectedStop) {
+			this.attachVehiclesInfoToStop(stop, newVehicleBoardings);
+
 			const data = this.state.data;
 			const stopIndex = data.stops.findIndex(curStop => curStop.stopId === stop.stopId);
 			if (stopIndex === -1) {
