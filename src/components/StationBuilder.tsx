@@ -228,7 +228,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 					if (child) {
 						const door = child.doors.find(door => vehicleBoarding.doorId === door.doorId);
 						if (door) {
-							return child.childSequence + "-" + door.doorSequence;
+							return child.childSequence + " - " + door.doorSequence;
 						}
 					}
 				}

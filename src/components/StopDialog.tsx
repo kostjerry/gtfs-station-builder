@@ -136,9 +136,9 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 
 	private handleVehicleDeleteClick = (vehicleKey: string) => {
 		const index = this.state.vehicleBoardings.findIndex(vehicleBoarding => {
-			const key = vehicleBoarding.boardingAreaId + "-" + 
-						vehicleBoarding.vehicleCategoryId + "-" + 
-						vehicleBoarding.childSequence + "-" + 
+			const key = vehicleBoarding.boardingAreaId + "+" + 
+						vehicleBoarding.vehicleCategoryId + "+" + 
+						vehicleBoarding.childSequence + "+" + 
 						vehicleBoarding.doorId;
 			return key === vehicleKey;
 		});
@@ -153,7 +153,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 			const selectedVehicleKey = this.vehicleSelectRef.current.value;
 
 
-			const selectedVehicleProps = selectedVehicleKey.split("-").map(prop => Number(prop));
+			const selectedVehicleProps = selectedVehicleKey.split("+").map(prop => Number(prop));
 			const boardingAreaId = selectedVehicleProps[0];
 			const childSequence = selectedVehicleProps[1];
 			const doorSequence = selectedVehicleProps[2];
@@ -175,10 +175,10 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 					if (child) {
 						const door = child.doors.find(door => door.doorSequence === doorSequence);
 						if (door) {
-							const curKey = boardingAreaId + "-" + childSequence + "-" + door.doorId;
+							const curKey = boardingAreaId + "+" + childSequence + "+" + door.doorId;
 							const index = this.state.vehicleBoardings.findIndex(vehicleBoarding => {
-								const key = vehicleBoarding.boardingAreaId + "-" + 
-											vehicleBoarding.childSequence + "-" + 
+								const key = vehicleBoarding.boardingAreaId + "+" + 
+											vehicleBoarding.childSequence + "+" + 
 											vehicleBoarding.doorId;
 								return key === curKey;
 							});
@@ -369,9 +369,9 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 								this.state.vehicleBoardings
 								.filter(vehicleBoarding => vehicleBoarding.boardingAreaId === this.props.stop.stopId)
 								.map(vehicleBoarding => {
-									const key = vehicleBoarding.boardingAreaId + "-" + 
-												vehicleBoarding.vehicleCategoryId + "-" + 
-												vehicleBoarding.childSequence + "-" + 
+									const key = vehicleBoarding.boardingAreaId + "+" + 
+												vehicleBoarding.vehicleCategoryId + "+" + 
+												vehicleBoarding.childSequence + "+" + 
 												vehicleBoarding.doorId;
 									const vehicle = this.props.vehicles.find(vehicle => {
 										return vehicle.vehicleCategoryId === vehicleBoarding.vehicleCategoryId;
@@ -401,7 +401,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 									<select ref={this.vehicleSelectRef}>
 										{vehicleToSelect && vehicleToSelect.children.map(child =>
 											child.doors.map(door => {
-												const key = this.props.stop.stopId + "-" + child.childSequence + "-" + door.doorSequence;
+												const key = this.props.stop.stopId + "+" + child.childSequence + "+" + door.doorSequence;
 												return (<option key={key} value={key}>
 													{child.childSequence} - {door.doorSequence}
 												</option>);
