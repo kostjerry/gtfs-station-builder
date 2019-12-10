@@ -359,8 +359,8 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 									<select ref={this.vehicleSelectRef}>
 										{this.props.vehicles
 											.filter(vehicle => {
-												if (vehicle.boardingAreaIds) {
-													if (vehicle.boardingAreaIds.includes(this.props.stop.stopId)) {
+												if (vehicle.platformIds) {
+													if (vehicle.platformIds.includes(this.props.stop.parentStation || -1000)) {
 														return true;
 													}
 													else {
