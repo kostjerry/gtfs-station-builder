@@ -228,7 +228,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		}
 
 		return (
-			<div className={"stop-dialog" + ((this.state.locationType === 4) && this.props.vehicles ? " extended" : "")} onKeyDown={this.handleKeyDown}>
+			<div className={"stop-dialog" + ((this.state.locationType === 4) && this.props.vehicles && (this.props.vehicles.length !== 0) ? " extended" : "")} onKeyDown={this.handleKeyDown}>
 				<div className="header">Location properties</div>
 				<div className="content">
 					<div className="left">
@@ -313,7 +313,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 							)}
 						</div>
 					</div>
-					{(this.state.locationType === 4) && this.props.vehicles && 
+					{(this.state.locationType === 4) && this.props.vehicles && (this.props.vehicles.length !== 0) && 
 					<div className="right">
 						<table cellPadding="0" cellSpacing="0">
 							<tbody>
@@ -323,7 +323,8 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 								<td>Door</td>
 								<td></td>
 							</tr>
-							{this.state.vehicleBoardings
+							{this.props.vehicles && (this.props.vehicles.length !== 0) && this.state.vehicleBoardings &&
+								this.state.vehicleBoardings
 								.filter(vehicleBoarding => vehicleBoarding.boardingAreaId === this.props.stop.stopId)
 								.map(vehicleBoarding => {
 									const key = vehicleBoarding.boardingAreaId + "-" + 

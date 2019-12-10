@@ -490,7 +490,7 @@ export default class App extends Component<AppProps, AppState> {
 
 	render() {
 		return (
-			<div className="container">
+			<div className="gtfs-stations-builder-container">
 				{this.state.isLoading && <div className="loader"></div>}
 
 				{this.state.mode === "FILE_UPLADING" && (
