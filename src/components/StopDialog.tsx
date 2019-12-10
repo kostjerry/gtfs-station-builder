@@ -357,16 +357,31 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 							<tr>
 								<td colSpan={3}>
 									<select ref={this.vehicleSelectRef}>
-										{this.props.vehicles.map(vehicle =>
-											vehicle.children.map(child =>
-												child.doors.map(door => {
-													const key = this.props.stop.stopId + "-" + vehicle.vehicleCategoryId + "-" + child.childSequence + "-" + door.doorId;
-													return (<option key={key} value={key}>
-														{vehicle.vehicleCategoryName} - {child.childSequence} - {door.doorSequence}
-													</option>);
-												})
+										{this.props.vehicles
+											.filter(vehicle => {
+												if (vehicle.boardingAreaIds) {
+													if (vehicle.boardingAreaIds.includes(this.props.stop.stopId)) {
+														return true;
+													}
+													else {
+														return false;
+													}
+												}
+												else {
+													return true;
+												}
+											})
+											.map(vehicle =>
+												vehicle.children.map(child =>
+													child.doors.map(door => {
+														const key = this.props.stop.stopId + "-" + vehicle.vehicleCategoryId + "-" + child.childSequence + "-" + door.doorId;
+														return (<option key={key} value={key}>
+															{vehicle.vehicleCategoryName} - {child.childSequence} - {door.doorSequence}
+														</option>);
+													})
+												)
 											)
-										)}
+										}
 									</select>
 								</td>
 								<td>
