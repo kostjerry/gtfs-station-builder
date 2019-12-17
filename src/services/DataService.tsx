@@ -41,12 +41,12 @@ export default class DataService {
     static stopFromGTFS(stop: {[key: string]: string}): Stop {
         return {
 			stopId: stop['stop_id'],
-			stopLat: Number(stop['stop_lat']),
-			stopLon: Number(stop['stop_lon']),
+			stopLat: stop['stop_lat'] ? Number(stop['stop_lat']) : -1,
+			stopLon: stop['stop_lon'] ? Number(stop['stop_lon']) : -1,
 			parentStation: stop['parent_station'] || undefined,
             stopName: stop['stop_name'],
             locationType: Number(stop['location_type']),
-            wheelchairBoarding: Number(stop['wheelchair_boarding']),
+            wheelchairBoarding: stop['wheelchair_boarding'] !== '' ? Number(stop['wheelchair_boarding']) : 0,
             levelId: stop['level_id'] || undefined,
             platformCode: stop['platform_code'],
             signpostedAs: stop['signposted_as']

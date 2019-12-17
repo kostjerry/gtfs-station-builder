@@ -153,6 +153,18 @@ export default class App extends Component<AppProps, AppState> {
 			VisService.newStopId = minStopId - 1;
 			VisService.newPathwayId = minPathwayId - 1;
 
+			// Attach coordinates to nodes without lat:lng
+			communicationPacket.stops = communicationPacket.stops.map(stop => {
+				if (stop.stopLat === -1 && stop.stopLon === -1) {
+					const station = communicationPacket.stops.find(curStop => curStop.stopId === stop.parentStation);
+					if (station) {
+						stop.stopLat = station.stopLat;
+						stop.stopLon = station.stopLon;
+					}
+				}
+				return stop;
+			});
+
 			// Extract vehicles from untouched files
 			if (untouchedFiles["vehicle_categories.txt"]
 				&& untouchedFiles["vehicle_couplings.txt"]
@@ -163,6 +175,7 @@ export default class App extends Component<AppProps, AppState> {
 					untouchedFiles["vehicle_doors.txt"]);
 			}
 
+			console.log(communicationPacket);
 			this.setState({
 				isLoading: false,
 				stations: communicationPacket,
@@ -378,7 +391,6 @@ export default class App extends Component<AppProps, AppState> {
 	}
 
 	private handleStationSelect = (stationId: string) => {
-		console.log(stationId, this.state.stations);
 		if (this.state.stations) {
 			const station = this.state.stations.stops.find(stop => stop.stopId === stationId);
 			if (station) {
