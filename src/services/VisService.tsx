@@ -35,8 +35,9 @@ export default class VisService {
 	}
 
     static getNodeLabel(stop: Stop): string {
-        let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
-        let label =  stop.stopName ? prefix + ' "' + stop.stopName + '"' : prefix;
+        // let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
+        let prefix = "";
+        let label =  stop.stopName ? prefix + stop.stopName + '\n' : prefix;
         if (stop.locationType === 0) { // Platform
 			label = prefix + ' #' + stop.stopId;
 			if (stop.platformCode) {
@@ -48,11 +49,11 @@ export default class VisService {
 		}
 		else if (stop.locationType === 2) { // Entrance/Exit
 			if (stop.platformCode) {
-                label += '\nNumber: "' + stop.platformCode + '"';
+                label += 'Number: "' + stop.platformCode + '"';
             }
 		}
 		else if (stop.locationType === 4) { // Boarding Area
-			label = 'BA for platform #' + stop.parentStation;
+			label += 'for #' + stop.parentStation;
 			if (stop.vehiclesInfo) {
 				label += '\n' + stop.vehiclesInfo;
 			}

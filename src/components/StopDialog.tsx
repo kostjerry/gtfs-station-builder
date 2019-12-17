@@ -202,7 +202,10 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.props.stations.forEach(station => {
 			parentStationOptions.push(
 				<option key={station.stopId} value={station.stopId}>
-					{station.stopName}
+					{station.stopName} (platf. {this.props.platforms
+											.filter(platform => platform.parentStation === station.stopId)
+											.map(platform => "#" + platform.stopId)
+											.join(", ")})
 				</option>
 			);
 		});
