@@ -60,9 +60,12 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 	}
 
 	private handlePathwayModeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		this.setState({
-			pathwayMode: Number(event.target.value)
-		});
+		const state = {} as PathwayDialogState;
+		if ([6, 7].includes(Number(event.target.value))) { // Entrance/Exit
+			state.isBidirectional = false;
+		}
+		state.pathwayMode = Number(event.target.value);
+		this.setState(state);
 	}
 
 	private handleIsBidirectionalChange = (event: React.ChangeEvent<HTMLInputElement>) => {

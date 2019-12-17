@@ -51,7 +51,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 
 	private handleCancel = () => {
 		this.props.onCancel();
-	};
+	}
 
 	private handleApply = () => {
 		// Validate
@@ -64,7 +64,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 			...this.props.stop,
 			...this.state
 		}, this.state.vehicleBoardings);
-	};
+	}
 
 	private handleParentStationChange = (
 		event: React.ChangeEvent<HTMLSelectElement>
@@ -72,7 +72,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.setState({
 			parentStation: event.target.value
 		});
-	};
+	}
 
 	private handleLevelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		this.setState({
@@ -94,7 +94,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 			locationType: Number(event.target.value),
 			parentStation
 		});
-	};
+	}
 
 	private handleWheelchairBoardingChange = (
 		event: React.ChangeEvent<HTMLSelectElement>
@@ -102,7 +102,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.setState({
 			wheelchairBoarding: Number(event.target.value)
 		});
-	};
+	}
 
 	private handleStopNameChange = (
 		event: React.ChangeEvent<HTMLInputElement>
@@ -110,7 +110,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.setState({
 			stopName: event.target.value
 		});
-	};
+	}
 
 	private handlePlatformCodeChange = (
 		event: React.ChangeEvent<HTMLInputElement>
@@ -118,7 +118,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.setState({
 			platformCode: event.target.value
 		});
-	};
+	}
 
 	private handleSignpostedAsChange = (
 		event: React.ChangeEvent<HTMLInputElement>
@@ -126,7 +126,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.setState({
 			signpostedAs: event.target.value
 		});
-	};
+	}
 
 	private handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.keyCode === 13) {

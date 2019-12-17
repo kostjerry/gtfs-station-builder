@@ -376,11 +376,25 @@ export default class App extends Component<AppProps, AppState> {
 		});
 	}
 
-	private loadSampleData = () => {
+	private loadSampleDataMsk = () => {
 		this.setState({
 			isLoading: true
 		});
 		const sampleZip = fetch("https://kostjerry.github.io/gtfs-station-builder/sample/gtfs-translations-pathways-vehicles-sample.zip");
+		sampleZip.then(response => {
+			if (response.ok) {
+				response.blob().then(sampleZipBlob => {
+					this.handleZip(sampleZipBlob);
+				});
+			}
+		});
+	}
+
+	private loadSampleDataParis = () => {
+		this.setState({
+			isLoading: true
+		});
+		const sampleZip = fetch("https://kostjerry.github.io/gtfs-station-builder/sample/go-deeper-paris.zip");
 		sampleZip.then(response => {
 			if (response.ok) {
 				response.blob().then(sampleZipBlob => {
@@ -521,7 +535,9 @@ export default class App extends Component<AppProps, AppState> {
 						<br />
 						<div>OR</div>
 						<br />
-						<button onClick={this.loadSampleData}>LOAD SAMPLE DATA</button>
+						<button onClick={this.loadSampleDataMsk}>LOAD SAMPLE DATA [Moscow pathways and vehicles]</button>
+						<br />
+						<button onClick={this.loadSampleDataParis}>LOAD SAMPLE DATA [Go deeper Paris pathways]</button>
 					</div>
 				)}
 

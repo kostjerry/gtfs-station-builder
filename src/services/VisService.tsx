@@ -156,8 +156,8 @@ export default class VisService {
     static prepareNewEdge(edge: VisEdge): VisEdge {
 		edge.id = this.newPathwayId.toString();
         edge.color = {
-            color: PathwayModeColors[PathwayModeMap.Walkway],
-            highlight: PathwayModeColors[PathwayModeMap.Walkway]
+            color: PathwayModeColors[PathwayModeMap.Stairs],
+            highlight: PathwayModeColors[PathwayModeMap.Stairs]
         }
         edge.arrows = {
             from: true,
@@ -169,7 +169,7 @@ export default class VisService {
 			traversalTime: 10,
             fromStopId: edge.from,
             toStopId: edge.to,
-            pathwayMode: PathwayModeMap.Walkway,
+            pathwayMode: PathwayModeMap.Stairs,
             isBidirectional: true,
             signpostedAs: "",
             reversedSignpostedAs: ""
