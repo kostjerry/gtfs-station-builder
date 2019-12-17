@@ -1,4 +1,4 @@
 export default interface VehicleCategory {
-	vehicleCategoryId: number;
+	vehicleCategoryId: string;
 	vehicleCategoryName: string;
 }

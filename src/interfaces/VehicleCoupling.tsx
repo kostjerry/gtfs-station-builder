@@ -1,5 +1,5 @@
 export default interface VehicleCoupling {
-	parentId: number;
-	childId: number;
+	parentId: string;
+	childId: string;
 	childSequence: number;
 }

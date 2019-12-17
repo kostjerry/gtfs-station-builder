@@ -22,13 +22,13 @@ export interface StopDialogProps {
 }
 
 export interface StopDialogState {
-	parentStation: number;
+	parentStation: string;
 	stopName?: string;
 	locationType: number;
 	wheelchairBoarding: number;
 	platformCode?: string;
 	signpostedAs?: string;
-	levelId?: number;
+	levelId?: string;
 	vehicleBoardings: VehicleBoarding[];
 }
 
@@ -38,8 +38,8 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 	constructor(props: StopDialogProps) {
 		super(props);
 		this.state = {
-			parentStation: props.stop.parentStation || -1,
-			levelId: props.stop.levelId || -1,
+			parentStation: props.stop.parentStation || '-1',
+			levelId: props.stop.levelId || '-1',
 			stopName: props.stop.stopName,
 			locationType: props.stop.locationType,
 			wheelchairBoarding: props.stop.wheelchairBoarding,
@@ -70,25 +70,25 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		event: React.ChangeEvent<HTMLSelectElement>
 	) => {
 		this.setState({
-			parentStation: Number(event.target.value)
+			parentStation: event.target.value
 		});
 	};
 
 	private handleLevelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		this.setState({
-			levelId: Number(event.target.value)
+			levelId: event.target.value
 		});
 	}
 
 	private handleLocationTypeChange = (
 		event: React.ChangeEvent<HTMLSelectElement>
 	) => {
-		let parentStation = -1;
+		let parentStation = '-1';
 		if (Number(event.target.value) === 3) { // Station for Generic Node
-			parentStation = this.props.stations[0].stopId;
+			parentStation = this.props.stations[0].stopId.toString();
 		}
 		else if (Number(event.target.value) === 4) { // Platform for Boarding Area
-			parentStation = this.props.platforms[0].stopId;
+			parentStation = this.props.platforms[0].stopId.toString();
 		}
 		this.setState({
 			locationType: Number(event.target.value),
@@ -152,11 +152,10 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		if (this.vehicleSelectRef.current) {
 			const selectedVehicleKey = this.vehicleSelectRef.current.value;
 
-
-			const selectedVehicleProps = selectedVehicleKey.split("+").map(prop => Number(prop));
+			const selectedVehicleProps = selectedVehicleKey.split("+");
 			const boardingAreaId = selectedVehicleProps[0];
-			const childSequence = selectedVehicleProps[1];
-			const doorSequence = selectedVehicleProps[2];
+			const childSequence = Number(selectedVehicleProps[1]);
+			const doorSequence = Number(selectedVehicleProps[2]);
 			this.props.vehicles
 				.filter(vehicle => {
 					if (vehicle.platformIds) {

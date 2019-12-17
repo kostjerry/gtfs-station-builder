@@ -1,7 +1,7 @@
 export default interface Pathway {
-    pathwayId: number;
-    fromStopId: number;
-    toStopId: number;
+    pathwayId: string;
+    fromStopId: string;
+    toStopId: string;
     pathwayMode: number;
     isBidirectional: boolean;
     length?: number;

@@ -17,8 +17,8 @@ export interface VisProps {
 	data: Communication,
 	onStopAdd: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onStopEdit: (node: VisNode, callback: (node?: VisNode) => void) => void,
-	onItemDelete: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void) => void,
-	onStopDragEnd: (nodeId: number, position: {x: number, y: number}) => void,
+	onItemDelete: (dataToDelete: { nodes: string[], edges: string[] }, callback: (dataToDelete?: { nodes: string[], edges: string[] }) => void) => void,
+	onStopDragEnd: (nodeId: string, position: {x: number, y: number}) => void,
 	onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onFareZoneAdd: (position: {x: number, y: number}, callback: (nodes: VisNode[], edges: VisEdge[]) => void) => void,
@@ -74,7 +74,7 @@ export default class Vis extends Component<VisProps, VisState> {
 				initiallyActive: true,
 				addNode: this.props.onStopAdd,
 				editNode: this.props.onStopEdit,
-				deleteNode: (dataToDelete: { nodes: number[], edges: number[] }, callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void): void => {
+				deleteNode: (dataToDelete: { nodes: string[], edges: string[] }, callback: (dataToDelete?: { nodes: string[], edges: string[] }) => void): void => {
 					dataToDelete.edges = network.getConnectedEdges(dataToDelete.nodes[0]);
 					this.props.onItemDelete(dataToDelete, callback);
 				},
@@ -188,7 +188,7 @@ export default class Vis extends Component<VisProps, VisState> {
 		if (!this.props.isDialogShown && e.keyCode === 8) {
 			const selection = this.network.getSelection();
 			if ((selection.nodes.length === 1) || (selection.edges.length === 1)) {
-				this.props.onItemDelete(selection, (dataToDelete?: { nodes: number[], edges: number[] }) => {
+				this.props.onItemDelete(selection, (dataToDelete?: { nodes: string[], edges: string[] }) => {
 					if (dataToDelete) {
 						this.network.deleteSelected();
 					}

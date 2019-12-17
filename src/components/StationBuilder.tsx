@@ -20,7 +20,7 @@ declare const google: any;
 
 export interface StationBuilderProps {
 	data: Communication,
-	onSave: (data: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[], deletedVehicleBoardingsIds: string[]) => void,
+	onSave: (data: Communication, deletedStopsIds: string[], deletedPathwaysIds: string[], deletedVehicleBoardingsIds: string[]) => void,
 	onCancel: () => void,
 	mapDiv?: HTMLDivElement,
 	map?: google.maps.Map
@@ -46,8 +46,8 @@ export interface StationBuilderState {
 	latX: number,
 	lonK: number,
 	lonX: number,
-	deletedStopsIds: number[],
-	deletedPathwaysIds: number[]
+	deletedStopsIds: string[],
+	deletedPathwaysIds: string[]
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
@@ -281,10 +281,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	}
 
 	private handleItemDelete = (
-		dataToDelete: { nodes: number[], edges: number[] },
-		callback: (dataToDelete?: { nodes: number[], edges: number[] }) => void
+		dataToDelete: { nodes: string[], edges: string[] },
+		callback: (dataToDelete?: { nodes: string[], edges: string[] }) => void
 	) => {
-		const hasError = dataToDelete.nodes.some((nodeId: number) => {
+		const hasError = dataToDelete.nodes.some((nodeId: string) => {
 			const stop: Stop | undefined = this.state.data.stops.find(stop => stop.stopId === nodeId);
 			if (stop && ![3, 4].includes(stop.locationType)) {
 				alert("You can't delete this location type");
@@ -301,7 +301,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			callback();
 			return;
 		}
-		dataToDelete.edges.forEach((pathwayId: number) => {
+		dataToDelete.edges.forEach((pathwayId: string) => {
 			const pathwayIndex = this.state.data.pathways.findIndex(pathway => pathway.pathwayId === pathwayId);
 			if (pathwayIndex !== -1) {
 				this.state.data.pathways.splice(pathwayIndex, 1);
@@ -348,7 +348,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		this.props.onCancel();
 	}
 
-	private handleStopDragEnd = (nodeId: number, position: {x: number, y: number}) => {
+	private handleStopDragEnd = (nodeId: string, position: {x: number, y: number}) => {
 		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
 			return stop.stopId === nodeId;
 		});

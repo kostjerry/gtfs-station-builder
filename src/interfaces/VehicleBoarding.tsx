@@ -1,6 +1,6 @@
 export default interface VehicleBoarding {
-    vehicleCategoryId: number;
+    vehicleCategoryId: string;
     childSequence: number;
-    boardingAreaId: number;
-    doorId: number;
+    boardingAreaId: string;
+    doorId: string;
 }

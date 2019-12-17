@@ -40,14 +40,14 @@ export default class DataService {
 
     static stopFromGTFS(stop: {[key: string]: string}): Stop {
         return {
-			stopId: Number(stop['stop_id']),
+			stopId: stop['stop_id'],
 			stopLat: Number(stop['stop_lat']),
 			stopLon: Number(stop['stop_lon']),
-			parentStation: stop['parent_station'] ? Number(stop['parent_station']) : undefined,
+			parentStation: stop['parent_station'] || undefined,
             stopName: stop['stop_name'],
             locationType: Number(stop['location_type']),
             wheelchairBoarding: Number(stop['wheelchair_boarding']),
-            levelId: stop['level_id'] ? Number(stop['level_id']) : undefined,
+            levelId: stop['level_id'] || undefined,
             platformCode: stop['platform_code'],
             signpostedAs: stop['signposted_as']
         };
@@ -67,23 +67,23 @@ export default class DataService {
 	}
 
     static stopToGTFS(stop: Stop): string {
-		return  stop.stopId.toString() + ',' +
+		return  stop.stopId + ',' +
 				stop.stopLat.toString() + ',' +
 				stop.stopLon.toString() + ',' +
 				this.escapeText(stop.stopName || '') + ',' +
 				stop.locationType.toString() + ',' +
-				(stop.parentStation || '') + ',' +
+				stop.parentStation + ',' +
                 stop.wheelchairBoarding.toString() + ',' +
-                (stop.levelId || '') + ',' +
+                stop.levelId + ',' +
                 this.escapeText(stop.platformCode || '') + ',' +
                 this.escapeText(stop.signpostedAs || '');
     }
 
     static pathwayFromGTFS(pathway: {[key: string]: string}): Pathway {
         return {
-            pathwayId: Number(pathway['pathway_id']),
-            fromStopId: Number(pathway['from_stop_id']),
-            toStopId: Number(pathway['to_stop_id']),
+            pathwayId: pathway['pathway_id'],
+            fromStopId: pathway['from_stop_id'],
+            toStopId: pathway['to_stop_id'],
             pathwayMode: Number(pathway['pathway_mode']),
             isBidirectional: Number(pathway['is_bidirectional']) === 1,
             length: pathway['length'] ? Number(pathway['length']) : undefined,
@@ -112,9 +112,9 @@ export default class DataService {
 	}
 
     static pathwayToGTFS(pathway: Pathway): string {
-        return  pathway.pathwayId.toString() + ',' +
-                pathway.fromStopId.toString() + ',' +
-                pathway.toStopId.toString() + ',' +
+        return  pathway.pathwayId + ',' +
+                pathway.fromStopId + ',' +
+                pathway.toStopId + ',' +
                 pathway.pathwayMode.toString() + ',' +
                 (pathway.isBidirectional ? '1' : '0') + ',' +
                 (pathway.length || '') + ',' +
@@ -128,7 +128,7 @@ export default class DataService {
 
     static levelFromGTFS(level: {[key: string]: string}): Level {
         return {
-            levelId: Number(level['level_id']),
+            levelId: level['level_id'],
             levelName: level['level_name'],
             levelIndex: Number(level['level_index'])
         };
@@ -141,17 +141,17 @@ export default class DataService {
 	}
 
     static levelToGTFS(level: Level): string {
-        return  level.levelId.toString() + ',' +
+        return  level.levelId + ',' +
 				this.escapeText(level.levelName || '') + ',' +
                 level.levelIndex.toString();
 	}
 
 	static vehicleBoardingFromGTFS(vehicleBoarding: {[key: string]: string}): VehicleBoarding {
         return {
-			vehicleCategoryId: Number(vehicleBoarding['vehicle_category_id']),
+			vehicleCategoryId: vehicleBoarding['vehicle_category_id'],
 			childSequence: Number(vehicleBoarding['child_sequence']),
-			boardingAreaId: Number(vehicleBoarding['boarding_area_id']),
-			doorId: Number(vehicleBoarding['door_id'])
+			boardingAreaId: vehicleBoarding['boarding_area_id'],
+			doorId: vehicleBoarding['door_id']
         };
 	}
 	
@@ -163,33 +163,33 @@ export default class DataService {
 	}
 
     static vehicleBoardingToGTFS(vehicleBoarding: VehicleBoarding): string {
-        return  vehicleBoarding.vehicleCategoryId.toString() + ',' +
+        return  vehicleBoarding.vehicleCategoryId + ',' +
 				vehicleBoarding.childSequence.toString() + ',' +
-                vehicleBoarding.boardingAreaId.toString() + ',' +
-                vehicleBoarding.doorId.toString();
+                vehicleBoarding.boardingAreaId + ',' +
+                vehicleBoarding.doorId;
 	}
 
 	// --------------------------
 
 	static vehicleCategoryFromGTFS(vehicleCategory: {[key: string]: string}): VehicleCategory {
         return {
-			vehicleCategoryId: Number(vehicleCategory['vehicle_category_id']),
+			vehicleCategoryId: vehicleCategory['vehicle_category_id'],
 			vehicleCategoryName: vehicleCategory['vehicle_category_name']
         };
 	}
 
 	static vehicleCouplingFromGTFS(vehicleCoupling: {[key: string]: string}): VehicleCoupling {
         return {
-			parentId: Number(vehicleCoupling['parent_id']),
-			childId: Number(vehicleCoupling['child_id']),
+			parentId: vehicleCoupling['parent_id'],
+			childId: vehicleCoupling['child_id'],
 			childSequence: Number(vehicleCoupling['child_sequence'])
         };
 	}
 
 	static vehicleDoorFromGTFS(vehicleDoor: {[key: string]: string}): VehicleDoor {
         return {
-			doorId: Number(vehicleDoor['door_id']),
-			vehicleCategoryId: Number(vehicleDoor['vehicle_category_id']),
+			doorId: vehicleDoor['door_id'],
+			vehicleCategoryId: vehicleDoor['vehicle_category_id'],
 			doorSequence: Number(vehicleDoor['door_sequence'])
         };
 	}

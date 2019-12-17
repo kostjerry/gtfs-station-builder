@@ -14,7 +14,7 @@ export default class VisService {
 		[key: string]: number
 	} = {};
 
-	static getEdgeSmoothVariant(from: number, to: number): { type: string, roundness: number } {
+	static getEdgeSmoothVariant(from: string, to: string): { type: string, roundness: number } {
 		let hash = from + ":" + to + ":" + 1;
 		let hashReversedDir = from + ":" + to + ":" + 2;
 		if (from > to) {
@@ -98,14 +98,14 @@ export default class VisService {
     }
 
     static prepareNewNode(node: VisNode, stations: Stop[], coefs:{[key: string]: number}): VisNode {
-		node.id = this.newStopId;
+		node.id = this.newStopId.toString();
         node.label = "";
         node.color = LocationTypeColors[LocationTypeMap.GenericNode];
         node.shape = 'circularImage';
 		node.size = 12;
 		node.image = "";
         node.stop = {
-			stopId: this.newStopId,
+			stopId: this.newStopId.toString(),
 			stopLat: ((node.y || 0) - coefs.latX) / coefs.latK,
 			stopLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
 			parentStation: stations[0].stopId,
@@ -154,7 +154,7 @@ export default class VisService {
     }
 
     static prepareNewEdge(edge: VisEdge): VisEdge {
-		edge.id = this.newPathwayId;
+		edge.id = this.newPathwayId.toString();
         edge.color = {
             color: PathwayModeColors[PathwayModeMap.Walkway],
             highlight: PathwayModeColors[PathwayModeMap.Walkway]
@@ -165,7 +165,7 @@ export default class VisService {
         };
         edge.label = '';
         edge.pathway = {
-			pathwayId: this.newPathwayId,
+			pathwayId: this.newPathwayId.toString(),
 			traversalTime: 10,
             fromStopId: edge.from,
             toStopId: edge.to,

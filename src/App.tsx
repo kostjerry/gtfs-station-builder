@@ -178,16 +178,16 @@ export default class App extends Component<AppProps, AppState> {
 		vehicleCouplingsTxt: string,
 		vehicleDoorsTxt: string): Vehicle[] {
 		
-		const vehicles: {[key: number]: Vehicle} = {};
+		const vehicles: {[key: string]: Vehicle} = {};
 		const categories: VehicleCategory[] = DataService.fromGTFS(vehicleCategoriesTxt, DataService.vehicleCategoryFromGTFS);
 		const couplings: VehicleCoupling[] = DataService.fromGTFS(vehicleCouplingsTxt, DataService.vehicleCouplingFromGTFS);
 		const doors: VehicleDoor[] = DataService.fromGTFS(vehicleDoorsTxt, DataService.vehicleDoorFromGTFS);
 
-		const categoriesHash: {[key: number]: VehicleCategory} = {};
+		const categoriesHash: {[key: string]: VehicleCategory} = {};
 		categories.forEach(category => {
 			categoriesHash[category.vehicleCategoryId] = category;
 		});
-		const doorsHash: {[key: number]: VehicleDoor[]} = {};
+		const doorsHash: {[key: string]: VehicleDoor[]} = {};
 		doors.forEach(door => {
 			if (!doorsHash[door.vehicleCategoryId]) {
 				doorsHash[door.vehicleCategoryId] = [];
@@ -298,7 +298,7 @@ export default class App extends Component<AppProps, AppState> {
 		}
 	}
 
-	private handleStationSave = (dataNew: Communication, deletedStopsIds: number[], deletedPathwaysIds: number[], deletedVehicleBoardingsIds: string[]) => {
+	private handleStationSave = (dataNew: Communication, deletedStopsIds: string[], deletedPathwaysIds: string[], deletedVehicleBoardingsIds: string[]) => {
 		const dataActual = this.state.stations;
 		if (dataActual) {
 			dataNew.stops.forEach(stop => {
@@ -377,7 +377,8 @@ export default class App extends Component<AppProps, AppState> {
 		});
 	}
 
-	private handleStationSelect = (stationId: number) => {
+	private handleStationSelect = (stationId: string) => {
+		console.log(stationId, this.state.stations);
 		if (this.state.stations) {
 			const station = this.state.stations.stops.find(stop => stop.stopId === stationId);
 			if (station) {
@@ -388,16 +389,16 @@ export default class App extends Component<AppProps, AppState> {
 						&& (Math.abs(stop.stopLon - station.stopLon) < 0.005)
 						&& (stop.locationType === 1));
 				}).map(station => station.stopId);
-				let platformIds: number[] = [];
+				let platformIds: string[] = [];
 				this.state.stations.stops.forEach(stop => {
-					if (stationIds.includes(stop.parentStation || -1) && (stop.locationType === 0)) {
+					if (stationIds.includes(stop.parentStation || '-1') && (stop.locationType === 0)) {
 						platformIds.push(stop.stopId);
 					}
 				});
 				const stops = this.state.stations.stops.filter(stop => {
-					return (stationIds.includes(stop.parentStation || -1)
+					return (stationIds.includes(stop.parentStation || '-1')
 						|| stationIds.includes(stop.stopId)
-						|| platformIds.includes(stop.parentStation || -1));
+						|| platformIds.includes(stop.parentStation || '-1'));
 				});
 
 				const stopIds = stops.map(stop => stop.stopId);

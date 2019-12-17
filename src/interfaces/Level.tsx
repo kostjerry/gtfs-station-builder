@@ -1,5 +1,5 @@
 export default interface Level {
-    levelId: number;
+    levelId: string;
     levelIndex: number;
     levelName?: string;
 }

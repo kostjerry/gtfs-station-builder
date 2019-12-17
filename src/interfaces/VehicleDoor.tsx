@@ -1,5 +1,5 @@
 export default interface VehicleDoor {
-	doorId: number;
-	vehicleCategoryId: number;
+	doorId: string;
+	vehicleCategoryId: string;
 	doorSequence: number;
 }

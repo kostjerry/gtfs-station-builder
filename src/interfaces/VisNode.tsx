@@ -1,7 +1,7 @@
 import Stop from "./Stop";
 
 export default interface VisNode {
-    id: number,
+    id: string,
     x?: number,
     y?: number,
     label: string,
