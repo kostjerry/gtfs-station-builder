@@ -263,7 +263,7 @@ export default class App extends Component<AppProps, AppState> {
 				this.state.mapObjects.push(marker);
 				this.state.mapObjects.push(label);
 			});
-			map.fitBounds(bounds);
+			map.fitBounds(bounds, 50);
 		}
 	}
 

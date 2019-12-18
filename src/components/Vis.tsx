@@ -18,7 +18,7 @@ export interface VisProps {
 	onStopAdd: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onStopEdit: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onItemDelete: (dataToDelete: { nodes: string[], edges: string[] }, callback: (dataToDelete?: { nodes: string[], edges: string[] }) => void) => void,
-	onStopDragEnd: (nodeId: string, position: {x: number, y: number}) => void,
+	onStopDragEnd: (nodeId: string, position: {x: number, y: number}, handleAllNodes?: boolean) => void,
 	onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onFareZoneAdd: (position: {x: number, y: number}, callback: (nodes: VisNode[], edges: VisEdge[]) => void) => void,
@@ -26,7 +26,9 @@ export interface VisProps {
 	latX: number,
 	lonK: number,
 	lonX: number,
-	isDialogShown: boolean
+	isDialogShown: boolean,
+	visPhysicsOptions: any,
+	onNetworkStabilized: () => void
 }
 
 export default class Vis extends Component<VisProps, VisState> {
@@ -58,7 +60,14 @@ export default class Vis extends Component<VisProps, VisState> {
 		// configure vis
 		var options = {
 			nodes: {
-				borderWidth: 2
+				borderWidth: 2,
+				scaling: {
+					labels: {
+						enabled: true,
+						min: 16,
+						max: 16
+					}
+				}
 			},
 			edges: {
 				width: 1,
@@ -95,7 +104,7 @@ export default class Vis extends Component<VisProps, VisState> {
 				selectConnectedEdges: false,
 				zoomView: true
 			},
-			physics: false,
+			physics: this.props.visPhysicsOptions,
 			locales: {
 				'gtfs': {
 					edit: 'Edit',
@@ -177,6 +186,16 @@ export default class Vis extends Component<VisProps, VisState> {
 			}
 		});
 
+		network.on("stabilized", (e: any) => {
+			network.storePositions();
+			const positions = network.getPositions();
+			const nodeIds = Object.keys(positions);
+			nodeIds.forEach(nodeId => {
+				this.props.onStopDragEnd(nodeId, positions[nodeId], true);
+			});
+			this.props.onNetworkStabilized();
+		})
+
 		document.addEventListener('keydown', this.handleDocumentKeydown);
 	}
 
@@ -198,6 +217,12 @@ export default class Vis extends Component<VisProps, VisState> {
 	}
 
 	render() {
+		if (this.network) {
+			const visOptions = this.network.getOptionsFromConfigurator();
+			visOptions.physics = this.props.visPhysicsOptions;
+			this.network.setOptions(visOptions);
+		}
+
 		return (
 			<div id="vis"></div>
 		);

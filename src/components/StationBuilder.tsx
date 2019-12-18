@@ -47,7 +47,9 @@ export interface StationBuilderState {
 	lonK: number,
 	lonX: number,
 	deletedStopsIds: string[],
-	deletedPathwaysIds: string[]
+	deletedPathwaysIds: string[],
+	visPhysicsOptions: any,
+	isLoading: boolean
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
@@ -114,7 +116,9 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			lonK,
 			lonX,
 			deletedStopsIds: [],
-			deletedPathwaysIds: []
+			deletedPathwaysIds: [],
+			visPhysicsOptions: false,
+			isLoading: false
 		};
 	}
 
@@ -344,16 +348,42 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			deletedVehicleBoardingsIds);
 	}
 
+	private handleGravityClick = () => {
+		if (window.confirm("This operation can take some time and will change original positions of all locations")) {
+			this.setState({
+				visPhysicsOptions: {
+					barnesHut: {
+						gravitationalConstant: -500000,
+						avoidOverlap: 1,
+						centralGravity: 10
+					},
+					minVelocity: 10,
+					maxVelocity: 70,
+					stabilization: true
+				},
+				isLoading: true
+			});
+		}
+	}
+
+	private handleNetworkStabilized = () => {
+		this.setState({
+			visPhysicsOptions: false,
+			isLoading: false
+		});
+	}
+
 	private handleCancelClick = () => {
 		this.props.onCancel();
 	}
 
-	private handleStopDragEnd = (nodeId: string, position: {x: number, y: number}) => {
+	private handleStopDragEnd = (nodeId: string, position: {x: number, y: number}, handleAllNodes?: boolean) => {
 		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
 			return stop.stopId === nodeId;
 		});
+
 		// Update position for generic nodes and boarding areas
-		if (stop && [3, 4].includes(stop.locationType)) {
+		if (stop && ([3, 4].includes(stop.locationType) || handleAllNodes)) {
 			stop.stopLat = ((position.y || 0) - this.state.latX) / this.state.latK;
 			stop.stopLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
 		}
@@ -408,14 +438,17 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 	render() {
 		return (
 			<div className="station-builder">
+				{this.state.isLoading && <div className="loader"></div>}
 				<div className="panel">
 					<button className="save" onClick={this.handleSaveClick}>Save</button>
 					<button className="cancel" onClick={this.handleCancelClick}>Cancel</button>
+					<button className="gravity" onClick={this.handleGravityClick}>Beautify</button>
 				</div>
 				<div className="main">
 					<div className="graph">
 						<Vis
 							data={this.state.data}
+							visPhysicsOptions={this.state.visPhysicsOptions}
 							onStopAdd={this.handleStopAddMode}
 							onStopEdit={this.handleStopEditMode}
 							onItemDelete={this.handleItemDelete}
@@ -423,6 +456,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							onPathwayAdd={this.handlePathwayAddMode}
 							onPathwayEdit={this.handlePathwayEditMode}
 							onFareZoneAdd={this.handleFareZoneAdd}
+							onNetworkStabilized={this.handleNetworkStabilized}
 							latK={this.state.latK}
 							latX={this.state.latX}
 							lonK={this.state.lonK}
