@@ -62,7 +62,7 @@ export default class Vis extends Component<VisProps, VisState> {
 			nodes: {
 				borderWidth: 2,
 				scaling: {
-					labels: {
+					label: {
 						enabled: true,
 						min: 16,
 						max: 16
