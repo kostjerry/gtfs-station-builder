@@ -50,7 +50,8 @@ export interface StationBuilderState {
 	deletedStopsIds: string[],
 	deletedPathwaysIds: string[],
 	visPhysicsOptions: any,
-	isLoading: boolean
+	isLoading: boolean,
+	escalatorCalculatorTime: number
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
@@ -119,7 +120,8 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			deletedStopsIds: [],
 			deletedPathwaysIds: [],
 			visPhysicsOptions: false,
-			isLoading: false
+			isLoading: false,
+			escalatorCalculatorTime: 0
 		};
 	}
 
@@ -450,7 +452,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 					<button className="gravity" onClick={this.handleGravityClick}>Beautify</button>
 				</div>
 				<div className="main">
-					<div className="graph">
+					<div className="left">
 						<Vis
 							data={this.state.data}
 							visPhysicsOptions={this.state.visPhysicsOptions}
@@ -483,7 +485,16 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							onCancel={this.handleDialogCancel}
 							onApply={this.handlePathwayDialogApply}></PathwayDialog>}
 					</div>
-					<div className="map" ref={this.mapRef}></div>
+					<div className="right">
+						<div className="panel">
+							<div className="calculator">
+								Depth: <input type="text" onChange={(e) => {this.setState({
+									escalatorCalculatorTime: Number(e.target.value) * 3
+								})}} />m = <span>{this.state.escalatorCalculatorTime}</span> s
+							</div>
+						</div>
+						<div className="map" ref={this.mapRef}></div>
+					</div>
 				</div>
 				{(this.state.selectedStop || this.state.selectedPathway) && <div className="dialog-bg" onClick={this.handleDialogCancel}></div>}
 			</div>
