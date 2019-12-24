@@ -49,7 +49,8 @@ export default class DataService {
             wheelchairBoarding: stop['wheelchair_boarding'] !== '' ? Number(stop['wheelchair_boarding']) : 0,
             levelId: stop['level_id'] || undefined,
             platformCode: stop['platform_code'],
-            signpostedAs: stop['signposted_as']
+			signpostedAs: stop['signposted_as'],
+			directionName: stop['direction_name'] || undefined
         };
     }
 

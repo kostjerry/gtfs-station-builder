@@ -213,7 +213,7 @@ export default class StopDialog extends Component<StopDialogProps, StopDialogSta
 		this.props.platforms.forEach(platform => {
 			parentPlatformOptions.push(
 				<option key={platform.stopId} value={platform.stopId}>
-					{platform.stopId}. {platform.stopName}
+					{'#' + platform.stopId}{platform.directionName ? '. Direction: "' + platform.directionName + '"' : ''}
 				</option>
 			);
 		});

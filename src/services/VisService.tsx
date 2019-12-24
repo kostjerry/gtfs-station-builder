@@ -39,13 +39,13 @@ export default class VisService {
         let prefix = "";
         let label =  stop.stopName ? prefix + stop.stopName + '\n' : prefix;
         if (stop.locationType === 0) { // Platform
-			label = prefix + ' #' + stop.stopId;
+			label = prefix + ' #' + stop.stopId + (stop.directionName ? '. Direction: "' + stop.directionName + '"' : '');
 			if (stop.platformCode) {
                 label += '\nCode: "' + stop.platformCode + '"';
             }
             if (stop.signpostedAs) {
                 label += '\nSignposted: "' + stop.signpostedAs + '"';
-            }
+			}
 		}
 		else if (stop.locationType === 2) { // Entrance/Exit
 			if (stop.platformCode) {

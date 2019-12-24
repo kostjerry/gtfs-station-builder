@@ -10,6 +10,10 @@ export default interface Stop {
     platformCode?: string;
 	signpostedAs?: string;
 
+	// Custom props fields
+	directionName?: string; // For platforms
+
+	// Custom state fields
 	vehiclesInfo?: string;
 }
 

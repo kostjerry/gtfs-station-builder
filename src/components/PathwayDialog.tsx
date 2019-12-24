@@ -41,10 +41,6 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 	}
 
 	private handleApply = () => {
-		if (!this.state.traversalTime) {
-			alert("Traversal time is required");
-			return;
-		}
 		const length = parseFloat(this.state.length || "");
 		const maxSlope = parseFloat(this.state.maxSlope || "");
 		const minWidth = parseFloat(this.state.minWidth || "");
