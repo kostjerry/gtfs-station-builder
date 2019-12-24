@@ -18,6 +18,7 @@ import Vehicle from "./interfaces/Vehicle";
 import VehicleCategory from "./interfaces/VehicleCategory";
 import VehicleCoupling from "./interfaces/VehicleCoupling";
 import VehicleDoor from "./interfaces/VehicleDoor";
+import MeasureTool from 'measuretool-googlemaps-v3';
 
 export interface AppProps {}
 
@@ -229,6 +230,10 @@ export default class App extends Component<AppProps, AppState> {
 		let map: google.maps.Map;
 		if (!this.state.map) {
 			map = new google.maps.Map(this.mapRef.current);
+			new MeasureTool(map, {
+				showSegmentLength: true,
+				unit: MeasureTool.UnitTypeId.METRIC
+			});
 			console.log("Google map initialized");
 			this.setState({
 				map

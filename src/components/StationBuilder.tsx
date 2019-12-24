@@ -15,6 +15,7 @@ import circleRedImage from '../images/circle-red.png';
 import circleBlueImage from '../images/circle-blue.png';
 import VehicleBoarding from '../interfaces/VehicleBoarding';
 import DataService from '../services/DataService';
+import MeasureTool from 'measuretool-googlemaps-v3';
 
 declare const google: any;
 
@@ -143,6 +144,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				console.log("Google map initialized");
 				map = new google.maps.Map(this.mapRef.current);
 				map.fitBounds(bounds);
+				new MeasureTool(map, {
+					showSegmentLength: true,
+					unit: MeasureTool.UnitTypeId.METRIC
+				});
 			}
 		}
 
