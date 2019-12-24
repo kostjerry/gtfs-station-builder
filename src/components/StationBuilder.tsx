@@ -146,11 +146,14 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 				console.log("Google map initialized");
 				map = new google.maps.Map(this.mapRef.current);
 				map.fitBounds(bounds);
-				new MeasureTool(map, {
-					showSegmentLength: true,
-					unit: MeasureTool.UnitTypeId.METRIC
-				});
 			}
+
+			google.maps.event.clearListeners(map, 'click');
+			google.maps.event.clearListeners(map, 'rightclick');
+			new MeasureTool(map, {
+				showSegmentLength: true,
+				unit: MeasureTool.UnitTypeId.METRIC
+			});
 		}
 
 		this.props.data.stops.filter((stop: Stop) => {
