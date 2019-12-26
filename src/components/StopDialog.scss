@@ -26,8 +26,14 @@
 		padding-top: 5px;
 		display: flex;
 		flex-direction: row;
+		.left {
+			width: initial;
+			height: initial;
+		}
 		.right {
 			padding-left: 20px;
+			width: initial;
+			height: initial;
 			table {
 				border-top: solid 1px #555555;
 				border-left: solid 1px #555555;

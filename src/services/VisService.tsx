@@ -1,4 +1,4 @@
-import Stop, { LocationTypeOnNodeLabelMap, LocationTypeColors, WheelchairBoardingMap, LocationTypeMap } from "../interfaces/Stop";
+import Stop, { LocationTypeColors, WheelchairBoardingMap, LocationTypeMap } from "../interfaces/Stop";
 import Pathway, { PathwayModeOnEdgeLabelMap, PathwayModeColors, PathwayModeMap } from "../interfaces/Pathway";
 import VisNode from "../interfaces/VisNode";
 import VisEdge from "../interfaces/VisEdge";
@@ -35,11 +35,10 @@ export default class VisService {
 	}
 
     static getNodeLabel(stop: Stop): string {
-        // let prefix = LocationTypeOnNodeLabelMap[stop.locationType];
         let prefix = "";
         let label =  stop.stopName ? prefix + stop.stopName + '\n' : prefix;
         if (stop.locationType === 0) { // Platform
-			label = prefix + ' #' + stop.stopId + (stop.directionName ? '. Direction: "' + stop.directionName + '"' : '');
+			label = prefix + ' #' + stop.stopId + (stop.directionName ? '. ' + stop.directionName : '');
 			if (stop.platformCode) {
                 label += '\nCode: "' + stop.platformCode + '"';
             }
@@ -53,7 +52,7 @@ export default class VisService {
             }
 		}
 		else if (stop.locationType === 4) { // Boarding Area
-			label += 'for #' + stop.parentStation;
+			label += 'for #' + stop.parentStation + (stop.directionName ? '. ' + stop.directionName : '');
 			if (stop.vehiclesInfo) {
 				label += '\n' + stop.vehiclesInfo;
 			}
@@ -66,7 +65,10 @@ export default class VisService {
         let label = prefix;
         if (pathway.traversalTime) {
             label += '\n' + pathway.traversalTime + ' s'
-        }
+		}
+		if (pathway.signpostedAs) {
+			label += '\nSignposted: "' + pathway.signpostedAs + '"';
+		}
         return label;
 	}
 
