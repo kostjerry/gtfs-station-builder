@@ -36,6 +36,8 @@ export interface AppState {
 	mapObjects: (google.maps.Marker | TxtOverlay)[];
 }
 
+const STATION_SEARCH_RADIUS = 0.005;
+
 export default class App extends Component<AppProps, AppState> {
 	private mapRef: React.RefObject<HTMLDivElement> = React.createRef();
 	private requiredFileNames = ["stops.txt", "pathways.txt"];
@@ -156,12 +158,16 @@ export default class App extends Component<AppProps, AppState> {
 
 			// Attach coordinates to nodes without lat:lng
 			communicationPacket.stops = communicationPacket.stops.map(stop => {
-				if (stop.stopLat === -1 && stop.stopLon === -1) {
+				if (stop.stopLat === -1 || stop.stopLon === -1) {
 					const station = communicationPacket.stops.find(curStop => curStop.stopId === stop.parentStation);
 					if (station) {
 						stop.stopLat = station.stopLat;
 						stop.stopLon = station.stopLon;
 					}
+				}
+				if (stop.layoutLat === -1 || stop.layoutLon === -1) {
+					stop.layoutLat = stop.stopLat;
+					stop.layoutLon = stop.stopLon;
 				}
 				return stop;
 			});
@@ -416,8 +422,8 @@ export default class App extends Component<AppProps, AppState> {
 
 				// Filter selected station and its neighbors
 				const stationIds = this.state.stations.stops.filter(stop => {
-					return ((Math.abs(stop.stopLat - station.stopLat) < 0.005)
-						&& (Math.abs(stop.stopLon - station.stopLon) < 0.005)
+					return ((Math.abs(stop.stopLat - station.stopLat) < STATION_SEARCH_RADIUS)
+						&& (Math.abs(stop.stopLon - station.stopLon) < STATION_SEARCH_RADIUS)
 						&& (stop.locationType === 1));
 				}).map(station => station.stopId);
 				let platformIds: string[] = [];

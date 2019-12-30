@@ -46,8 +46,8 @@ export default class Vis extends Component<VisProps, VisState> {
 		}).map((stop: Stop): VisNode => {
 			const node = VisService.convertStopToNode(stop);
 			// Transform stop coordinates into Vis x:y
-			node.x = this.props.lonK * stop.stopLon + this.props.lonX;
-			node.y = this.props.latK * stop.stopLat + this.props.latX;
+			node.x = this.props.lonK * stop.layoutLon + this.props.lonX;
+			node.y = this.props.latK * stop.layoutLat + this.props.latX;
 			return node;
 		});
 
@@ -191,7 +191,7 @@ export default class Vis extends Component<VisProps, VisState> {
 			const positions = network.getPositions();
 			const nodeIds = Object.keys(positions);
 			nodeIds.forEach(nodeId => {
-				this.props.onStopDragEnd(nodeId, positions[nodeId], true);
+				this.props.onStopDragEnd(nodeId, positions[nodeId]);
 			});
 			this.props.onNetworkStabilized();
 		})

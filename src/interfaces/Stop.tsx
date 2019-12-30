@@ -2,6 +2,8 @@ export default interface Stop {
 	stopId: string;
 	stopLat: number,
 	stopLon: number,
+	layoutLat: number,
+	layoutLon: number,
 	parentStation?: string,
     stopName?: string;
     locationType: number;

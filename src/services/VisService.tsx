@@ -110,6 +110,8 @@ export default class VisService {
 			stopId: this.newStopId.toString(),
 			stopLat: ((node.y || 0) - coefs.latX) / coefs.latK,
 			stopLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
+			layoutLat: ((node.y || 0) - coefs.latX) / coefs.latK,
+			layoutLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
 			parentStation: stations[0].stopId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,

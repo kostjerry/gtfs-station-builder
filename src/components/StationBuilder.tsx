@@ -81,17 +81,17 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		let maxLat = 0;
 		let maxLon = 0;
 		props.data.stops.forEach((stop: Stop) => {
-			if (!minLat || (stop.stopLat < minLat)) {
-				minLat = stop.stopLat;
+			if (!minLat || (stop.layoutLat < minLat)) {
+				minLat = stop.layoutLat;
 			}
-			if (!minLon || (stop.stopLon < minLon)) {
-				minLon = stop.stopLon;
+			if (!minLon || (stop.layoutLon < minLon)) {
+				minLon = stop.layoutLon;
 			}
-			if (!maxLat || (stop.stopLat > maxLat)) {
-				maxLat = stop.stopLat;
+			if (!maxLat || (stop.layoutLat > maxLat)) {
+				maxLat = stop.layoutLat;
 			}
-			if (!maxLon || (stop.stopLon > maxLon)) {
-				maxLon = stop.stopLon;
+			if (!maxLon || (stop.layoutLon > maxLon)) {
+				maxLon = stop.layoutLon;
 			}
 			this.attachVehiclesInfoToStop(stop, this.props.data.vehicleBoardings);
 		});
@@ -387,15 +387,15 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		this.props.onCancel();
 	}
 
-	private handleStopDragEnd = (nodeId: string, position: {x: number, y: number}, handleAllNodes?: boolean) => {
+	private handleStopDragEnd = (nodeId: string, position: {x: number, y: number}) => {
 		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
 			return stop.stopId === nodeId;
 		});
 
-		// Update position for generic nodes and boarding areas
-		if (stop && ([3, 4].includes(stop.locationType) || handleAllNodes)) {
-			stop.stopLat = ((position.y || 0) - this.state.latX) / this.state.latK;
-			stop.stopLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
+		// Update layout
+		if (stop) {
+			stop.layoutLat = ((position.y || 0) - this.state.latX) / this.state.latK;
+			stop.layoutLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
 		}
 	}
 

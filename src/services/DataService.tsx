@@ -43,6 +43,8 @@ export default class DataService {
 			stopId: stop['stop_id'],
 			stopLat: stop['stop_lat'] ? Number(stop['stop_lat']) : -1,
 			stopLon: stop['stop_lon'] ? Number(stop['stop_lon']) : -1,
+			layoutLat: stop['stop_layout_lat'] ? Number(stop['stop_layout_lat']) : -1,
+			layoutLon: stop['stop_layout_lon'] ? Number(stop['stop_layout_lon']) : -1,
 			parentStation: stop['parent_station'] || undefined,
             stopName: stop['stop_name'],
             locationType: Number(stop['location_type']),
@@ -58,6 +60,8 @@ export default class DataService {
 		return	'stop_id,' +
 				'stop_lat,' + 
 				'stop_lon,' + 
+				'stop_layout_lat,' + 
+				'stop_layout_lon,' + 
 				'stop_name,' +
 				'location_type,' +
 				'parent_station,' +
@@ -71,6 +75,8 @@ export default class DataService {
 		return  stop.stopId + ',' +
 				stop.stopLat.toString() + ',' +
 				stop.stopLon.toString() + ',' +
+				stop.layoutLat.toString() + ',' +
+				stop.layoutLon.toString() + ',' +
 				this.escapeText(stop.stopName || '') + ',' +
 				stop.locationType.toString() + ',' +
 				stop.parentStation + ',' +
