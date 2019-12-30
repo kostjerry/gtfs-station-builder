@@ -15,6 +15,8 @@ export interface VisState {
 
 export interface VisProps {
 	data: Communication,
+	station: Stop,
+	showStationImg: boolean;
 	onStopAdd: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onStopEdit: (node: VisNode, callback: (node?: VisNode) => void) => void,
 	onItemDelete: (dataToDelete: { nodes: string[], edges: string[] }, callback: (dataToDelete?: { nodes: string[], edges: string[] }) => void) => void,
@@ -22,10 +24,6 @@ export interface VisProps {
 	onPathwayAdd: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onPathwayEdit: (edge: VisEdge, callback: (edge?: VisEdge) => void) => void,
 	onFareZoneAdd: (position: {x: number, y: number}, callback: (nodes: VisNode[], edges: VisEdge[]) => void) => void,
-	latK: number,
-	latX: number,
-	lonK: number,
-	lonX: number,
 	isDialogShown: boolean,
 	visPhysicsOptions: any,
 	onNetworkStabilized: () => void
@@ -43,22 +41,16 @@ export default class Vis extends Component<VisProps, VisState> {
 		// get nodes from stops
 		const nodes: VisNode[] = this.props.data.stops.filter((stop: Stop) => {
 			return stop.locationType !== 1;
-		}).map((stop: Stop): VisNode => {
-			const node = VisService.convertStopToNode(stop);
-			// Transform stop coordinates into Vis x:y
-			node.x = this.props.lonK * stop.layoutLon + this.props.lonX;
-			node.y = this.props.latK * stop.layoutLat + this.props.latX;
-			return node;
-		});
+		}).map((stop: Stop): VisNode => VisService.convertStopToNode(stop));
 
 		// get edges from pathways
-		const edges: VisEdge[] = this.props.data.pathways.map((pathway: Pathway): VisEdge => {
-			const edge = VisService.convertPathwayToEdge(pathway);
-			return edge;
-		});
+		const edges: VisEdge[] = this.props.data.pathways
+			.map((pathway: Pathway): VisEdge => VisService.convertPathwayToEdge(pathway));
 
 		// configure vis
 		var options = {
+			width: Math.round(VisService.visSize) + "px",
+			height: Math.round(VisService.visSize) + "px",
 			nodes: {
 				borderWidth: 2,
 				scaling: {
@@ -194,9 +186,57 @@ export default class Vis extends Component<VisProps, VisState> {
 				this.props.onStopDragEnd(nodeId, positions[nodeId]);
 			});
 			this.props.onNetworkStabilized();
-		})
+		});
+
+		this.attachImage();
+
+		const visContainer: HTMLDivElement | null = document.getElementById("vis") as HTMLDivElement;
+		if (visContainer) {
+			network.moveTo({
+				position: {
+					x: VisService.visSize - visContainer.clientWidth / 2 + 400,
+					y: VisService.visSize + 400
+				},
+				scale: (visContainer.clientHeight - 200) / VisService.visSize
+			});
+		}
 
 		document.addEventListener('keydown', this.handleDocumentKeydown);
+	}
+
+	public componentDidUpdate(prevProps: VisProps, props: VisProps) {
+		if (prevProps && prevProps.station && props && props.station && (prevProps.station.stationImgUrl != props.station.stationImgUrl)) {
+			this.attachImage();
+		}
+	}
+
+	private attachImage = () => {
+		const station = this.props.data.stops.find(stop => stop.locationType === 1);
+		if (station && station.stationImgUrl) {
+			var bgImg = new Image();
+			bgImg.onload = () => {
+				let width: number;
+				let height: number;
+				if (bgImg.width > bgImg.height) {
+					width = VisService.visSize;
+					height = width * bgImg.height / bgImg.width;
+				}
+				else {
+					height = VisService.visSize;
+					width = height * bgImg.width / bgImg.height;
+				}
+				this.network.on("beforeDrawing", (ctx: CanvasRenderingContext2D) => {
+					if (this.props.showStationImg) {
+						ctx.save();
+						ctx.globalAlpha = 0.4;
+						ctx.drawImage(bgImg, 0, 0, width, height);
+						ctx.restore();
+					}
+				});
+				this.forceUpdate();
+			};
+			bgImg.src = station.stationImgUrl;
+		}
 	}
 
 	public componentWillUnmount() {

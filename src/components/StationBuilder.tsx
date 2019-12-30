@@ -51,7 +51,8 @@ export interface StationBuilderState {
 	deletedPathwaysIds: string[],
 	visPhysicsOptions: any,
 	isLoading: boolean,
-	escalatorCalculatorTime: number
+	escalatorCalculatorTime: number,
+	showStationImg: boolean
 }
 
 export default class StationBuilder extends Component<StationBuilderProps, StationBuilderState> {
@@ -81,32 +82,40 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		let maxLat = 0;
 		let maxLon = 0;
 		props.data.stops.forEach((stop: Stop) => {
-			if (!minLat || (stop.layoutLat < minLat)) {
-				minLat = stop.layoutLat;
+			if (!minLat || (stop.stopLat < minLat)) {
+				minLat = stop.stopLat;
 			}
-			if (!minLon || (stop.layoutLon < minLon)) {
-				minLon = stop.layoutLon;
+			if (!minLon || (stop.stopLon < minLon)) {
+				minLon = stop.stopLon;
 			}
-			if (!maxLat || (stop.layoutLat > maxLat)) {
-				maxLat = stop.layoutLat;
+			if (!maxLat || (stop.stopLat > maxLat)) {
+				maxLat = stop.stopLat;
 			}
-			if (!maxLon || (stop.layoutLon > maxLon)) {
-				maxLon = stop.layoutLon;
+			if (!maxLon || (stop.stopLon > maxLon)) {
+				maxLon = stop.stopLon;
 			}
 			this.attachVehiclesInfoToStop(stop, this.props.data.vehicleBoardings);
 		});
 		let latGap = maxLat - minLat;
 		let lonGap = maxLon - minLon;
-		const lonK = 1000.0 / lonGap;
-		const lonX = -minLon * 1000.0 / lonGap;
-		const latK = -1000.0 / latGap;
-		const latX = maxLat * 1000.0 / latGap;
+		const lonK = VisService.visSize / lonGap;
+		const lonX = -minLon * VisService.visSize / lonGap;
+		const latK = -VisService.visSize / latGap;
+		const latX = maxLat * VisService.visSize / latGap;
+
+		const packet = cloneDeep(props.data);
+		packet.stops.forEach(stop => {
+			if (stop.layoutLat === -1 || stop.layoutLon === -1) {
+				stop.layoutLat = latK * stop.stopLat + latX;
+				stop.layoutLon = lonK * stop.stopLon + lonX;
+			}
+		});
 
 		// Init VisService state
 		VisService.edgeRoundness = {};
 
 		this.state = {
-			data: cloneDeep(props.data),
+			data: packet,
 			selectedStop: null,
 			selectedPathway: null,
 			mapMarkers: [],
@@ -121,7 +130,8 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			deletedPathwaysIds: [],
 			visPhysicsOptions: false,
 			isLoading: false,
-			escalatorCalculatorTime: 0
+			escalatorCalculatorTime: 0,
+			showStationImg: true
 		};
 	}
 
@@ -391,11 +401,10 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		const stop: Stop | undefined = this.state.data.stops.find((stop: Stop) => {
 			return stop.stopId === nodeId;
 		});
-
 		// Update layout
 		if (stop) {
-			stop.layoutLat = ((position.y || 0) - this.state.latX) / this.state.latK;
-			stop.layoutLon = ((position.x || 0) - this.state.lonX) / this.state.lonK;
+			stop.layoutLat = position.y;
+			stop.layoutLon = position.x;
 		}
 	}
 
@@ -445,6 +454,12 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		callback([node1, node2], [edge1, edge2]);
 	}
 
+	private handleShowImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		this.setState({
+			showStationImg: e.target.checked
+		});
+	}
+
 	render() {
 		return (
 			<div className="station-builder">
@@ -467,11 +482,9 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 							onPathwayEdit={this.handlePathwayEditMode}
 							onFareZoneAdd={this.handleFareZoneAdd}
 							onNetworkStabilized={this.handleNetworkStabilized}
-							latK={this.state.latK}
-							latX={this.state.latX}
-							lonK={this.state.lonK}
-							lonX={this.state.lonX}
-							isDialogShown={!!(this.state.selectedStop || this.state.selectedPathway)}></Vis>
+							isDialogShown={!!(this.state.selectedStop || this.state.selectedPathway)}
+							station={this.state.stations[0]}
+							showStationImg={this.state.showStationImg}></Vis>
 
 						{this.state.selectedStop && <StopDialog
 							stop={this.state.selectedStop.stop}
@@ -495,6 +508,11 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 									escalatorCalculatorTime: Number(e.target.value) * 3
 								})}} />m = <span>{this.state.escalatorCalculatorTime}</span> s
 							</div>
+							{this.state.stations && this.state.stations[0] && this.state.stations[0].stationImgUrl && <div className="img">
+								<label>
+									<input type="checkbox" onChange={this.handleShowImageChange} checked={this.state.showStationImg} /> image
+								</label>
+							</div>}
 						</div>
 						<div className="map" ref={this.mapRef}></div>
 					</div>

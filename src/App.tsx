@@ -156,7 +156,7 @@ export default class App extends Component<AppProps, AppState> {
 			VisService.newStopId = minStopId - 1;
 			VisService.newPathwayId = minPathwayId - 1;
 
-			// Attach coordinates to nodes without lat:lng
+			// Attach coordinates to nodes without lat,lng
 			communicationPacket.stops = communicationPacket.stops.map(stop => {
 				if (stop.stopLat === -1 || stop.stopLon === -1) {
 					const station = communicationPacket.stops.find(curStop => curStop.stopId === stop.parentStation);
@@ -164,10 +164,6 @@ export default class App extends Component<AppProps, AppState> {
 						stop.stopLat = station.stopLat;
 						stop.stopLon = station.stopLon;
 					}
-				}
-				if (stop.layoutLat === -1 || stop.layoutLon === -1) {
-					stop.layoutLat = stop.stopLat;
-					stop.layoutLon = stop.stopLon;
 				}
 				return stop;
 			});

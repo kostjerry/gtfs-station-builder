@@ -10,6 +10,7 @@ import wheelchairNotPossibleImage from '../images/wheelchair-not-possible.png';
 export default class VisService {
 	public static newStopId = -1;
 	public static newPathwayId = -1;
+	public static visSize = 1500.0;
 	static edgeRoundness: {
 		[key: string]: number
 	} = {};
@@ -77,8 +78,8 @@ export default class VisService {
             id: stop.stopId,
             label: VisService.getNodeLabel(stop),
             color: LocationTypeColors[stop.locationType],
-            x: 0,
-            y: 0,
+            x: stop.layoutLon,
+            y: stop.layoutLat,
             image: stop.wheelchairBoarding === 1 ? wheelchairAccessibleImage : stop.wheelchairBoarding === 2 ? wheelchairNotPossibleImage : "",
             shape: 'circularImage',
             size: 12,
@@ -110,8 +111,8 @@ export default class VisService {
 			stopId: this.newStopId.toString(),
 			stopLat: ((node.y || 0) - coefs.latX) / coefs.latK,
 			stopLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
-			layoutLat: ((node.y || 0) - coefs.latX) / coefs.latK,
-			layoutLon: ((node.x || 0) - coefs.lonX) / coefs.lonK,
+			layoutLat: node.y || 0,
+			layoutLon: node.x || 0,
 			parentStation: stations[0].stopId,
             stopName: "",
             locationType: LocationTypeMap.GenericNode,

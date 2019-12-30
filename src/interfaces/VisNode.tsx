@@ -9,5 +9,5 @@ export default interface VisNode {
     image: string,
     shape: string,
     size: number,
-    stop: Stop
+	stop: Stop
 }
