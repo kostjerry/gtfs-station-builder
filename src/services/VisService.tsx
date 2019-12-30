@@ -36,20 +36,22 @@ export default class VisService {
 	}
 
     static getNodeLabel(stop: Stop): string {
-        let prefix = "";
-        let label =  stop.stopName ? prefix + stop.stopName + '\n' : prefix;
+        let label =  stop.stopName ?  stop.stopName + '\n' : "";
         if (stop.locationType === 0) { // Platform
-			label = prefix + ' #' + stop.stopId + (stop.directionName ? '. ' + stop.directionName : '');
+			label = ' #' + stop.stopId + (stop.directionName ? '. ' + stop.directionName : '') + '\n';
 			if (stop.platformCode) {
-                label += '\nCode: "' + stop.platformCode + '"';
+                label += 'code: "' + stop.platformCode + '"';
             }
             if (stop.signpostedAs) {
-                label += '\nSignposted: "' + stop.signpostedAs + '"';
+                label += ' sign: "' + stop.signpostedAs + '"';
+			}
+			if (stop.vehiclesInfo) {
+				label += '\n' + stop.vehiclesInfo;
 			}
 		}
 		else if (stop.locationType === 2) { // Entrance/Exit
 			if (stop.platformCode) {
-                label += 'Number: "' + stop.platformCode + '"';
+                label += 'num: "' + stop.platformCode + '"';
             }
 		}
 		else if (stop.locationType === 4) { // Boarding Area
@@ -65,10 +67,25 @@ export default class VisService {
         let prefix = PathwayModeOnEdgeLabelMap[pathway.pathwayMode];
         let label = prefix;
         if (pathway.traversalTime) {
-            label += '\n' + pathway.traversalTime + ' s'
+            label += ', ' + pathway.traversalTime + ' s';
+		}
+		if (pathway.length) {
+            label += ', ' + pathway.length + ' m';
+		}
+		if (pathway.maxSlope) {
+            label += ', sl: ' + pathway.maxSlope;
+		}
+		if (pathway.minWidth) {
+            label += ', min: ' + pathway.minWidth + ' m';
+		}
+		if (pathway.stairCount) {
+            label += ', st.c: ' + pathway.stairCount;
 		}
 		if (pathway.signpostedAs) {
-			label += '\nSignposted: "' + pathway.signpostedAs + '"';
+			label += ', sign: "' + pathway.signpostedAs + '"';
+		}
+		if (pathway.reversedSignpostedAs) {
+			label += ', r.sign: "' + pathway.reversedSignpostedAs + '"';
 		}
         return label;
 	}

@@ -14,7 +14,7 @@ export default interface Stop {
 
 	// Custom props fields
 	directionName?: string; // For platforms
-	stationImgUrl?: string;
+	stationImgUrl?: string; // For stations
 
 	// Custom state fields
 	vehiclesInfo?: string;
