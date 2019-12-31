@@ -15,9 +15,7 @@ export default interface Stop {
 	// Custom props fields
 	directionName?: string; // For platforms
 	stationImgUrl?: string; // For stations
-
-	// Custom state fields
-	vehiclesInfo?: string;
+	vehiclesInfo?: string; // For BA and Platforms
 }
 
 export const LocationTypeMap: { [key: string]: number } = {

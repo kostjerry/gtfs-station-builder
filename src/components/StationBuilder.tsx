@@ -60,9 +60,12 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	constructor(props: StationBuilderProps) {
 		super(props);
+
+		const packet = cloneDeep(props.data);
+		
 		let stations: Stop[] = [];
 		let platforms: Stop[] = [];
-		props.data.stops.forEach((stop: Stop) => {
+		packet.stops.forEach((stop: Stop) => {
 			if (stop.locationType === 0) {
 				platforms.push(stop);
 			}
@@ -81,7 +84,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		let minLon = 0;
 		let maxLat = 0;
 		let maxLon = 0;
-		props.data.stops.forEach((stop: Stop) => {
+		packet.stops.forEach((stop: Stop) => {
 			if (!minLat || (stop.stopLat < minLat)) {
 				minLat = stop.stopLat;
 			}
@@ -94,7 +97,9 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			if (!maxLon || (stop.stopLon > maxLon)) {
 				maxLon = stop.stopLon;
 			}
-			this.attachVehiclesInfoToStop(stop, this.props.data.vehicleBoardings);
+			if (stop.locationType === 4) { // BA
+				this.attachVehiclesInfoToStop(stop, packet.vehicleBoardings);
+			}
 		});
 		let latGap = maxLat - minLat;
 		let lonGap = maxLon - minLon;
@@ -103,7 +108,6 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 		const latK = -VisService.visSize / latGap;
 		const latX = maxLat * VisService.visSize / latGap;
 
-		const packet = cloneDeep(props.data);
 		packet.stops.forEach(stop => {
 			if (stop.layoutLat === -1 || stop.layoutLon === -1) {
 				stop.layoutLat = latK * stop.stopLat + latX;
@@ -121,7 +125,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			mapMarkers: [],
 			stations,
 			platforms,
-			levels: props.data.levels,
+			levels: packet.levels,
 			latK,
 			latX,
 			lonK,
@@ -137,7 +141,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 
 	public componentDidMount() {
 		const bounds = new google.maps.LatLngBounds();
-		this.props.data.stops.forEach((stop: Stop) => {
+		this.state.data.stops.forEach((stop: Stop) => {
 			bounds.extend({
 				lat: stop.stopLat,
 				lng: stop.stopLon
@@ -166,7 +170,7 @@ export default class StationBuilder extends Component<StationBuilderProps, Stati
 			});
 		}
 
-		this.props.data.stops.filter((stop: Stop) => {
+		this.state.data.stops.filter((stop: Stop) => {
 			return [0, 2].includes(stop.locationType);
 		}).forEach((stop: Stop) => {
 			this.state.mapMarkers.push(new google.maps.Marker({

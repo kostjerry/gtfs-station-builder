@@ -36,14 +36,14 @@ export default class VisService {
 	}
 
     static getNodeLabel(stop: Stop): string {
-        let label =  stop.stopName ?  stop.stopName + '\n' : "";
+        let label =  stop.stopName ?  stop.stopName + '\n' : '';
         if (stop.locationType === 0) { // Platform
-			label = ' #' + stop.stopId + (stop.directionName ? '. ' + stop.directionName : '') + '\n';
+			label = '#' + stop.stopId + (stop.directionName ? '. ' + stop.directionName : '');
 			if (stop.platformCode) {
-                label += 'code: "' + stop.platformCode + '"';
+                label += '\ncode: "' + stop.platformCode + '"';
             }
             if (stop.signpostedAs) {
-                label += ' sign: "' + stop.signpostedAs + '"';
+                label += '\nsign: "' + stop.signpostedAs + '"';
 			}
 			if (stop.vehiclesInfo) {
 				label += '\n' + stop.vehiclesInfo;
