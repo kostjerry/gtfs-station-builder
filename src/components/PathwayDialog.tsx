@@ -71,10 +71,14 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 	}
 
 	private handleLengthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const length: string = event.target.value.replace(",", ".").replace(/[^\d.]/i, "");
+		const length = event.target.value.replace(",", ".").replace(/[^\d.]/i, "");
+		let traversalTime = this.state.traversalTime;
+		if ([1, 2].includes(this.state.pathwayMode)) { // walkways, stairs
+			traversalTime = Math.round(Number(length) / 1.38);
+		}
 		this.setState({
 			length,
-			traversalTime: Math.round(Number(length) / 1.38)
+			traversalTime
 		});
 	}
 
