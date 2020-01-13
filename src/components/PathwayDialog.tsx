@@ -71,8 +71,10 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 	}
 
 	private handleLengthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const length: string = event.target.value.replace(",", ".").replace(/[^\d.]/i, "");
 		this.setState({
-			length: event.target.value.replace(",", ".").replace(/[^\d.]/i, "")
+			length,
+			traversalTime: Math.round(Number(length) / 1.38)
 		});
 	}
 
@@ -136,22 +138,22 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 					<div>
 						<div>
 							Location type:
-              <select value={this.state.pathwayMode} onChange={this.handlePathwayModeChange}>
+								<select value={this.state.pathwayMode} onChange={this.handlePathwayModeChange}>
 								{pathwayModeOptions}
 							</select>
 						</div>
 						<div>
 							<label>
 								Is bidirectional:
-                <input type="checkbox" checked={this.state.isBidirectional} onChange={this.handleIsBidirectionalChange} />
+								<input type="checkbox" checked={this.state.isBidirectional} onChange={this.handleIsBidirectionalChange} />
 							</label>
 						</div>
 						<div>
 							Length: <input type="text" value={this.state.length || ""} onChange={this.handleLengthChange} /> meters
-            </div>
+						</div>
 						<div>
 							Traversal time: <input type="text" value={this.state.traversalTime || ""} onChange={this.handleTraversalTimeChange} /> seconds
-            </div>
+						</div>
 						<div>
 							Stair count: <input type="text" value={this.state.stairCount || ""} onChange={this.handleStairCountChange} />
 						</div>
@@ -160,7 +162,7 @@ export default class PathwayDialog extends Component<PathwayDialogProps, Pathway
 						</div>
 						<div>
 							Min width: <input type="text" value={this.state.minWidth || ""} onChange={this.handleMinWidthChange} /> meters
-            </div>
+						</div>
 						<div>
 							Signposted as: <input type="text" value={this.state.signpostedAs || ""} onChange={this.handleSignpostedAsChange} />
 						</div>

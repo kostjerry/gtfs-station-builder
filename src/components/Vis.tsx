@@ -205,7 +205,7 @@ export default class Vis extends Component<VisProps, VisState> {
 	}
 
 	public componentDidUpdate(prevProps: VisProps, props: VisProps) {
-		if (prevProps && prevProps.station && props && props.station && (prevProps.station.stationImgUrl != props.station.stationImgUrl)) {
+		if (prevProps && prevProps.station && props && props.station && (prevProps.station.stationImgUrl !== props.station.stationImgUrl)) {
 			this.attachImage();
 		}
 	}
