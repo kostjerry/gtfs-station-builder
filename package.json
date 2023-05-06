@@ -13,7 +13,7 @@
     "@types/react-dom": "^16.8.5",
     "@types/vis": "^4.21.19",
     "file-saver": "^2.0.2",
-    "jszip": "^3.2.2",
+    "jszip": "^3.8.0",
     "lodash": "^4.17.15",
     "measuretool-googlemaps-v3": "^0.4.2",
     "node-sass": "^4.12.0",
